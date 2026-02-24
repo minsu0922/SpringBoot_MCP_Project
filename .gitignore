@@ -39,6 +39,10 @@ out/
 ### Node Files ###
 *.node
 
+### Environment Variables ###
+.env
+.env.local
+
 ### Java ###
 *.class
 *.log
