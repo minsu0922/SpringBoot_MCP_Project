@@ -3,11 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메인 페이지</title>
+    <title>교회 홈페이지</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <h1>Hello World</h1>
-    <p>메인 페이지입니다.</p>
-    <a href="/admin">관리자 페이지로 이동</a>
+    <nav>
+        <a href="/">홈</a>
+        <a href="/about/church">교회 소개</a>
+        <a href="/about/pastor">담임목사</a>
+        <a href="/about/staff">교역자 소개</a>
+        <a href="/worship/schedule">예배 안내</a>
+        <a href="/notice/list">공지사항</a>
+        <a href="/location">오시는 길</a>
+    </nav>
+
+    <header>
+        <h1>샘물교회에 오신 것을 환영합니다</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>교회 대표 사진</h2>
+            <div class="slider">
+                <div class="slider-wrapper">
+                    <div class="slide">
+                        <div style="text-align: center;">
+                            <h2>하나님의 사랑이 가득한 교회</h2>
+                            <p style="margin-top: 1rem; font-size: 1.2rem;">함께 예배하고 교제하며 성장하는 공동체</p>
+                        </div>
+                    </div>
+                    <div class="slide">
+                        <div style="text-align: center;">
+                            <h2>말씀으로 세워지는 교회</h2>
+                            <p style="margin-top: 1rem; font-size: 1.2rem;">성경 말씀을 통해 믿음의 기초를 다집니다</p>
+                        </div>
+                    </div>
+                    <div class="slide">
+                        <div style="text-align: center;">
+                            <h2>이웃을 섬기는 교회</h2>
+                            <p style="margin-top: 1rem; font-size: 1.2rem;">지역사회와 함께하는 사랑의 실천</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-nav">
+                    <span class="slider-dot active"></span>
+                    <span class="slider-dot"></span>
+                    <span class="slider-dot"></span>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>주요 메뉴</h2>
+            <div class="card-container">
+                <div class="card">
+                    <h3>교회 소개</h3>
+                    <p>우리 교회의 비전과 사명을 확인하세요</p>
+                    <a href="/about/church">자세히 보기</a>
+                </div>
+                <div class="card">
+                    <h3>예배 안내</h3>
+                    <p>예배 시간과 장소를 확인하세요</p>
+                    <a href="/worship/schedule">자세히 보기</a>
+                </div>
+                <div class="card">
+                    <h3>공지사항</h3>
+                    <p>최신 교회 소식을 확인하세요</p>
+                    <a href="/notice/list">자세히 보기</a>
+                </div>
+                <div class="card">
+                    <h3>오시는 길</h3>
+                    <p>교회 위치와 오시는 방법을 확인하세요</p>
+                    <a href="/location">자세히 보기</a>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>최근 공지사항</h2>
+            <ul>
+                <li><a href="/notice/detail?id=3">2024년 성탄절 예배 안내</a> - 2024-12-01</li>
+                <li><a href="/notice/detail?id=2">추수감사절 행사 안내</a> - 2024-11-10</li>
+                <li><a href="/notice/detail?id=1">새가족 환영합니다</a> - 2024-10-15</li>
+            </ul>
+            <a href="/notice/list" class="button">더 보기</a>
+        </section>
+
+        <section>
+            <h2>오시는 길</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                <div>
+                    <h3>샘물교회 위치</h3>
+                    <p><strong>주소:</strong> 서울특별시 강남구 테헤란로 123</p>
+                    <p><strong>전화:</strong> 02-1234-5678</p>
+                    <p><strong>이메일:</strong> info@church.com</p>
+                    <br>
+                    <h3>대중교통</h3>
+                    <ul style="list-style: disc; padding-left: 1.5rem;">
+                        <li>지하철 2호선 강남역 3번 출구 도보 5분</li>
+                        <li>버스: 146, 360, 740, 3414, 4318</li>
+                    </ul>
+                    <br>
+                    <a href="/location" class="button">상세 위치 보기</a>
+                </div>
+                <div>
+                    <!-- 지도 영역 -->
+                    <div style="width: 100%; height: 350px; background: linear-gradient(135deg, #e0e7ff 0%, #d4d4ff 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
+                        <div style="text-align: center; color: #667eea;">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <p style="margin-top: 1rem; font-size: 1rem;">지도 API 연동 예정</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>주소: 서울특별시 강남구 테헤란로 123</p>
+        <p>전화: 02-1234-5678 | 이메일: info@church.com</p>
+        <p>&copy; 2024 샘물교회. All rights reserved.</p>
+        <p><a href="/admin">관리자 페이지</a></p>
+    </footer>
+
+    <script src="/js/slider.js"></script>
 </body>
 </html>
