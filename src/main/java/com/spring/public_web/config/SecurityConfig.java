@@ -16,7 +16,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()  // 메인 화면, 로그인 페이지, 정적 리소스, H2 콘솔 허용
+                .requestMatchers("/", "/about/**", "/worship/**", "/notice/**", "/location", "/login", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()  // 일반 페이지, 정적 리소스, H2 콘솔 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지는 ADMIN 역할 필요
                 .anyRequest().permitAll()
             )
