@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * 사용자 엔티티 클래스
+ * 데이터베이스의 users 테이블과 매핑되어 사용자 정보를 관리
+ */
 @Entity
 @Table(name = "users")
 @Getter

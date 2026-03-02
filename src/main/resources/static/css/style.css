@@ -18,24 +18,43 @@ body {
 /* 네비게이션 */
 nav {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 1.2rem 0;
+    padding: 1.2rem 2rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.nav-logo {
+    position: absolute;
+    left: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
 }
 
 nav a {
     color: white;
     text-decoration: none;
-    padding: 1rem 2rem;
-    margin: 0 0.3rem;
+    padding: 0.8rem 1.5rem;
     display: inline-block;
     transition: all 0.3s ease;
     border-radius: 5px;
     font-weight: 500;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
 }
 
 nav a:hover {
@@ -349,24 +368,41 @@ img {
     header h1 {
         font-size: 1.8rem;
     }
-    
+
+    nav {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .nav-logo {
+        position: static;
+        left: auto;
+    }
+
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
     nav a {
         padding: 0.6rem 1rem;
         font-size: 0.9rem;
     }
-    
+
     .slider {
         height: 300px;
     }
-    
+
     .card-container {
         flex-direction: column;
     }
-    
+
     section {
         padding: 1.5rem;
     }
-    
+
     section h2 {
         font-size: 1.5rem;
     }
@@ -386,4 +422,56 @@ img {
 
 section {
     animation: fadeIn 0.5s ease-in-out;
+}
+
+/* 슬라이드 내부 컨텐츠 */
+.slide-content {
+    text-align: center;
+}
+
+.slide-content p {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+}
+
+/* 위치 정보 그리드 */
+.location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.location-list {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+
+/* 지도 플레이스홀더 */
+.map-placeholder {
+    width: 100%;
+    height: 350px;
+    background: linear-gradient(135deg, #e0e7ff 0%, #d4d4ff 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.map-placeholder-content {
+    text-align: center;
+    color: #667eea;
+}
+
+.map-placeholder-content p {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+/* 반응형: 위치 그리드 */
+@media (max-width: 768px) {
+    .location-grid {
+        grid-template-columns: 1fr;
+    }
 }
