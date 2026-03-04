@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${image.id == null ? '이미지 등록' : '이미지 수정'}">이미지 등록</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .preview-image {
+            max-width: 300px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+        function previewImage() {
+            var url = document.getElementById('imageUrl').value;
+            var preview = document.getElementById('preview');
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1 style="margin: 0;" th:text="${image.id == null ? '이미지 등록' : '이미지 수정'}">이미지 등록</h1>
+        <div>
+            <a href="/admin/images" class="btn btn-secondary">목록으로</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <form th:action="@{/admin/images/save}" method="post">
+            <input type="hidden" th:field="${image.id}" />
+            
+            <div class="form-group">
+                <label for="title">제목 *</label>
+                <input type="text" id="title" th:field="${image.title}" required placeholder="이미지 제목을 입력하세요" />
+            </div>
+
+            <div class="form-group">
+                <label for="description">설명</label>
+                <textarea id="description" th:field="${image.description}" placeholder="이미지 설명을 입력하세요 (선택사항)"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="imageUrl">이미지 URL *</label>
+                <input type="text" id="imageUrl" th:field="${image.imageUrl}" required 
+                       placeholder="/images/main-slide1.jpg" onchange="previewImage()" />
+                <p class="help-text">예: /images/main-slide1.jpg 또는 https://example.com/image.jpg</p>
+                <img id="preview" th:src="${image.imageUrl}" alt="미리보기" class="preview-image" 
+                     style="display: none;" onerror="this.style.display='none'" />
+            </div>
+
+            <div class="form-group">
+                <label for="displayOrder">표시 순서 *</label>
+                <input type="number" id="displayOrder" th:field="${image.displayOrder}" required 
+                       placeholder="0" min="0" />
+                <p class="help-text">숫자가 작을수록 먼저 표시됩니다</p>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="isActive" th:field="${image.isActive}" />
+                    <label for="isActive" style="margin-bottom: 0;">활성화 (메인 페이지에 표시)</label>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">저장</button>
+                <a href="/admin/images" class="btn btn-secondary">취소</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 페이지 로드 시 미리보기
+        window.onload = function() {
+            previewImage();
+        };
+    </script>
+</body>
+</html>

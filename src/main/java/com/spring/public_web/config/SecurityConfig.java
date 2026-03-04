@@ -10,7 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -75,11 +75,11 @@ public class SecurityConfig {
 
     /**
      * 비밀번호 암호화 인코더 빈 등록
-     * BCrypt 알고리즘을 사용하여 비밀번호를 안전하게 해시화
+     * 임시로 암호화 없이 평문 비밀번호 사용 (테스트용)
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        log.info("BCryptPasswordEncoder 빈 생성");
-        return new BCryptPasswordEncoder();
+        log.info("NoOpPasswordEncoder 빈 생성 (암호화 없음 - 테스트용)");
+        return NoOpPasswordEncoder.getInstance();
     }
 }
