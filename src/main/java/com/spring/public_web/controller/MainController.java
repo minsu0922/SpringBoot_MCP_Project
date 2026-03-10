@@ -1,21 +1,31 @@
 package com.spring.public_web.controller;
 
+import com.spring.public_web.service.MainImageService;
+import com.spring.public_web.service.NoticeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * 일반 사용자용 메인 컨트롤러
  * 홈, 소개, 예배안내, 공지사항, 오시는길 등 공개 페이지 라우팅 처리
  */
 @Controller
+@RequiredArgsConstructor
 public class MainController {
+
+    private final MainImageService mainImageService;
+    private final NoticeService noticeService;
 
     /**
      * 홈 페이지
-     * 웹사이트의 메인 페이지를 반환
+     * 웹사이트의 메인 페이지를 반환 (활성화된 메인 이미지 포함)
      */
     @GetMapping("/")
-    public String index() {
+    public String index(Model model) {
+        model.addAttribute("mainImages", mainImageService.getActiveImages());
         return "index";
     }
 
@@ -69,7 +79,8 @@ public class MainController {
      * 교회의 공지사항 목록을 보여주는 페이지를 반환
      */
     @GetMapping("/notice/list")
-    public String noticeList() {
+    public String noticeList(Model model) {
+        model.addAttribute("notices", noticeService.getAllNotices());
         return "notice/list";
     }
 
@@ -77,8 +88,9 @@ public class MainController {
      * 공지사항 상세 페이지
      * 선택한 공지사항의 상세 내용을 보여주는 페이지를 반환
      */
-    @GetMapping("/notice/detail")
-    public String noticeDetail() {
+    @GetMapping("/notice/detail/{id}")
+    public String noticeDetail(@PathVariable Long id, Model model) {
+        model.addAttribute("notice", noticeService.getNoticeById(id));
         return "notice/detail";
     }
 

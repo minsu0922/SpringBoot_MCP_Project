@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 교회 웹사이트 애플리케이션의 진입점으로 애플리케이션을 시작
  */
 @SpringBootApplication
+
 public class PublicWebApplication {
 
     /**

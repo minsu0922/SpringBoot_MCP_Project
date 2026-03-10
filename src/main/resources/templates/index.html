@@ -138,6 +138,45 @@
         <p><a href="/admin">관리자 페이지</a></p>
     </footer>
 
+    <!-- 팝업 오버레이 -->
+    <div class="popup-overlay" id="popupOverlay"></div>
+
+    <!-- 팝업 컨테이너 -->
+    <div class="popup-container" id="popupContainer">
+        <div class="popup-header">
+            <h3>교회 공지사항</h3>
+            <button class="popup-close" id="popupClose">&times;</button>
+        </div>
+        <div class="popup-body">
+            <div class="popup-image">
+                <div class="popup-image-placeholder">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <p>교회 이미지</p>
+                </div>
+            </div>
+            <div class="popup-content">
+                <h4>🎉 2026년 부활절 예배 안내</h4>
+                <p>사랑하는 교우 여러분, 주님의 부활을 기념하는 부활절 예배에 초대합니다.</p>
+                <ul>
+                    <li><strong>일시:</strong> 2026년 4월 5일 (주일) 오전 10시</li>
+                    <li><strong>장소:</strong> 샘물교회 본당</li>
+                    <li><strong>특별순서:</strong> 합창단 특송, 세례식</li>
+                </ul>
+                <p>많은 참여 부탁드립니다. 주님의 은혜가 함께 하시길 기도합니다.</p>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="popup-checkbox">
+                <input type="checkbox" id="hideForDay">
+                <label for="hideForDay">하루 동안 보지 않기</label>
+            </div>
+            <button class="popup-button" id="popupConfirm">확인</button>
+        </div>
+    </div>
+
     <script src="/js/slider.js"></script>
+    <script src="/js/popup.js"></script>
 </body>
 </html>
