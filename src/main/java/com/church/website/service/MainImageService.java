@@ -1,7 +1,7 @@
-package com.spring.public_web.service;
+package com.church.website.service;
 
-import com.spring.public_web.entity.MainImage;
-import com.spring.public_web.repository.MainImageRepository;
+import com.church.website.entity.MainImage;
+import com.church.website.repository.MainImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

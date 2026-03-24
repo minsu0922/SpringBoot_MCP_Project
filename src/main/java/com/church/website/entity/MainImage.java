@@ -1,4 +1,4 @@
-package com.spring.public_web.entity;
+package com.church.website.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,29 +9,35 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * 공지사항 엔티티
- * 교회 공지사항 정보를 관리
+ * 메인화면 이미지 엔티티
+ * 메인 페이지에 표시되는 이미지 정보를 관리
  */
 @Entity
-@Table(name = "notice")
+@Table(name = "main_image")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notice {
+public class MainImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 100)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    @Column(length = 500)
+    private String description;
+
+    @Column(nullable = false, length = 500)
+    private String imageUrl;
 
     @Column(nullable = false)
-    private String author;
+    private Integer displayOrder = 0;
+
+    @Column(nullable = false)
+    private Boolean isActive = true;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -39,14 +45,14 @@ public class Notice {
     @Column
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    private Integer viewCount = 0;
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (viewCount == null) {
-            viewCount = 0;
+        if (displayOrder == null) {
+            displayOrder = 0;
+        }
+        if (isActive == null) {
+            isActive = true;
         }
     }
 

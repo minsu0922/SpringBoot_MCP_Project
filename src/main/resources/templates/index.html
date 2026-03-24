@@ -90,11 +90,13 @@
 
         <section>
             <h2>최근 공지사항</h2>
-            <ul>
-                <li><a href="/notice/detail?id=3">2024년 성탄절 예배 안내</a> - 2024-12-01</li>
-                <li><a href="/notice/detail?id=2">추수감사절 행사 안내</a> - 2024-11-10</li>
-                <li><a href="/notice/detail?id=1">새가족 환영합니다</a> - 2024-10-15</li>
+            <ul th:if="${not #lists.isEmpty(recentNotices)}">
+                <li th:each="notice : ${recentNotices}">
+                    <a th:href="@{/notice/detail/{id}(id=${notice.id})}" th:text="${notice.title}">공지사항 제목</a>
+                    - <span th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">날짜</span>
+                </li>
             </ul>
+            <p th:if="${#lists.isEmpty(recentNotices)}">등록된 공지사항이 없습니다.</p>
             <a href="/notice/list" class="button">더 보기</a>
         </section>
 
@@ -138,43 +140,36 @@
         <p><a href="/admin">관리자 페이지</a></p>
     </footer>
 
-    <!-- 팝업 오버레이 -->
-    <div class="popup-overlay" id="popupOverlay"></div>
+    <!-- 팝업 (팝업 공지사항이 있을 때만 노출) -->
+    <th:block th:if="${not #lists.isEmpty(popupNotices)}">
+        <th:block th:with="popup=${popupNotices[0]}">
 
-    <!-- 팝업 컨테이너 -->
-    <div class="popup-container" id="popupContainer">
-        <div class="popup-header">
-            <h3>교회 공지사항</h3>
-            <button class="popup-close" id="popupClose">&times;</button>
-        </div>
-        <div class="popup-body">
-            <div class="popup-image">
-                <div class="popup-image-placeholder">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                    <p>교회 이미지</p>
+            <!-- 팝업 오버레이 -->
+            <div class="popup-overlay" id="popupOverlay"></div>
+
+            <!-- 팝업 컨테이너 -->
+            <div class="popup-container" id="popupContainer">
+                <div class="popup-header">
+                    <h3>교회 공지사항</h3>
+                    <button class="popup-close" id="popupClose">&times;</button>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-content" style="padding: 10px;">
+                        <h4 th:text="${popup.title}">공지사항 제목</h4>
+                        <p th:text="${popup.content}">공지사항 내용</p>
+                    </div>
+                </div>
+                <div class="popup-footer">
+                    <div class="popup-checkbox">
+                        <input type="checkbox" id="hideForDay">
+                        <label for="hideForDay">하루 동안 보지 않기</label>
+                    </div>
+                    <button class="popup-button" id="popupConfirm">확인</button>
                 </div>
             </div>
-            <div class="popup-content">
-                <h4>🎉 2026년 부활절 예배 안내</h4>
-                <p>사랑하는 교우 여러분, 주님의 부활을 기념하는 부활절 예배에 초대합니다.</p>
-                <ul>
-                    <li><strong>일시:</strong> 2026년 4월 5일 (주일) 오전 10시</li>
-                    <li><strong>장소:</strong> 샘물교회 본당</li>
-                    <li><strong>특별순서:</strong> 합창단 특송, 세례식</li>
-                </ul>
-                <p>많은 참여 부탁드립니다. 주님의 은혜가 함께 하시길 기도합니다.</p>
-            </div>
-        </div>
-        <div class="popup-footer">
-            <div class="popup-checkbox">
-                <input type="checkbox" id="hideForDay">
-                <label for="hideForDay">하루 동안 보지 않기</label>
-            </div>
-            <button class="popup-button" id="popupConfirm">확인</button>
-        </div>
-    </div>
+
+        </th:block>
+    </th:block>
 
     <script src="/js/slider.js"></script>
     <script src="/js/popup.js"></script>

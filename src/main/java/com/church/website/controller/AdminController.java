@@ -1,16 +1,19 @@
-package com.spring.public_web.controller;
+package com.church.website.controller;
 
-import com.spring.public_web.entity.MainImage;
-import com.spring.public_web.entity.Notice;
-import com.spring.public_web.service.MainImageService;
-import com.spring.public_web.service.NoticeService;
+import com.church.website.entity.MainImage;
+import com.church.website.entity.Notice;
+import com.church.website.service.MainImageService;
+import com.church.website.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDateTime;
 
 /**
  * 관리자 페이지 컨트롤러
@@ -66,15 +69,21 @@ public class AdminController {
      * 공지사항 등록/수정 처리
      */
     @PostMapping("/notices/save")
-    public String noticeSave(@ModelAttribute Notice notice, Authentication auth, RedirectAttributes redirectAttributes) {
+    public String noticeSave(
+            @ModelAttribute Notice notice,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime popupStartDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime popupEndDate,
+            Authentication auth,
+            RedirectAttributes redirectAttributes) {
         try {
+            notice.setPopupStartDate(popupStartDate);
+            notice.setPopupEndDate(popupEndDate);
+
             if (notice.getId() == null) {
-                // 신규 등록
                 notice.setAuthor(auth.getName());
                 noticeService.createNotice(notice);
                 redirectAttributes.addFlashAttribute("message", "공지사항이 등록되었습니다.");
             } else {
-                // 수정
                 noticeService.updateNotice(notice.getId(), notice);
                 redirectAttributes.addFlashAttribute("message", "공지사항이 수정되었습니다.");
             }

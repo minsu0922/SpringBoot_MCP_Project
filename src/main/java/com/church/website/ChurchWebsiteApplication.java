@@ -1,4 +1,4 @@
-package com.spring.public_web;
+package com.church.website;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,14 +9,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 
-public class PublicWebApplication {
+public class ChurchWebsiteApplication {
 
     /**
      * 애플리케이션 시작 메서드
      * Spring Boot 애플리케이션을 실행하고 웹 서버를 구동
      */
     public static void main(String[] args) {
-        SpringApplication.run(PublicWebApplication.class, args);
+        SpringApplication.run(ChurchWebsiteApplication.class, args);
     }
 
 }

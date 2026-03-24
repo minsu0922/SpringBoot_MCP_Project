@@ -1,4 +1,4 @@
-package com.spring.public_web.entity;
+package com.church.website.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
