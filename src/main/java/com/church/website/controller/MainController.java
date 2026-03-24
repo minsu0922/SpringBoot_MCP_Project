@@ -1,7 +1,7 @@
-package com.spring.public_web.controller;
+package com.church.website.controller;
 
-import com.spring.public_web.service.MainImageService;
-import com.spring.public_web.service.NoticeService;
+import com.church.website.service.MainImageService;
+import com.church.website.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +26,8 @@ public class MainController {
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("mainImages", mainImageService.getActiveImages());
+        model.addAttribute("recentNotices", noticeService.getRecentNotices());
+        model.addAttribute("popupNotices", noticeService.getActivePopups());
         return "index";
     }
 

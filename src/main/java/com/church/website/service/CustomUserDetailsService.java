@@ -1,7 +1,7 @@
-package com.spring.public_web.service;
+package com.church.website.service;
 
-import com.spring.public_web.entity.User;
-import com.spring.public_web.repository.UserRepository;
+import com.church.website.entity.User;
+import com.church.website.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,4 +1,4 @@
-package com.spring.public_web.entity;
+package com.church.website.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,32 +9,53 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * 메인화면 이미지 엔티티
- * 메인 페이지에 표시되는 이미지 정보를 관리
+ * 교회 위치 정보 엔티티
+ * 교회의 주소, 연락처, 교통편 정보를 관리
  */
 @Entity
-@Table(name = "main_image")
+@Table(name = "location")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MainImage {
+public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String title;
+    private String churchName;
 
-    @Column(length = 500)
-    private String description;
-
-    @Column(nullable = false, length = 500)
-    private String imageUrl;
+    @Column(nullable = false, length = 200)
+    private String address;
 
     @Column(nullable = false)
-    private Integer displayOrder = 0;
+    private Double latitude;
+
+    @Column(nullable = false)
+    private Double longitude;
+
+    @Column(length = 20)
+    private String phone;
+
+    @Column(length = 20)
+    private String fax;
+
+    @Column(length = 100)
+    private String email;
+
+    @Column(columnDefinition = "TEXT")
+    private String subwayInfo;
+
+    @Column(columnDefinition = "TEXT")
+    private String busInfo;
+
+    @Column(columnDefinition = "TEXT")
+    private String carInfo;
+
+    @Column(columnDefinition = "TEXT")
+    private String parkingInfo;
 
     @Column(nullable = false)
     private Boolean isActive = true;
@@ -48,9 +69,6 @@ public class MainImage {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (displayOrder == null) {
-            displayOrder = 0;
-        }
         if (isActive == null) {
             isActive = true;
         }

@@ -1,6 +1,6 @@
-package com.spring.public_web.repository;
+package com.church.website.repository;
 
-import com.spring.public_web.entity.User;
+import com.church.website.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

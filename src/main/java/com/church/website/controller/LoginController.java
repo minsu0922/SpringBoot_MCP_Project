@@ -1,4 +1,4 @@
-package com.spring.public_web.controller;
+package com.church.website.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
