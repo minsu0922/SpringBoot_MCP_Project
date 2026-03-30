@@ -3,99 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 로그인</title>
+    <title>관리자 로그인 - 샘물교회</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --navy: #0D2B55;
+            --navy-mid: #185FA5;
+            --sky: #B5D4F4;
+            --sky-pale: #E6F1FB;
+            --gold: #C9A84C;
+            --gold-light: #E8D5A0;
+            --white: #FAFBFD;
+            --text-dark: #0A1F3D;
+            --text-mid: #3A5278;
+            --text-muted: #7A96B8;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            justify-content: center;
+            background: linear-gradient(160deg, #0A1F3D 0%, #0D2B55 55%, #143d70 100%);
+            position: relative;
+            overflow: hidden;
         }
-        .login-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 300px;
+
+        /* 배경 격자 패턴 */
+        body::before {
+            content: ''; position: absolute; inset: 0; opacity: 0.04;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(181,212,244,1) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(181,212,244,1) 40px);
+            pointer-events: none;
         }
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
+
+        /* 배경 원형 장식 */
+        body::after {
+            content: ''; position: absolute;
+            width: 600px; height: 600px; border-radius: 50%;
+            border: 1px solid rgba(181,212,244,0.07);
+            top: 50%; left: 50%; transform: translate(-20%, -50%);
+            pointer-events: none;
         }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .error {
-            color: red;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .home-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .home-link a {
-            color: #007bff;
+
+        /* 로고 영역 */
+        .login-logo {
+            position: relative; z-index: 1;
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 32px;
             text-decoration: none;
         }
-        .home-link a:hover {
-            text-decoration: underline;
+        .login-cross {
+            width: 24px; height: 24px; position: relative;
+        }
+        .login-cross::before {
+            content: ''; position: absolute;
+            background: var(--gold); top: 0; left: 50%; transform: translateX(-50%);
+            width: 3px; height: 100%; border-radius: 2px;
+        }
+        .login-cross::after {
+            content: ''; position: absolute;
+            background: var(--gold); top: 38%; left: 0;
+            width: 100%; height: 3px; border-radius: 2px;
+        }
+        .login-logo-text {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 18px; font-weight: 400;
+            color: var(--white); letter-spacing: 0.06em;
+        }
+        .login-logo-sub {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px; font-weight: 300; font-style: italic;
+            color: rgba(181,212,244,0.6);
+            display: block; letter-spacing: 0.04em;
+        }
+
+        /* 카드 */
+        .login-card {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 380px;
+            background: var(--white);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(181,212,244,0.15);
+            box-shadow: 0 24px 80px rgba(8,20,48,0.4);
+        }
+
+        /* 카드 상단 골드 라인 */
+        .login-card-top {
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light), transparent);
+        }
+
+        .login-card-header {
+            background: var(--navy);
+            padding: 24px 32px 20px;
+            border-bottom: 1px solid rgba(181,212,244,0.1);
+        }
+        .login-card-header p {
+            font-size: 10px; letter-spacing: 0.2em; font-weight: 300;
+            color: rgba(181,212,244,0.5); margin-bottom: 6px;
+        }
+        .login-card-header h2 {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 20px; font-weight: 300;
+            color: var(--white); letter-spacing: 0.02em;
+        }
+
+        .login-card-body { padding: 28px 32px 32px; }
+
+        /* 알림 */
+        .login-alert {
+            padding: 12px 14px;
+            border-radius: 4px;
+            font-size: 13px; font-weight: 300;
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .login-alert-error {
+            background: #FEF0EF;
+            color: #A32D2D;
+            border: 1px solid rgba(163,45,45,0.2);
+        }
+        .login-alert-success {
+            background: var(--sky-pale);
+            color: var(--navy-mid);
+            border: 1px solid rgba(24,95,165,0.2);
+        }
+
+        /* 폼 그룹 */
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-size: 12px; font-weight: 400; letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 7px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid rgba(24,95,165,0.2);
+            border-radius: 3px;
+            font-size: 14px; font-weight: 300;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--text-dark);
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+        }
+        .form-group input::placeholder { color: var(--text-muted); font-weight: 300; }
+
+        /* 로그인 버튼 */
+        .login-btn {
+            width: 100%; margin-top: 8px;
+            padding: 13px;
+            background: var(--navy); color: var(--white);
+            border: none; border-radius: 3px;
+            font-size: 14px; font-weight: 400; letter-spacing: 0.06em;
+            font-family: 'Noto Sans KR', sans-serif;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .login-btn:hover { background: var(--navy-mid); }
+
+        /* 하단 링크 */
+        .login-footer {
+            margin-top: 24px; text-align: center;
+        }
+        .login-footer a {
+            font-size: 13px; font-weight: 300;
+            color: rgba(181,212,244,0.55);
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .login-footer a:hover { color: var(--gold-light); }
+        .login-footer a::before {
+            content: '←'; font-size: 11px;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>관리자 로그인</h2>
-        <div th:if="${param.error}" class="error">
-            아이디 또는 비밀번호가 올바르지 않습니다.
+
+    <a href="/" class="login-logo">
+        <div class="login-cross"></div>
+        <div>
+            <span class="login-logo-text">샘물교회</span>
+            <span class="login-logo-sub">Saemmul Church</span>
         </div>
-        <div th:if="${param.logout}" class="error" style="color: green;">
-            로그아웃 되었습니다.
+    </a>
+
+    <div class="login-card">
+        <div class="login-card-top"></div>
+        <div class="login-card-header">
+            <p>ADMIN</p>
+            <h2>관리자 로그인</h2>
         </div>
-        <form th:action="@{/login}" method="post">
-            <div class="form-group">
-                <label for="username">아이디</label>
-                <input type="text" id="username" name="username" required autofocus>
+        <div class="login-card-body">
+
+            <div th:if="${param.error}" class="login-alert login-alert-error">
+                아이디 또는 비밀번호가 올바르지 않습니다.
             </div>
-            <div class="form-group">
-                <label for="password">비밀번호</label>
-                <input type="password" id="password" name="password" required>
+            <div th:if="${param.logout}" class="login-alert login-alert-success">
+                로그아웃 되었습니다.
             </div>
-            <button type="submit">로그인</button>
-        </form>
-        <div class="home-link">
-            <a href="/">메인 페이지로 돌아가기</a>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">아이디</label>
+                    <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+                </div>
+                <button type="submit" class="login-btn">로그인</button>
+            </form>
+
         </div>
     </div>
+
+    <div class="login-footer">
+        <a href="/">메인 페이지로 돌아가기</a>
+    </div>
+
 </body>
 </html>
