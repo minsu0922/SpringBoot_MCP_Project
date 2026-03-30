@@ -1,177 +1,517 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>교회 홈페이지</title>
+    <title>샘물교회</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy: #0D2B55;
+            --navy-mid: #185FA5;
+            --navy-light: #2778C4;
+            --sky: #B5D4F4;
+            --sky-pale: #E6F1FB;
+            --gold: #C9A84C;
+            --gold-light: #E8D5A0;
+            --white: #FAFBFD;
+            --text-dark: #0A1F3D;
+            --text-mid: #3A5278;
+            --text-muted: #7A96B8;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--navy);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            padding-top: 72px;
+        }
+
+        /* NAV */
+        .main-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 60px; height: 72px;
+            background: rgba(13,43,85,0.97);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(181,212,244,0.12);
+        }
+        .main-nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .main-nav-cross { width: 22px; height: 22px; position: relative; }
+        .main-nav-cross::before { content: ''; position: absolute; background: var(--gold); top: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 100%; border-radius: 2px; }
+        .main-nav-cross::after { content: ''; position: absolute; background: var(--gold); top: 38%; left: 0; width: 100%; height: 3px; border-radius: 2px; }
+        .main-nav-logo span { font-family: 'Noto Serif KR', serif; font-size: 17px; font-weight: 400; color: var(--white); letter-spacing: 0.05em; }
+        .main-nav-links { display: flex; gap: 32px; list-style: none; }
+        .main-nav-links a { font-size: 13px; font-weight: 300; letter-spacing: 0.06em; color: rgba(250,251,253,0.72); text-decoration: none; transition: color 0.2s; }
+        .main-nav-links a:hover { color: var(--gold-light); }
+        .main-nav-cta { padding: 8px 20px; border: 1px solid var(--gold); border-radius: 2px; font-size: 12px; letter-spacing: 0.1em; color: var(--gold); text-decoration: none; transition: all 0.2s; }
+        .main-nav-cta:hover { background: var(--gold); color: var(--navy); }
+
+        /* HERO */
+        .main-hero { height: 100vh; margin-top: -72px; position: relative; display: flex; align-items: center; overflow: hidden; }
+        .main-hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(24,95,165,0.35) 0%, transparent 70%), linear-gradient(160deg, #0A1F3D 0%, #0D2B55 45%, #0f3568 100%); }
+        .main-hero-pattern { position: absolute; inset: 0; opacity: 0.04; background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(181,212,244,1) 60px), repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(181,212,244,1) 60px); }
+        .main-hero-circle { position: absolute; right: -80px; top: 50%; transform: translateY(-50%); width: 600px; height: 600px; border-radius: 50%; border: 1px solid rgba(181,212,244,0.08); }
+        .main-hero-circle::after { content: ''; position: absolute; inset: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(24,95,165,0.25) 0%, transparent 70%); }
+        .main-hero-content { position: relative; z-index: 2; padding: 0 80px; max-width: 700px; animation: mainFadeUp 1s ease both; }
+        @keyframes mainFadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .main-hero-label { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: 0.2em; font-weight: 300; color: var(--gold-light); margin-bottom: 28px; }
+        .main-hero-label::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
+        .main-hero-title { font-family: 'Noto Serif KR', serif; font-size: clamp(36px, 5vw, 60px); font-weight: 300; line-height: 1.3; color: var(--white); margin-bottom: 6px; }
+        .main-hero-title em { font-style: normal; color: var(--sky); }
+        .main-hero-sub { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; font-style: italic; color: var(--gold-light); margin-bottom: 24px; }
+        .main-hero-desc { font-size: 14px; font-weight: 300; line-height: 1.9; color: rgba(181,212,244,0.8); max-width: 460px; margin-bottom: 44px; }
+        .main-hero-actions { display: flex; align-items: center; gap: 20px; }
+        .main-btn-primary { padding: 14px 36px; background: var(--gold); color: var(--navy); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; border: none; border-radius: 2px; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; }
+        .main-btn-primary:hover { background: var(--gold-light); }
+        .main-btn-ghost { font-size: 13px; font-weight: 300; letter-spacing: 0.08em; color: rgba(250,251,253,0.7); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.2s; }
+        .main-btn-ghost:hover { color: var(--white); }
+        .main-arrow { width: 20px; height: 1px; background: currentColor; position: relative; display: inline-block; }
+        .main-arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 6px; height: 6px; border-right: 1px solid currentColor; border-top: 1px solid currentColor; transform: rotate(45deg); }
+        .main-hero-scroll { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(181,212,244,0.4); font-size: 10px; letter-spacing: 0.15em; animation: mainBounce 2s infinite; }
+        .main-hero-scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(181,212,244,0.4), transparent); }
+        @keyframes mainBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+        /* SECTION COMMON */
+        .main-section { padding: 100px 80px; }
+        .main-section-label { font-size: 10px; letter-spacing: 0.25em; font-weight: 400; color: var(--navy-mid); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .main-section-label::after { content: ''; display: block; width: 24px; height: 1px; background: var(--navy-mid); }
+        .main-section-title { font-family: 'Noto Serif KR', serif; font-size: clamp(24px, 3vw, 36px); font-weight: 300; line-height: 1.4; color: var(--text-dark); margin-bottom: 16px; }
+        .main-section-desc { font-size: 14px; font-weight: 300; line-height: 1.9; color: var(--text-mid); max-width: 520px; }
+
+        /* WORSHIP */
+        .main-worship { background: var(--sky-pale); border-top: 1px solid rgba(24,95,165,0.1); border-bottom: 1px solid rgba(24,95,165,0.1); }
+        .main-worship-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1100px; margin: 0 auto; }
+        .main-worship-cards { display: flex; flex-direction: column; gap: 16px; }
+        .main-worship-card { background: var(--white); border: 1px solid rgba(24,95,165,0.1); border-radius: 4px; padding: 22px 26px; display: flex; align-items: center; gap: 18px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .main-worship-card:hover { border-color: var(--navy-mid); box-shadow: 0 4px 20px rgba(13,43,85,0.08); }
+        .main-worship-icon { width: 42px; height: 42px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+        .main-worship-card h3 { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 3px; }
+        .main-worship-card p { font-size: 13px; font-weight: 300; color: var(--text-mid); line-height: 1.5; }
+        .main-worship-time { margin-left: auto; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--navy-mid); white-space: nowrap; }
+
+        /* VERSE */
+        .main-verse { background: var(--navy); text-align: center; padding: 80px; position: relative; overflow: hidden; }
+        .main-verse::before { content: '\201C'; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-family: 'Cormorant Garamond', serif; font-size: 220px; font-weight: 300; color: rgba(181,212,244,0.05); line-height: 1; pointer-events: none; }
+        .main-verse-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(20px, 3vw, 34px); font-weight: 300; font-style: italic; color: var(--white); line-height: 1.6; max-width: 700px; margin: 0 auto 20px; }
+        .main-verse-ref { font-size: 13px; font-weight: 300; letter-spacing: 0.12em; color: var(--gold-light); }
+
+        /* MINISTRY GRID */
+        .main-ministry-wrap { padding: 100px 80px; background: var(--white); }
+        .main-ministry-inner { max-width: 1100px; margin: 0 auto; }
+        .main-ministry-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; }
+        .main-ministry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+        .main-ministry-item { position: relative; overflow: hidden; aspect-ratio: 3/4; background: var(--navy); cursor: pointer; }
+        .main-ministry-item:first-child { aspect-ratio: auto; grid-row: span 2; }
+        .main-ministry-bg { position: absolute; inset: 0; transition: transform 0.5s ease; }
+        .main-ministry-item:nth-child(1) .main-ministry-bg { background: linear-gradient(160deg, #0D3570 0%, #185FA5 100%); }
+        .main-ministry-item:nth-child(2) .main-ministry-bg { background: linear-gradient(160deg, #0A2748 0%, #0D3570 100%); }
+        .main-ministry-item:nth-child(3) .main-ministry-bg { background: linear-gradient(160deg, #062040 0%, #0A2748 100%); }
+        .main-ministry-item:nth-child(4) .main-ministry-bg { background: linear-gradient(160deg, #0D3570 0%, #1060A0 100%); }
+        .main-ministry-item:nth-child(5) .main-ministry-bg { background: linear-gradient(160deg, #0A2748 0%, #0D3570 100%); }
+        .main-ministry-item:hover .main-ministry-bg { transform: scale(1.04); }
+        .main-ministry-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,20,40,0.9) 0%, transparent 60%); }
+        .main-ministry-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 26px; }
+        .main-ministry-tag { display: inline-block; margin-bottom: 8px; padding: 3px 10px; border: 1px solid rgba(201,168,76,0.5); border-radius: 20px; font-size: 10px; letter-spacing: 0.1em; color: var(--gold-light); }
+        .main-ministry-content h3 { font-family: 'Noto Serif KR', serif; font-size: 17px; font-weight: 400; color: var(--white); margin-bottom: 5px; }
+        .main-ministry-content p { font-size: 12px; font-weight: 300; line-height: 1.7; color: rgba(181,212,244,0.75); }
+
+        /* NEWS */
+        .main-news { background: #F4F7FC; border-top: 1px solid rgba(24,95,165,0.08); padding: 100px 80px; }
+        .main-news-inner { max-width: 1100px; margin: 0 auto; }
+        .main-news-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 44px; }
+        .main-news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .main-news-card { background: var(--white); border: 1px solid rgba(24,95,165,0.08); border-radius: 4px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
+        .main-news-card:hover { border-color: var(--navy-mid); transform: translateY(-4px); }
+        .main-news-thumb { height: 150px; position: relative; overflow: hidden; }
+        .main-news-thumb-bg { position: absolute; inset: 0; transition: transform 0.4s; }
+        .main-news-card:hover .main-news-thumb-bg { transform: scale(1.05); }
+        .main-news-card:nth-child(1) .main-news-thumb-bg { background: linear-gradient(135deg, #0D2B55, #185FA5); }
+        .main-news-card:nth-child(2) .main-news-thumb-bg { background: linear-gradient(135deg, #185FA5, #2778C4); }
+        .main-news-card:nth-child(3) .main-news-thumb-bg { background: linear-gradient(135deg, #0D3570, #0D2B55); }
+        .main-news-badge { position: absolute; bottom: 12px; left: 12px; padding: 3px 10px; border-radius: 2px; background: rgba(201,168,76,0.9); font-size: 10px; letter-spacing: 0.1em; font-weight: 500; color: var(--navy); }
+        .main-news-body { padding: 18px 20px; }
+        .main-news-date { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 8px; }
+        .main-news-body h3 { font-family: 'Noto Serif KR', serif; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--text-dark); margin-bottom: 8px; }
+        .main-news-body p { font-size: 12px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
+
+        /* LOCATION */
+        .main-location { background: var(--white); padding: 100px 80px; }
+        .main-location-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: center; }
+        .main-location-map { height: 300px; border-radius: 4px; background: linear-gradient(135deg, #0D2B55 0%, #185FA5 100%); display: flex; align-items: center; justify-content: center; color: rgba(181,212,244,0.5); font-size: 13px; letter-spacing: 0.1em; position: relative; overflow: hidden; border: 1px solid rgba(24,95,165,0.15); }
+        .main-location-map::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px), repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px); }
+        .main-map-pin { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .main-map-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 6px rgba(201,168,76,0.2); }
+        .main-location-title { font-family: 'Noto Serif KR', serif; font-size: 22px; font-weight: 300; margin-bottom: 24px; color: var(--text-dark); }
+        .main-location-rows { display: flex; flex-direction: column; gap: 0; }
+        .main-location-row { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(24,95,165,0.07); }
+        .main-location-row:last-child { border-bottom: none; }
+        .main-location-lbl { font-size: 11px; letter-spacing: 0.1em; color: var(--navy-mid); min-width: 58px; padding-top: 1px; }
+        .main-location-val { font-size: 13px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
+
+        /* CTA BANNER */
+        .main-cta { background: var(--navy); padding: 80px; display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+        .main-cta-title { font-family: 'Noto Serif KR', serif; font-size: 30px; font-weight: 300; color: var(--white); line-height: 1.4; margin-bottom: 10px; }
+        .main-cta-desc { font-size: 14px; font-weight: 300; color: rgba(181,212,244,0.7); }
+
+        /* FOOTER */
+        .main-footer { background: #070F1E; padding: 60px 80px 40px; }
+        .main-footer-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 48px; padding-bottom: 48px; border-bottom: 1px solid rgba(181,212,244,0.08); }
+        .main-footer-brand-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .main-footer-brand-logo span { font-family: 'Noto Serif KR', serif; font-size: 15px; color: var(--white); font-weight: 300; letter-spacing: 0.05em; }
+        .main-footer-brand p { font-size: 13px; font-weight: 300; line-height: 1.8; color: rgba(181,212,244,0.45); }
+        .main-footer-col h4 { font-size: 11px; letter-spacing: 0.15em; color: rgba(181,212,244,0.35); margin-bottom: 16px; }
+        .main-footer-col ul { list-style: none; padding: 0; }
+        .main-footer-col ul li { margin-bottom: 10px; border: none; }
+        .main-footer-col ul li a { font-size: 13px; font-weight: 300; color: rgba(250,251,253,0.55); text-decoration: none; transition: color 0.2s; }
+        .main-footer-col ul li a:hover { color: var(--gold-light); }
+        .main-footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .main-footer-bottom p { font-size: 12px; color: rgba(181,212,244,0.22); }
+        .main-footer-socials { display: flex; gap: 12px; }
+        .main-footer-socials a { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(181,212,244,0.15); display: flex; align-items: center; justify-content: center; color: rgba(181,212,244,0.4); font-size: 11px; text-decoration: none; transition: all 0.2s; }
+        .main-footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* NOTICE LIST IN NEWS SECTION */
+        .main-notice-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(24,95,165,0.08); }
+        .main-notice-item:last-child { border-bottom: none; }
+        .main-notice-item a { font-size: 14px; font-weight: 300; color: var(--text-dark); text-decoration: none; transition: color 0.2s; }
+        .main-notice-item a:hover { color: var(--navy-mid); }
+        .main-notice-date { font-size: 12px; color: var(--text-muted); }
+
+        /* GHOST BTN for light bg */
+        .main-btn-ghost-dark { font-size: 13px; font-weight: 300; letter-spacing: 0.08em; color: var(--navy-mid); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.2s; }
+        .main-btn-ghost-dark:hover { color: var(--navy); }
+
+        @media (max-width: 900px) {
+            .main-nav { padding: 0 24px; }
+            .main-nav-links { display: none; }
+            .main-hero-content { padding: 0 32px; }
+            .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-location, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
+            .main-worship-inner { grid-template-columns: 1fr; gap: 40px; }
+            .main-ministry-grid { grid-template-columns: 1fr 1fr; }
+            .main-ministry-item:first-child { grid-row: span 1; aspect-ratio: 3/4; }
+            .main-news-grid { grid-template-columns: 1fr; }
+            .main-location-inner { grid-template-columns: 1fr; }
+            .main-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+            .main-cta { flex-direction: column; text-align: center; }
+        }
+    </style>
 </head>
 <body>
-    <nav>
-        <div class="nav-logo">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="2" x2="12" y2="22"></line>
-                <line x1="5" y1="9" x2="19" y2="9"></line>
-            </svg>
-            <span>샘물교회</span>
-        </div>
-        <div class="nav-menu">
-            <a href="/">홈</a>
-            <a href="/about/church">교회 소개</a>
-            <a href="/about/pastor">담임목사</a>
-            <a href="/about/staff">교역자 소개</a>
-            <a href="/worship/schedule">예배 안내</a>
-            <a href="/notice/list">공지사항</a>
-            <a href="/location">오시는 길</a>
-        </div>
-    </nav>
 
-    <header>
-        <h1>샘물교회에 오신 것을 환영합니다</h1>
-    </header>
+<!-- NAV -->
+<nav class="main-nav">
+    <a href="/" class="main-nav-logo">
+        <div class="main-nav-cross"></div>
+        <span>샘물교회</span>
+    </a>
+    <ul class="main-nav-links">
+        <li><a href="/about/church">교회소개</a></li>
+        <li><a href="/about/pastor">담임목사</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+    </ul>
+    <a href="/notice/list" class="main-nav-cta">새가족 안내</a>
+</nav>
 
-    <main>
-        <section>
-            <h2>교회 대표 사진</h2>
-            <div class="slider">
-                <div class="slider-wrapper">
-                    <div class="slide">
-                        <div class="slide-content">
-                            <h2>하나님의 사랑이 가득한 교회</h2>
-                            <p>함께 예배하고 교제하며 성장하는 공동체</p>
-                        </div>
-                    </div>
-                    <div class="slide">
-                        <div class="slide-content">
-                            <h2>말씀으로 세워지는 교회</h2>
-                            <p>성경 말씀을 통해 믿음의 기초를 다집니다</p>
-                        </div>
-                    </div>
-                    <div class="slide">
-                        <div class="slide-content">
-                            <h2>이웃을 섬기는 교회</h2>
-                            <p>지역사회와 함께하는 사랑의 실천</p>
-                        </div>
-                    </div>
+<!-- HERO -->
+<section class="main-hero">
+    <div class="main-hero-bg"></div>
+    <div class="main-hero-pattern"></div>
+    <div class="main-hero-circle"></div>
+    <div class="main-hero-content">
+        <div class="main-hero-label">샘물교회</div>
+        <h1 class="main-hero-title">
+            주님의 사랑으로<br>
+            <em>하나되는 공동체</em>
+        </h1>
+        <p class="main-hero-sub">United in His Grace</p>
+        <p class="main-hero-desc">
+            말씀과 기도 위에 세워진 샘물교회는<br>
+            모든 이를 따뜻하게 맞이합니다.
+        </p>
+        <div class="main-hero-actions">
+            <a href="/worship/schedule" class="main-btn-primary">예배 참석하기</a>
+            <a href="/about/church" class="main-btn-ghost">
+                교회 소개
+                <span class="main-arrow"></span>
+            </a>
+        </div>
+    </div>
+    <div class="main-hero-scroll">
+        <div class="main-hero-scroll-line"></div>
+        SCROLL
+    </div>
+</section>
+
+<!-- WORSHIP INFO -->
+<section class="main-section main-worship">
+    <div class="main-worship-inner">
+        <div>
+            <div class="main-section-label">예배 안내</div>
+            <h2 class="main-section-title">함께 드리는<br>예배에 초대합니다</h2>
+            <p class="main-section-desc">주일과 주중 예배를 통해 하나님의 임재를 경험하세요. 누구든지 환영합니다.</p>
+        </div>
+        <div class="main-worship-cards">
+            <div class="main-worship-card">
+                <div class="main-worship-icon">🕊</div>
+                <div>
+                    <h3>주일 1부 예배</h3>
+                    <p>주일 오전 · 본당</p>
                 </div>
-                <div class="slider-nav">
-                    <span class="slider-dot active"></span>
-                    <span class="slider-dot"></span>
-                    <span class="slider-dot"></span>
+                <div class="main-worship-time">9:00</div>
+            </div>
+            <div class="main-worship-card">
+                <div class="main-worship-icon">✝</div>
+                <div>
+                    <h3>주일 2부 예배</h3>
+                    <p>주일 오전 · 본당</p>
+                </div>
+                <div class="main-worship-time">11:00</div>
+            </div>
+            <div class="main-worship-card">
+                <div class="main-worship-icon">🙏</div>
+                <div>
+                    <h3>수요 예배</h3>
+                    <p>수요일 저녁 · 본당</p>
+                </div>
+                <div class="main-worship-time">19:30</div>
+            </div>
+            <div class="main-worship-card">
+                <div class="main-worship-icon">📖</div>
+                <div>
+                    <h3>금요 기도회</h3>
+                    <p>금요일 저녁 · 소예배실</p>
+                </div>
+                <div class="main-worship-time">21:00</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- VERSE -->
+<section class="main-verse">
+    <p class="main-verse-text">"내가 곧 길이요 진리요 생명이니<br>나로 말미암지 않고는 아버지께로 올 자가 없느니라"</p>
+    <p class="main-verse-ref">요한복음 14:6</p>
+</section>
+
+<!-- MINISTRIES -->
+<div class="main-ministry-wrap">
+    <div class="main-ministry-inner">
+        <div class="main-ministry-header">
+            <div>
+                <div class="main-section-label">사역 소개</div>
+                <h2 class="main-section-title">다양한 사역으로<br>섬깁니다</h2>
+            </div>
+            <a href="/about/church" class="main-btn-ghost-dark">
+                전체 보기
+                <span class="main-arrow" style="background: var(--navy-mid);"></span>
+            </a>
+        </div>
+        <div class="main-ministry-grid">
+            <div class="main-ministry-item">
+                <div class="main-ministry-bg"></div>
+                <div class="main-ministry-overlay"></div>
+                <div class="main-ministry-content">
+                    <span class="main-ministry-tag">WORSHIP</span>
+                    <h3>찬양 사역</h3>
+                    <p>음악으로 하나님께 영광을 돌리는 찬양팀과 함께하세요.</p>
                 </div>
             </div>
-        </section>
-
-        <section>
-            <h2>주요 메뉴</h2>
-            <div class="card-container">
-                <div class="card">
-                    <h3>교회 소개</h3>
-                    <p>우리 교회의 비전과 사명을 확인하세요</p>
-                    <a href="/about/church">자세히 보기</a>
-                </div>
-                <div class="card">
-                    <h3>예배 안내</h3>
-                    <p>예배 시간과 장소를 확인하세요</p>
-                    <a href="/worship/schedule">자세히 보기</a>
-                </div>
-                <div class="card">
-                    <h3>공지사항</h3>
-                    <p>최신 교회 소식을 확인하세요</p>
-                    <a href="/notice/list">자세히 보기</a>
-                </div>
-                <div class="card">
-                    <h3>오시는 길</h3>
-                    <p>교회 위치와 오시는 방법을 확인하세요</p>
-                    <a href="/location">자세히 보기</a>
+            <div class="main-ministry-item">
+                <div class="main-ministry-bg"></div>
+                <div class="main-ministry-overlay"></div>
+                <div class="main-ministry-content">
+                    <span class="main-ministry-tag">CHILDREN</span>
+                    <h3>어린이 사역</h3>
+                    <p>다음 세대를 위한 말씀 교육</p>
                 </div>
             </div>
-        </section>
+            <div class="main-ministry-item">
+                <div class="main-ministry-bg"></div>
+                <div class="main-ministry-overlay"></div>
+                <div class="main-ministry-content">
+                    <span class="main-ministry-tag">YOUTH</span>
+                    <h3>청년부</h3>
+                    <p>믿음으로 세워지는 청년 공동체</p>
+                </div>
+            </div>
+            <div class="main-ministry-item">
+                <div class="main-ministry-bg"></div>
+                <div class="main-ministry-overlay"></div>
+                <div class="main-ministry-content">
+                    <span class="main-ministry-tag">MISSION</span>
+                    <h3>선교 사역</h3>
+                    <p>국내외 선교를 통한 복음 전파</p>
+                </div>
+            </div>
+            <div class="main-ministry-item">
+                <div class="main-ministry-bg"></div>
+                <div class="main-ministry-overlay"></div>
+                <div class="main-ministry-content">
+                    <span class="main-ministry-tag">COMMUNITY</span>
+                    <h3>소그룹 모임</h3>
+                    <p>가정과 직장 속 작은 교회</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <section>
-            <h2>최근 공지사항</h2>
-            <ul th:if="${not #lists.isEmpty(recentNotices)}">
-                <li th:each="notice : ${recentNotices}">
-                    <a th:href="@{/notice/detail/{id}(id=${notice.id})}" th:text="${notice.title}">공지사항 제목</a>
-                    - <span th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">날짜</span>
-                </li>
+<!-- NEWS / NOTICES -->
+<section class="main-news">
+    <div class="main-news-inner">
+        <div class="main-news-header">
+            <div>
+                <div class="main-section-label">새소식</div>
+                <h2 class="main-section-title">최근 공지사항</h2>
+            </div>
+            <a href="/notice/list" class="main-btn-ghost-dark">
+                전체 보기
+                <span class="main-arrow" style="background: var(--navy-mid);"></span>
+            </a>
+        </div>
+        <!-- Thymeleaf 공지사항 동적 출력 -->
+        <div th:if="${not #lists.isEmpty(recentNotices)}">
+            <div class="main-notice-item" th:each="notice : ${recentNotices}">
+                <a th:href="@{/notice/detail/{id}(id=${notice.id})}" th:text="${notice.title}">공지사항 제목</a>
+                <span class="main-notice-date" th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">날짜</span>
+            </div>
+        </div>
+        <p th:if="${#lists.isEmpty(recentNotices)}" style="font-size:14px; color: var(--text-muted); font-weight:300;">등록된 공지사항이 없습니다.</p>
+    </div>
+</section>
+
+<!-- LOCATION -->
+<section class="main-location">
+    <div class="main-location-inner">
+        <div>
+            <div class="main-section-label">오시는 길</div>
+            <h3 class="main-location-title">샘물교회로<br>오세요</h3>
+            <div class="main-location-rows">
+                <div class="main-location-row">
+                    <span class="main-location-lbl">주소</span>
+                    <span class="main-location-val">서울특별시 강남구 테헤란로 123</span>
+                </div>
+                <div class="main-location-row">
+                    <span class="main-location-lbl">지하철</span>
+                    <span class="main-location-val">2호선 강남역 3번 출구 도보 5분</span>
+                </div>
+                <div class="main-location-row">
+                    <span class="main-location-lbl">버스</span>
+                    <span class="main-location-val">146, 360, 740, 3414, 4318</span>
+                </div>
+                <div class="main-location-row">
+                    <span class="main-location-lbl">전화</span>
+                    <span class="main-location-val">02-1234-5678</span>
+                </div>
+                <div class="main-location-row">
+                    <span class="main-location-lbl">이메일</span>
+                    <span class="main-location-val">info@church.com</span>
+                </div>
+            </div>
+            <br>
+            <a href="/location" class="main-btn-primary" style="display:inline-block; margin-top:8px;">상세 위치 보기</a>
+        </div>
+        <div class="main-location-map">
+            <div class="main-map-pin">
+                <div class="main-map-dot"></div>
+                <span>샘물교회</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<div class="main-cta">
+    <div>
+        <h2 class="main-cta-title">처음 오시는 분들을<br>환영합니다</h2>
+        <p class="main-cta-desc">새가족으로 등록하시면 교회를 안내해 드립니다.</p>
+    </div>
+    <div>
+        <a href="/notice/list" class="main-btn-primary" style="font-size:14px; padding: 16px 40px;">새가족 등록하기</a>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="main-footer">
+    <div class="main-footer-top">
+        <div class="main-footer-brand">
+            <div class="main-footer-brand-logo">
+                <div class="main-nav-cross"></div>
+                <span>샘물교회</span>
+            </div>
+            <p>말씀과 기도 위에 세워진 교회,<br>샘물교회는 모든 이를 환영합니다.<br>주님의 사랑으로 하나되는 공동체.</p>
+        </div>
+        <div class="main-footer-col">
+            <h4>CHURCH</h4>
+            <ul>
+                <li><a href="/about/church">교회 소개</a></li>
+                <li><a href="/about/pastor">담임목사</a></li>
+                <li><a href="/about/staff">교역자 소개</a></li>
             </ul>
-            <p th:if="${#lists.isEmpty(recentNotices)}">등록된 공지사항이 없습니다.</p>
-            <a href="/notice/list" class="button">더 보기</a>
-        </section>
+        </div>
+        <div class="main-footer-col">
+            <h4>WORSHIP</h4>
+            <ul>
+                <li><a href="/worship/schedule">예배 시간</a></li>
+                <li><a href="/worship/department">부서 예배</a></li>
+                <li><a href="/notice/list">공지사항</a></li>
+            </ul>
+        </div>
+        <div class="main-footer-col">
+            <h4>CONNECT</h4>
+            <ul>
+                <li><a href="/location">오시는 길</a></li>
+                <li><a href="/admin">관리자</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="main-footer-bottom">
+        <p>&copy; 2026 샘물교회. All rights reserved.</p>
+        <div class="main-footer-socials">
+            <a href="#">Y</a>
+            <a href="#">f</a>
+            <a href="#">▶</a>
+        </div>
+    </div>
+</footer>
 
-        <section>
-            <h2>오시는 길</h2>
-            <div class="location-grid">
-                <div>
-                    <h3>샘물교회 위치</h3>
-                    <p><strong>주소:</strong> 서울특별시 강남구 테헤란로 123</p>
-                    <p><strong>전화:</strong> 02-1234-5678</p>
-                    <p><strong>이메일:</strong> info@church.com</p>
-                    <br>
-                    <h3>대중교통</h3>
-                    <ul class="location-list">
-                        <li>지하철 2호선 강남역 3번 출구 도보 5분</li>
-                        <li>버스: 146, 360, 740, 3414, 4318</li>
-                    </ul>
-                    <br>
-                    <a href="/location" class="button">상세 위치 보기</a>
-                </div>
-                <div>
-                    <!-- 지도 영역 -->
-                    <div class="map-placeholder">
-                        <div class="map-placeholder-content">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            <p>지도 API 연동 예정</p>
-                        </div>
-                    </div>
+<!-- 팝업 (팝업 공지사항이 있을 때만 노출) -->
+<th:block th:if="${not #lists.isEmpty(popupNotices)}">
+    <th:block th:with="popup=${popupNotices[0]}">
+        <div class="popup-overlay" id="popupOverlay"></div>
+        <div class="popup-container" id="popupContainer">
+            <div class="popup-header">
+                <h3>교회 공지사항</h3>
+                <button class="popup-close" id="popupClose">&times;</button>
+            </div>
+            <div class="popup-body">
+                <div class="popup-content">
+                    <span class="popup-badge">NOTICE</span>
+                    <h4 th:text="${popup.title}">공지사항 제목</h4>
+                    <p th:text="${popup.content}">공지사항 내용</p>
                 </div>
             </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>주소: 서울특별시 강남구 테헤란로 123</p>
-        <p>전화: 02-1234-5678 | 이메일: info@church.com</p>
-        <p>&copy; 2024 샘물교회. All rights reserved.</p>
-        <p><a href="/admin">관리자 페이지</a></p>
-    </footer>
-
-    <!-- 팝업 (팝업 공지사항이 있을 때만 노출) -->
-    <th:block th:if="${not #lists.isEmpty(popupNotices)}">
-        <th:block th:with="popup=${popupNotices[0]}">
-
-            <!-- 팝업 오버레이 -->
-            <div class="popup-overlay" id="popupOverlay"></div>
-
-            <!-- 팝업 컨테이너 -->
-            <div class="popup-container" id="popupContainer">
-                <div class="popup-header">
-                    <h3>교회 공지사항</h3>
-                    <button class="popup-close" id="popupClose">&times;</button>
+            <div class="popup-footer">
+                <div class="popup-checkbox">
+                    <input type="checkbox" id="hideForDay">
+                    <label for="hideForDay">하루 동안 보지 않기</label>
                 </div>
-                <div class="popup-body">
-                    <div class="popup-content">
-                        <h4 th:text="${popup.title}">공지사항 제목</h4>
-                        <p th:text="${popup.content}">공지사항 내용</p>
-                    </div>
-                </div>
-                <div class="popup-footer">
-                    <div class="popup-checkbox">
-                        <input type="checkbox" id="hideForDay">
-                        <label for="hideForDay">하루 동안 보지 않기</label>
-                    </div>
-                    <button class="popup-button" id="popupConfirm">확인</button>
-                </div>
+                <button class="popup-button" id="popupConfirm">확인</button>
             </div>
-
-        </th:block>
+        </div>
     </th:block>
+</th:block>
 
-    <script src="/js/slider.js"></script>
-    <script src="/js/popup.js"></script>
+<script src="/js/slider.js"></script>
+<script src="/js/popup.js"></script>
 </body>
 </html>
