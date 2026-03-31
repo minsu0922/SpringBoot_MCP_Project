@@ -24,13 +24,17 @@
             --text-muted: #7A96B8;
         }
 
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             font-family: 'Noto Sans KR', sans-serif;
             background: var(--navy);
             color: var(--text-dark);
             overflow-x: hidden;
-            padding-top: 72px;
+            overflow-y: visible;
+            padding-top: 0;
+            min-height: 100%;
         }
 
         /* NAV */
@@ -54,7 +58,7 @@
         .main-nav-cta:hover { background: var(--gold); color: var(--navy); }
 
         /* HERO */
-        .main-hero { height: 100vh; margin-top: -72px; position: relative; display: flex; align-items: center; overflow: hidden; }
+        .main-hero { height: 100vh; margin-top: 0; padding-top: 72px; position: relative; display: flex; align-items: center; overflow: hidden; }
         .main-hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(24,95,165,0.35) 0%, transparent 70%), linear-gradient(160deg, #0A1F3D 0%, #0D2B55 45%, #0f3568 100%); }
         .main-hero-pattern { position: absolute; inset: 0; opacity: 0.04; background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(181,212,244,1) 60px), repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(181,212,244,1) 60px); }
         .main-hero-circle { position: absolute; right: -80px; top: 50%; transform: translateY(-50%); width: 600px; height: 600px; border-radius: 50%; border: 1px solid rgba(181,212,244,0.08); }
@@ -79,15 +83,15 @@
         @keyframes mainBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
 
         /* SECTION COMMON */
-        .main-section { padding: 100px 80px; }
+        .main-section { padding: 100px 80px; min-height: 100vh; }
         .main-section-label { font-size: 10px; letter-spacing: 0.25em; font-weight: 400; color: var(--navy-mid); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .main-section-label::after { content: ''; display: block; width: 24px; height: 1px; background: var(--navy-mid); }
         .main-section-title { font-family: 'Noto Serif KR', serif; font-size: clamp(24px, 3vw, 36px); font-weight: 300; line-height: 1.4; color: var(--text-dark); margin-bottom: 16px; }
         .main-section-desc { font-size: 14px; font-weight: 300; line-height: 1.9; color: var(--text-mid); max-width: 520px; }
 
         /* WORSHIP */
-        .main-worship { background: var(--sky-pale); border-top: 1px solid rgba(24,95,165,0.1); border-bottom: 1px solid rgba(24,95,165,0.1); }
-        .main-worship-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1100px; margin: 0 auto; }
+        .main-worship { background: var(--sky-pale); border-top: 1px solid rgba(24,95,165,0.1); border-bottom: 1px solid rgba(24,95,165,0.1); display: flex; align-items: center; }
+        .main-worship-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1100px; margin: 0 auto; width: 100%; }
         .main-worship-cards { display: flex; flex-direction: column; gap: 16px; }
         .main-worship-card { background: var(--white); border: 1px solid rgba(24,95,165,0.1); border-radius: 4px; padding: 22px 26px; display: flex; align-items: center; gap: 18px; transition: border-color 0.2s, box-shadow 0.2s; }
         .main-worship-card:hover { border-color: var(--navy-mid); box-shadow: 0 4px 20px rgba(13,43,85,0.08); }
@@ -97,14 +101,14 @@
         .main-worship-time { margin-left: auto; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--navy-mid); white-space: nowrap; }
 
         /* VERSE */
-        .main-verse { background: var(--navy); text-align: center; padding: 80px; position: relative; overflow: hidden; }
+        .main-verse { background: var(--navy); text-align: center; padding: 80px; position: relative; overflow: hidden; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .main-verse::before { content: '\201C'; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-family: 'Cormorant Garamond', serif; font-size: 220px; font-weight: 300; color: rgba(181,212,244,0.05); line-height: 1; pointer-events: none; }
         .main-verse-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(20px, 3vw, 34px); font-weight: 300; font-style: italic; color: var(--white); line-height: 1.6; max-width: 700px; margin: 0 auto 20px; }
         .main-verse-ref { font-size: 13px; font-weight: 300; letter-spacing: 0.12em; color: var(--gold-light); }
 
         /* MINISTRY GRID */
-        .main-ministry-wrap { padding: 100px 80px; background: var(--white); }
-        .main-ministry-inner { max-width: 1100px; margin: 0 auto; }
+        .main-ministry-wrap { padding: 100px 80px; background: var(--white); min-height: 100vh; display: flex; align-items: center; }
+        .main-ministry-inner { max-width: 1100px; margin: 0 auto; width: 100%; }
         .main-ministry-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; }
         .main-ministry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
         .main-ministry-item { position: relative; overflow: hidden; aspect-ratio: 3/4; background: var(--navy); cursor: pointer; }
@@ -123,8 +127,8 @@
         .main-ministry-content p { font-size: 12px; font-weight: 300; line-height: 1.7; color: rgba(181,212,244,0.75); }
 
         /* NEWS */
-        .main-news { background: #F4F7FC; border-top: 1px solid rgba(24,95,165,0.08); padding: 100px 80px; }
-        .main-news-inner { max-width: 1100px; margin: 0 auto; }
+        .main-news { background: #F4F7FC; border-top: 1px solid rgba(24,95,165,0.08); padding: 100px 80px; min-height: 100vh; display: flex; align-items: center; }
+        .main-news-inner { max-width: 1100px; margin: 0 auto; width: 100%; }
         .main-news-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 44px; }
         .main-news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
         .main-news-card { background: var(--white); border: 1px solid rgba(24,95,165,0.08); border-radius: 4px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
@@ -142,8 +146,8 @@
         .main-news-body p { font-size: 12px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
 
         /* LOCATION */
-        .main-location { background: var(--white); padding: 100px 80px; }
-        .main-location-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: center; }
+        .main-location { background: var(--white); padding: 100px 80px; min-height: 100vh; display: flex; align-items: center; }
+        .main-location-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: center; width: 100%; }
         .main-location-map { height: 300px; border-radius: 4px; background: linear-gradient(135deg, #0D2B55 0%, #185FA5 100%); display: flex; align-items: center; justify-content: center; color: rgba(181,212,244,0.5); font-size: 13px; letter-spacing: 0.1em; position: relative; overflow: hidden; border: 1px solid rgba(24,95,165,0.15); }
         .main-location-map::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px), repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px); }
         .main-map-pin { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -156,7 +160,7 @@
         .main-location-val { font-size: 13px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
 
         /* CTA BANNER */
-        .main-cta { background: var(--navy); padding: 80px; display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+        .main-cta { background: var(--navy); padding: 80px; display: flex; align-items: center; justify-content: space-between; gap: 40px; min-height: 100vh; }
         .main-cta-title { font-family: 'Noto Serif KR', serif; font-size: 30px; font-weight: 300; color: var(--white); line-height: 1.4; margin-bottom: 10px; }
         .main-cta-desc { font-size: 14px; font-weight: 300; color: rgba(181,212,244,0.7); }
 
@@ -222,7 +226,7 @@
 </nav>
 
 <!-- HERO -->
-<section class="main-hero">
+<section class="main-hero" data-section="0">
     <div class="main-hero-bg"></div>
     <div class="main-hero-pattern"></div>
     <div class="main-hero-circle"></div>
@@ -252,7 +256,7 @@
 </section>
 
 <!-- WORSHIP INFO -->
-<section class="main-section main-worship">
+<section class="main-section main-worship" data-section="1">
     <div class="main-worship-inner">
         <div>
             <div class="main-section-label">예배 안내</div>
@@ -297,13 +301,13 @@
 </section>
 
 <!-- VERSE -->
-<section class="main-verse">
+<section class="main-verse" data-section="2">
     <p class="main-verse-text">"내가 곧 길이요 진리요 생명이니<br>나로 말미암지 않고는 아버지께로 올 자가 없느니라"</p>
     <p class="main-verse-ref">요한복음 14:6</p>
 </section>
 
 <!-- MINISTRIES -->
-<div class="main-ministry-wrap">
+<div class="main-ministry-wrap" data-section="3">
     <div class="main-ministry-inner">
         <div class="main-ministry-header">
             <div>
@@ -366,7 +370,7 @@
 </div>
 
 <!-- NEWS / NOTICES -->
-<section class="main-news">
+<section class="main-news" data-section="4">
     <div class="main-news-inner">
         <div class="main-news-header">
             <div>
@@ -390,7 +394,7 @@
 </section>
 
 <!-- LOCATION -->
-<section class="main-location">
+<section class="main-location" data-section="5">
     <div class="main-location-inner">
         <div>
             <div class="main-section-label">오시는 길</div>
@@ -430,7 +434,7 @@
 </section>
 
 <!-- CTA -->
-<div class="main-cta">
+<div class="main-cta" data-section="6">
     <div>
         <h2 class="main-cta-title">처음 오시는 분들을<br>환영합니다</h2>
         <p class="main-cta-desc">새가족으로 등록하시면 교회를 안내해 드립니다.</p>
@@ -513,5 +517,6 @@
 
 <script src="/js/slider.js"></script>
 <script src="/js/popup.js"></script>
+<script src="/js/section-scroll.js"></script>
 </body>
 </html>

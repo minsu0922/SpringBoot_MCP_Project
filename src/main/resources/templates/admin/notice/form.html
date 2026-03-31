@@ -54,18 +54,12 @@
             text-decoration: none;
             display: inline-block;
         }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
+        .btn-primary { background-color: #007bff; color: white; }
         .btn-primary:hover { background-color: #0056b3; }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
+        .btn-secondary { background-color: #6c757d; color: white; }
         .btn-secondary:hover { background-color: #545b62; }
 
-        /* 팝업 설정 박스 */
+        /* 팝업 노출 설정 박스 */
         .popup-setting-box {
             border: 2px solid #e0e0e0;
             border-radius: 8px;
@@ -81,7 +75,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 0;
         }
         .popup-toggle-row label {
             margin: 0;
@@ -113,15 +106,6 @@
         }
         .toggle-switch input:checked + .toggle-slider { background-color: #007bff; }
         .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
-
-        .popup-date-fields {
-            display: none;
-            margin-top: 16px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        .popup-date-fields.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -146,29 +130,16 @@
                 <textarea id="content" th:field="${notice.content}" required placeholder="내용을 입력하세요"></textarea>
             </div>
 
-            <!-- 팝업 설정 -->
+            <!-- 팝업 노출 설정 -->
             <div class="form-group">
                 <label>팝업 설정</label>
                 <div class="popup-setting-box" id="popupSettingBox">
                     <div class="popup-toggle-row">
                         <label class="toggle-switch">
-                            <input type="checkbox" id="popupToggle" th:field="${notice.popup}" onchange="togglePopupFields(this)" />
+                            <input type="checkbox" id="popupToggle" th:field="${notice.popup}" onchange="togglePopupBox(this)" />
                             <span class="toggle-slider"></span>
                         </label>
                         <label for="popupToggle">메인 화면 팝업으로 노출</label>
-                    </div>
-
-                    <div class="popup-date-fields" id="popupDateFields" th:classappend="${notice.popup} ? '' : 'hidden'">
-                        <div>
-                            <label for="popupStartDate">팝업 시작일시 *</label>
-                            <input type="datetime-local" id="popupStartDate" name="popupStartDate"
-                                   th:value="${notice.popupStartDate != null ? #temporals.format(notice.popupStartDate, 'yyyy-MM-dd''T''HH:mm') : ''}" />
-                        </div>
-                        <div>
-                            <label for="popupEndDate">팝업 종료일시 *</label>
-                            <input type="datetime-local" id="popupEndDate" name="popupEndDate"
-                                   th:value="${notice.popupEndDate != null ? #temporals.format(notice.popupEndDate, 'yyyy-MM-dd''T''HH:mm') : ''}" />
-                        </div>
                     </div>
                 </div>
             </div>
@@ -181,123 +152,19 @@
     </div>
 
     <script>
-        // 페이지 로드 시 초기 상태 반영
         window.onload = function() {
             const toggle = document.getElementById('popupToggle');
-            togglePopupFields(toggle);
+            togglePopupBox(toggle);
         };
 
-        function togglePopupFields(checkbox) {
-            const dateFields = document.getElementById('popupDateFields');
+        function togglePopupBox(checkbox) {
             const settingBox = document.getElementById('popupSettingBox');
             if (checkbox.checked) {
-                dateFields.classList.remove('hidden');
                 settingBox.classList.add('active');
             } else {
-                dateFields.classList.add('hidden');
                 settingBox.classList.remove('active');
             }
         }
     </script>
-</body>
-</html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${notice.id == null ? '공지사항 작성' : '공지사항 수정'}">공지사항 작성</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        textarea {
-            min-height: 300px;
-            resize: vertical;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1 style="margin: 0;" th:text="${notice.id == null ? '공지사항 작성' : '공지사항 수정'}">공지사항 작성</h1>
-        <div>
-            <a href="/admin/notices" class="btn btn-secondary">목록으로</a>
-        </div>
-    </div>
-
-    <div class="content">
-        <form th:action="@{/admin/notices/save}" method="post">
-            <input type="hidden" th:field="${notice.id}" />
-            
-            <div class="form-group">
-                <label for="title">제목 *</label>
-                <input type="text" id="title" th:field="${notice.title}" required placeholder="제목을 입력하세요" />
-            </div>
-
-            <div class="form-group">
-                <label for="content">내용 *</label>
-                <textarea id="content" th:field="${notice.content}" required placeholder="내용을 입력하세요"></textarea>
-            </div>
-
-            <div style="text-align: center; margin-top: 30px;">
-                <button type="submit" class="btn btn-primary">저장</button>
-                <a href="/admin/notices" class="btn btn-secondary">취소</a>
-            </div>
-        </form>
-    </div>
 </body>
 </html>
