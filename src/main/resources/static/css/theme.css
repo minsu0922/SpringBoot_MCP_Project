@@ -473,20 +473,25 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 .popup-overlay.show { display: block; }
 
 .popup-container {
-    display: none;
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 92%; max-width: 460px;
+    width: 340px;
+    max-width: 94vw;
+    height: 600px;
+    max-height: 90vh;
     background: var(--white);
     border-radius: 6px;
     overflow: hidden;
     z-index: 9999;
     box-shadow: 0 24px 80px rgba(8,20,48,0.35);
     border: 1px solid rgba(24,95,165,0.15);
+    flex-direction: column;
+    display: none;
 }
 .popup-container.show {
-    display: block;
+    display: flex;
+    flex-direction: column;
     animation: popupSlideIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
 }
 @keyframes popupSlideIn {
@@ -538,7 +543,7 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 }
 
 /* 팝업 바디 */
-.popup-body { padding: 28px 26px 20px; }
+.popup-body { padding: 36px 30px 28px; flex: 1; overflow-y: auto; }
 
 .popup-content .popup-badge {
     display: inline-block;
@@ -567,10 +572,11 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 
 /* 팝업 푸터 */
 .popup-footer {
-    padding: 16px 26px 22px;
+    padding: 20px 30px 28px;
     display: flex; justify-content: space-between; align-items: center;
     border-top: 1px solid rgba(24,95,165,0.08);
     background: var(--sky-pale);
+    flex-shrink: 0;
 }
 .popup-checkbox {
     display: flex; align-items: center; gap: 8px;
