@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>등록 완료 · 샘물교회</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400&family=Noto+Sans+KR:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #0D2B55; --navy-mid: #185FA5; --sky-pale: #E6F1FB;
+            --gold: #C9A84C; --gold-light: #E8D5A0; --white: #FAFBFD;
+            --text-dark: #0A1F3D; --text-mid: #3A5278;
+        }
+        body { font-family: 'Noto Sans KR', sans-serif; background: linear-gradient(160deg, #0A1F3D 0%, #0D2B55 60%, #0f3568 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
+
+        .complete-box { background: var(--white); border-radius: 6px; box-shadow: 0 16px 60px rgba(0,0,0,0.3); padding: 60px 48px; max-width: 520px; width: 100%; text-align: center; }
+
+        .complete-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--sky-pale); display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+        .cross { width: 28px; height: 28px; position: relative; }
+        .cross::before { content: ''; position: absolute; background: var(--gold); top: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 100%; border-radius: 2px; }
+        .cross::after { content: ''; position: absolute; background: var(--gold); top: 38%; left: 0; width: 100%; height: 3px; border-radius: 2px; }
+
+        .complete-label { font-size: 10px; letter-spacing: 0.25em; color: var(--gold); margin-bottom: 14px; }
+        .complete-title { font-family: 'Noto Serif KR', serif; font-size: 26px; font-weight: 300; color: var(--text-dark); margin-bottom: 12px; line-height: 1.4; }
+        .complete-sub { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--navy-mid); margin-bottom: 28px; }
+        .complete-desc { font-size: 13px; font-weight: 300; line-height: 1.9; color: var(--text-mid); margin-bottom: 36px; }
+
+        .complete-divider { width: 40px; height: 1px; background: var(--gold); margin: 0 auto 32px; }
+
+        .complete-btn { display: inline-block; padding: 13px 36px; background: var(--navy); color: var(--white); text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 400; letter-spacing: 0.08em; transition: background 0.2s; }
+        .complete-btn:hover { background: var(--navy-mid); }
+    </style>
+</head>
+<body>
+
+<div class="complete-box">
+    <div class="complete-icon">
+        <div class="cross"></div>
+    </div>
+    <p class="complete-label">REGISTRATION COMPLETE</p>
+    <h1 class="complete-title">등록이 완료되었습니다</h1>
+    <p class="complete-sub">God bless you</p>
+    <div class="complete-divider"></div>
+    <p class="complete-desc">
+        샘물교회를 찾아주셔서 감사합니다.<br>
+        담당 교역자가 빠른 시일 내에 연락드리겠습니다.<br><br>
+        주일 예배 시간에 언제든지 방문해 주세요. 🙏
+    </p>
+    <a href="/" class="complete-btn">메인으로 돌아가기</a>
+</div>
+
+</body>
+</html>

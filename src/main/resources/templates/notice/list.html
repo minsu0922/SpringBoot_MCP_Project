@@ -22,8 +22,23 @@
         <li><a href="/notice/list" class="active">공지사항</a></li>
         <li><a href="/location">오시는 길</a></li>
     </ul>
-    <a href="/notice/list" class="site-nav-cta">새가족 안내</a>
+    <a href="/new-family" class="site-nav-cta">새가족 안내</a>
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+    </button>
 </nav>
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/about/church">교회소개</a></li>
+        <li><a href="/about/pastor">담임목사</a></li>
+        <li><a href="/about/staff">교역자 소개</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
+    </ul>
+</div>
 
 <div class="page-hero">
     <div class="page-hero-inner">
@@ -53,31 +68,27 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>3</td>
-                    <td><a href="/notice/detail?id=3">2024년 성탄절 예배 안내</a></td>
-                    <td>2024-12-01</td>
-                    <td>150</td>
+                <tr th:if="${#lists.isEmpty(notices)}">
+                    <td colspan="4" style="text-align:center; padding:40px; color:#999;">등록된 공지사항이 없습니다.</td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td><a href="/notice/detail?id=2">추수감사절 행사 안내</a></td>
-                    <td>2024-11-10</td>
-                    <td>230</td>
-                </tr>
-                <tr>
-                    <td>1</td>
-                    <td><a href="/notice/detail?id=1">새가족 환영합니다</a></td>
-                    <td>2024-10-15</td>
-                    <td>320</td>
+                <tr th:each="notice, stat : ${notices.content}">
+                    <td th:text="${notices.totalElements - notices.number * notices.size - stat.index}"></td>
+                    <td><a th:href="@{/notice/detail/{id}(id=${notice.id})}" th:text="${notice.title}">제목</a></td>
+                    <td th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">날짜</td>
+                    <td th:text="${notice.viewCount}">0</td>
                 </tr>
             </tbody>
         </table>
 
-        <div class="site-pagination">
-            <button>이전</button>
-            <span>1</span>
-            <button>다음</button>
+        <!-- 페이지네이션 -->
+        <div class="site-pagination" th:if="${notices.totalPages > 1}">
+            <a th:if="${!notices.first}" th:href="@{/notice/list(page=${notices.number - 1})}" class="page-btn">이전</a>
+            <span th:each="i : ${#numbers.sequence(0, notices.totalPages - 1)}">
+                <a th:href="@{/notice/list(page=${i})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == notices.number} ? 'page-btn active' : 'page-btn'"></a>
+            </span>
+            <a th:if="${!notices.last}" th:href="@{/notice/list(page=${notices.number + 1})}" class="page-btn">다음</a>
         </div>
     </div>
 </div>
@@ -111,7 +122,7 @@
             <ul>
                 <li><a href="/notice/list">공지사항</a></li>
                 <li><a href="/location">오시는 길</a></li>
-                <li><a href="/admin">관리자</a></li>
+                <li><a href="/new-family">새가족 등록</a></li>
             </ul>
         </div>
     </div>
@@ -122,5 +133,6 @@
         </div>
     </div>
 </footer>
+<script src="/js/nav.js"></script>
 </body>
 </html>

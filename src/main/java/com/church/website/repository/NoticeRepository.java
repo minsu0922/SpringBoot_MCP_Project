@@ -1,6 +1,8 @@
 package com.church.website.repository;
 
 import com.church.website.entity.Notice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,6 +20,11 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
      * 최신 공지사항 순으로 조회
      */
     List<Notice> findAllByOrderByCreatedAtDesc();
+
+    /**
+     * 페이지네이션 조회
+     */
+    Page<Notice> findAll(Pageable pageable);
 
     /**
      * 현재 시간 기준 활성화된 팝업 공지사항 조회

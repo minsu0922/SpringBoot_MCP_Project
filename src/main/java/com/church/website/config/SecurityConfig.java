@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -32,7 +32,7 @@ public class SecurityConfig {
         log.info("=== SecurityFilterChain 설정 시작 ===");
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/about/**", "/worship/**", "/notice/**", "/location", "/login", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()  // 일반 페이지, 정적 리소스, H2 콘솔 허용
+                .requestMatchers("/", "/about/**", "/worship/**", "/notice/**", "/location", "/new-family/**", "/login", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()  // 일반 페이지, 정적 리소스, H2 콘솔 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지는 ADMIN 역할 필요
                 .anyRequest().permitAll()
             )
@@ -71,12 +71,10 @@ public class SecurityConfig {
     }
 
     /**
-     * 비밀번호 암호화 인코더 빈 등록
-     * 임시로 암호화 없이 평문 비밀번호 사용 (테스트용)
+     * 비밀번호 암호화 인코더 빈 등록 (BCrypt)
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        log.info("NoOpPasswordEncoder 빈 생성 (암호화 없음 - 테스트용)");
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 }
