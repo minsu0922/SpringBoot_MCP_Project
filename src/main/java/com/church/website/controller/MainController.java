@@ -3,10 +3,13 @@ package com.church.website.controller;
 import com.church.website.service.MainImageService;
 import com.church.website.service.NoticeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 일반 사용자용 메인 컨트롤러
@@ -77,12 +80,12 @@ public class MainController {
     }
 
     /**
-     * 공지사항 목록 페이지
-     * 교회의 공지사항 목록을 보여주는 페이지를 반환
+     * 공지사항 목록 페이지 (페이지네이션)
      */
     @GetMapping("/notice/list")
-    public String noticeList(Model model) {
-        model.addAttribute("notices", noticeService.getAllNotices());
+    public String noticeList(@RequestParam(defaultValue = "0") int page, Model model) {
+        PageRequest pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        model.addAttribute("notices", noticeService.getNoticesPaged(pageable));
         return "notice/list";
     }
 

@@ -3,6 +3,7 @@ package com.church.website.controller;
 import com.church.website.entity.MainImage;
 import com.church.website.entity.Notice;
 import com.church.website.service.MainImageService;
+import com.church.website.service.NewFamilyService;
 import com.church.website.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +28,14 @@ public class AdminController {
 
     private final NoticeService noticeService;
     private final MainImageService mainImageService;
+    private final NewFamilyService newFamilyService;
 
     /**
      * 관리자 메인 페이지
      */
     @GetMapping("")
-    public String adminMain() {
+    public String adminMain(Model model) {
+        model.addAttribute("uncheckedCount", newFamilyService.getUncheckedCount());
         return "admin/index";
     }
 
@@ -175,5 +178,47 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
         return "redirect:/admin/images";
+    }
+
+    // ====== 새가족 관리 ======
+
+    /**
+     * 새가족 목록
+     */
+    @GetMapping("/new-family")
+    public String newFamilyList(Model model) {
+        model.addAttribute("list", newFamilyService.getAll());
+        model.addAttribute("uncheckedCount", newFamilyService.getUncheckedCount());
+        return "admin/new-family/list";
+    }
+
+    /**
+     * 새가족 확인 처리
+     */
+    @PostMapping("/new-family/check/{id}")
+    public String newFamilyCheck(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            newFamilyService.check(id);
+            redirectAttributes.addFlashAttribute("message", "확인 처리되었습니다.");
+        } catch (Exception e) {
+            log.error("새가족 확인 처리 실패", e);
+            redirectAttributes.addFlashAttribute("error", "처리 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/new-family";
+    }
+
+    /**
+     * 새가족 삭제
+     */
+    @PostMapping("/new-family/delete/{id}")
+    public String newFamilyDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            newFamilyService.delete(id);
+            redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
+        } catch (Exception e) {
+            log.error("새가족 삭제 실패", e);
+            redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/new-family";
     }
 }

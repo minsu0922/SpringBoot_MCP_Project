@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새가족 등록 · 샘물교회</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #0D2B55; --navy-mid: #185FA5; --sky: #B5D4F4; --sky-pale: #E6F1FB;
+            --gold: #C9A84C; --gold-light: #E8D5A0; --white: #FAFBFD;
+            --text-dark: #0A1F3D; --text-mid: #3A5278; --text-muted: #7A96B8;
+            --error: #c0392b; --error-bg: #fff0f0; --error-border: #ffcccc;
+        }
+        body { font-family: 'Noto Sans KR', sans-serif; background: var(--sky-pale); color: var(--text-dark); min-height: 100vh; }
+
+        /* NAV */
+        .nf-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 60px; height: 68px; background: rgba(13,43,85,0.97); }
+        .nf-nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .cross { width: 20px; height: 20px; position: relative; }
+        .cross::before { content: ''; position: absolute; background: var(--gold); top: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 100%; border-radius: 2px; }
+        .cross::after { content: ''; position: absolute; background: var(--gold); top: 38%; left: 0; width: 100%; height: 3px; border-radius: 2px; }
+        .nf-nav-logo span { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--white); font-weight: 400; letter-spacing: 0.05em; }
+        .nf-nav-back { font-size: 13px; color: rgba(181,212,244,0.7); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+        .nf-nav-back:hover { color: var(--gold-light); }
+
+        /* HERO */
+        .nf-hero { background: linear-gradient(160deg, #0A1F3D 0%, #0D2B55 60%, #0f3568 100%); padding: 80px 0 60px; text-align: center; }
+        .nf-hero-label { font-size: 10px; letter-spacing: 0.25em; color: var(--gold-light); margin-bottom: 16px; }
+        .nf-hero-title { font-family: 'Noto Serif KR', serif; font-size: 34px; font-weight: 300; color: var(--white); margin-bottom: 12px; line-height: 1.4; }
+        .nf-hero-sub { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: var(--sky); }
+
+        /* FORM WRAP */
+        .nf-wrap { max-width: 640px; margin: -32px auto 80px; padding: 0 24px; }
+        .nf-card { background: var(--white); border-radius: 6px; box-shadow: 0 8px 40px rgba(13,43,85,0.12); padding: 48px; }
+
+        .nf-section-title { font-family: 'Noto Serif KR', serif; font-size: 18px; font-weight: 400; color: var(--text-dark); margin-bottom: 28px; padding-bottom: 14px; border-bottom: 1px solid rgba(24,95,165,0.1); }
+
+        .nf-field { margin-bottom: 22px; }
+        .nf-label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: var(--navy-mid); margin-bottom: 8px; }
+        .nf-label .required { color: var(--gold); margin-left: 2px; }
+        .nf-input, .nf-select, .nf-textarea {
+            width: 100%; padding: 12px 16px;
+            border: 1px solid rgba(24,95,165,0.2); border-radius: 4px;
+            font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 300;
+            color: var(--text-dark); background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .nf-input:focus, .nf-select:focus, .nf-textarea:focus {
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(24,95,165,0.08);
+        }
+        .nf-input.is-error, .nf-select.is-error, .nf-textarea.is-error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+        }
+        .nf-textarea { resize: vertical; min-height: 100px; line-height: 1.7; }
+        .nf-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A96B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+
+        .nf-hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+        .nf-error-msg { font-size: 12px; color: var(--error); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+        .nf-error-msg::before { content: '⚠'; font-size: 11px; }
+
+        .nf-submit { width: 100%; padding: 15px; background: var(--navy); color: var(--white); border: none; border-radius: 4px; font-family: 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 400; letter-spacing: 0.06em; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+        .nf-submit:hover { background: var(--navy-mid); }
+
+        .nf-global-error { background: var(--error-bg); border: 1px solid var(--error-border); border-radius: 4px; padding: 12px 16px; font-size: 13px; color: var(--error); margin-bottom: 20px; }
+
+        /* NOTICE BOX */
+        .nf-notice { background: var(--sky-pale); border: 1px solid rgba(24,95,165,0.15); border-radius: 4px; padding: 16px 20px; margin-bottom: 28px; font-size: 13px; font-weight: 300; color: var(--text-mid); line-height: 1.7; }
+        .nf-notice strong { color: var(--navy-mid); font-weight: 500; }
+
+        @media (max-width: 600px) {
+            .nf-nav { padding: 0 20px; }
+            .nf-card { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nf-nav">
+    <a href="/" class="nf-nav-logo">
+        <div class="cross"></div>
+        <span>샘물교회</span>
+    </a>
+    <a href="/" class="nf-nav-back">← 메인으로</a>
+</nav>
+
+<!-- HERO -->
+<div class="nf-hero">
+    <p class="nf-hero-label">NEW FAMILY</p>
+    <h1 class="nf-hero-title">새가족 등록</h1>
+    <p class="nf-hero-sub">Welcome to Saemmul Church</p>
+</div>
+
+<!-- FORM -->
+<div class="nf-wrap">
+    <div class="nf-card">
+
+        <div th:if="${error}" class="nf-global-error" th:text="${error}"></div>
+
+        <p class="nf-notice">
+            <strong>환영합니다! 🙏</strong><br>
+            간단한 정보를 남겨 주시면 담당 교역자가 연락드립니다.<br>
+            입력하신 정보는 새가족 안내 목적으로만 사용됩니다.
+        </p>
+
+        <h2 class="nf-section-title">기본 정보</h2>
+
+        <form th:action="@{/new-family/submit}" th:object="${newFamily}" method="post" novalidate>
+
+            <!-- 이름 -->
+            <div class="nf-field">
+                <label class="nf-label">이름 <span class="required">*</span></label>
+                <input type="text" class="nf-input" th:field="*{name}"
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-error'"
+                       placeholder="성함을 입력해 주세요" maxlength="50">
+                <p class="nf-error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+            </div>
+
+            <!-- 연락처 -->
+            <div class="nf-field">
+                <label class="nf-label">연락처 <span class="required">*</span></label>
+                <input type="tel" id="phoneInput" class="nf-input" th:field="*{phone}"
+                       th:classappend="${#fields.hasErrors('phone')} ? 'is-error'"
+                       placeholder="010-0000-0000" maxlength="13">
+                <p class="nf-hint" th:if="${!#fields.hasErrors('phone')}">담당 교역자가 연락드릴 번호를 입력해 주세요.</p>
+                <p class="nf-error-msg" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+            </div>
+
+            <!-- 방문 경로 -->
+            <div class="nf-field">
+                <label class="nf-label">방문 경로</label>
+                <select class="nf-select" th:field="*{visitRoute}">
+                    <option value="">선택해 주세요 (선택사항)</option>
+                    <option value="지인 소개">지인 소개</option>
+                    <option value="인터넷 검색">인터넷 검색</option>
+                    <option value="SNS">SNS (인스타그램·유튜브 등)</option>
+                    <option value="현수막·전단지">현수막 / 전단지</option>
+                    <option value="지나가다">지나가다 방문</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+
+            <!-- 메모 -->
+            <div class="nf-field">
+                <label class="nf-label">문의 / 메모</label>
+                <textarea class="nf-textarea" th:field="*{memo}"
+                          placeholder="궁금한 점이나 전달하고 싶은 내용을 자유롭게 작성해 주세요. (선택사항)"></textarea>
+            </div>
+
+            <button type="submit" class="nf-submit">등록하기</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    /* 연락처 자동 하이픈 */
+    const phoneInput = document.getElementById('phoneInput');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function (e) {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length <= 3) {
+                e.target.value = val;
+            } else if (val.length <= 7) {
+                e.target.value = val.slice(0, 3) + '-' + val.slice(3);
+            } else if (val.length <= 11) {
+                if (val.startsWith('02')) {
+                    // 서울 지역번호 처리
+                    if (val.length <= 9) {
+                        e.target.value = val.slice(0, 2) + '-' + val.slice(2, 5) + '-' + val.slice(5);
+                    } else {
+                        e.target.value = val.slice(0, 2) + '-' + val.slice(2, 6) + '-' + val.slice(6);
+                    }
+                } else {
+                    e.target.value = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
