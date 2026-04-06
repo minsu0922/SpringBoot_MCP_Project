@@ -75,13 +75,68 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 .site-nav-links {
     display: flex; gap: 28px; list-style: none;
 }
+.site-nav-links > li {
+    position: relative;
+}
 .site-nav-links a {
     font-size: 14px; font-weight: 300; letter-spacing: 0.04em;
     color: rgba(250,251,253,0.75);
     text-decoration: none; transition: color 0.2s;
+    display: flex; align-items: center; gap: 4px;
 }
 .site-nav-links a:hover,
 .site-nav-links a.active { color: var(--gold-light); }
+
+/* 드롭다운 화살표 */
+.site-nav-links .has-dropdown > a::after {
+    content: '';
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    margin-left: 2px;
+    transition: transform 0.2s;
+}
+.site-nav-links .has-dropdown:hover > a::after {
+    transform: rotate(225deg) translateY(-2px);
+}
+
+/* 드롭다운 메뉴 */
+.site-nav-links .dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 150px;
+    background: rgba(13,43,85,0.98);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(181,212,244,0.12);
+    border-radius: 3px;
+    padding: 6px 0;
+    list-style: none;
+    z-index: 300;
+    box-shadow: 0 8px 24px rgba(5,12,28,0.35);
+}
+.site-nav-links .has-dropdown:hover .dropdown {
+    display: block;
+}
+.site-nav-links .dropdown li a {
+    display: block;
+    padding: 10px 18px;
+    font-size: 13px; font-weight: 300;
+    color: rgba(250,251,253,0.72);
+    white-space: nowrap;
+}
+.site-nav-links .dropdown li a::after { display: none; }
+.site-nav-links .dropdown li a:hover {
+    color: var(--gold-light);
+    background: rgba(181,212,244,0.07);
+}
+.site-nav-links .dropdown li a.active {
+    color: var(--gold-light);
+}
+
 .site-nav-cta {
     padding: 8px 20px;
     border: 1px solid var(--gold); border-radius: 2px;
@@ -682,6 +737,13 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
     color: var(--gold); font-weight: 400;
     border-top: 1px solid rgba(181,212,244,0.12);
     margin-top: 8px;
+}
+/* 모바일 드롭다운 하위 항목 */
+.mobile-menu ul li a.mobile-sub {
+    padding-left: 44px;
+    font-size: 14px;
+    color: rgba(250,251,253,0.6);
+    border-bottom: none;
 }
 
 /* ── PAGINATION ── */

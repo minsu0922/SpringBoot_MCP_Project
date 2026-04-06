@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사역사진 관리 - 관리자</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans KR', Arial, sans-serif; background: #f4f6f9; color: #333; }
+
+        .admin-wrap { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+        /* 헤더 */
+        .admin-header {
+            background: #fff;
+            padding: 20px 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 { font-size: 20px; font-weight: 600; color: #0D2B55; }
+        .admin-header-right { display: flex; gap: 10px; align-items: center; }
+        .btn { display: inline-block; padding: 9px 20px; border-radius: 4px; font-size: 13px; font-weight: 500; text-decoration: none; border: none; cursor: pointer; transition: background 0.2s; }
+        .btn-primary { background: #0D2B55; color: #fff; }
+        .btn-primary:hover { background: #185FA5; }
+        .btn-secondary { background: #6c757d; color: #fff; }
+        .btn-secondary:hover { background: #545b62; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+        /* 알림 */
+        .alert { padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; font-size: 14px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger  { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* 사진 그리드 */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .photo-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .photo-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .photo-card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            background: linear-gradient(135deg, #0D2B55, #185FA5);
+        }
+        .photo-card-placeholder {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #0D2B55, #185FA5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(181,212,244,0.5);
+            font-size: 32px;
+        }
+        .photo-card-body { padding: 14px 16px; }
+        .photo-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .photo-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            background: #E6F1FB;
+            color: #0D2B55;
+        }
+        .photo-status {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .photo-status.active   { background: #d4edda; color: #155724; }
+        .photo-status.inactive { background: #f8d7da; color: #721c24; }
+        .photo-card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: #0D2B55; }
+        .photo-card-desc { font-size: 12px; color: #666; line-height: 1.6; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .photo-card-order { font-size: 11px; color: #aaa; margin-bottom: 10px; }
+        .photo-card-actions { display: flex; gap: 8px; }
+
+        /* 빈 상태 */
+        .empty-state { background: #fff; border-radius: 8px; padding: 60px 20px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .empty-state p { color: #999; font-size: 14px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+<div class="admin-wrap">
+
+    <!-- 헤더 -->
+    <div class="admin-header">
+        <h1>📸 사역사진 관리</h1>
+        <div class="admin-header-right">
+            <a href="/ministry" target="_blank" class="btn btn-secondary">사역소개 페이지 보기</a>
+            <a href="/admin/ministry/new" class="btn btn-primary">+ 사진 등록</a>
+            <a href="/admin" class="btn btn-secondary">관리자 홈</a>
+        </div>
+    </div>
+
+    <!-- 알림 -->
+    <div class="alert alert-success" th:if="${message}" th:text="${message}"></div>
+    <div class="alert alert-danger"  th:if="${error}"   th:text="${error}"></div>
+
+    <!-- 사진 그리드 -->
+    <div class="photo-grid" th:if="${not #lists.isEmpty(photos)}">
+        <div class="photo-card" th:each="photo : ${photos}">
+            <!-- 사진 -->
+            <img class="photo-card-img"
+                 th:src="${photo.photoUrl}"
+                 th:alt="${photo.title}"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="photo-card-placeholder" style="display:none;">📷</div>
+
+            <div class="photo-card-body">
+                <div class="photo-card-meta">
+                    <span class="photo-badge" th:text="${photo.category}">CATEGORY</span>
+                    <span class="photo-status"
+                          th:classappend="${photo.isActive} ? 'active' : 'inactive'"
+                          th:text="${photo.isActive} ? '표시중' : '숨김'">표시중</span>
+                </div>
+                <div class="photo-card-title" th:text="${photo.title}">제목</div>
+                <div class="photo-card-desc" th:if="${photo.description != null and !photo.description.isEmpty()}"
+                     th:text="${photo.description}">설명</div>
+                <div class="photo-card-order" th:text="'표시 순서: ' + ${photo.displayOrder}">순서</div>
+                <div class="photo-card-actions">
+                    <a th:href="@{/admin/ministry/edit/{id}(id=${photo.id})}" class="btn btn-primary btn-sm">수정</a>
+                    <form th:action="@{/admin/ministry/delete/{id}(id=${photo.id})}" method="post"
+                          onsubmit="return confirm('이 사진을 삭제하시겠습니까?');" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빈 상태 -->
+    <div class="empty-state" th:if="${#lists.isEmpty(photos)}">
+        <p>등록된 사역 사진이 없습니다.</p>
+        <a href="/admin/ministry/new" class="btn btn-primary">첫 번째 사진 등록하기</a>
+    </div>
+
+</div>
+</body>
+</html>

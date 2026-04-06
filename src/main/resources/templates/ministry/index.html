@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사역 소개 - 샘물교회</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* 카테고리 필터 탭 */
+        .ministry-filter {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        .ministry-filter-btn {
+            padding: 8px 20px;
+            border: 1px solid rgba(13,43,85,0.2);
+            border-radius: 2px;
+            background: transparent;
+            color: var(--text-mid);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .ministry-filter-btn:hover,
+        .ministry-filter-btn.active {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+
+        /* 사진 그리드 */
+        .ministry-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .ministry-card {
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(13,43,85,0.08);
+            background: #fff;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .ministry-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(13,43,85,0.12);
+        }
+        .ministry-card-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+            position: relative;
+        }
+        /* 이미지 없을 때 플레이스홀더 */
+        .ministry-card-placeholder {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #0D2B55 0%, #185FA5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(181,212,244,0.5);
+            font-size: 36px;
+        }
+        .ministry-card-body {
+            padding: 18px 20px 20px;
+        }
+        .ministry-card-tag {
+            display: inline-block;
+            margin-bottom: 8px;
+            padding: 2px 10px;
+            border: 1px solid rgba(13,43,85,0.2);
+            border-radius: 20px;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--navy-mid);
+            font-weight: 500;
+        }
+        .ministry-card-body h3 {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .ministry-card-body p {
+            font-size: 13px;
+            font-weight: 300;
+            line-height: 1.7;
+            color: var(--text-mid);
+        }
+
+        /* 사진 없을 때 안내 */
+        .ministry-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+        .ministry-empty p { font-size: 14px; font-weight: 300; }
+
+        /* 라이트박스 */
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(5,12,28,0.92);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lightbox-overlay.show { display: flex; }
+        .lightbox-inner {
+            position: relative;
+            max-width: 800px;
+            width: 100%;
+        }
+        .lightbox-img {
+            width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 4px;
+            display: block;
+        }
+        .lightbox-info {
+            margin-top: 16px;
+            text-align: center;
+        }
+        .lightbox-info h3 {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 18px;
+            font-weight: 300;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .lightbox-info p {
+            font-size: 13px;
+            font-weight: 300;
+            color: rgba(181,212,244,0.7);
+            line-height: 1.7;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: -44px;
+            right: 0;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .lightbox-close:hover { color: #fff; }
+
+        /* 페이지 히어로 */
+        .ministry-hero {
+            background: linear-gradient(160deg, var(--navy) 0%, #0f3568 100%);
+            padding: 80px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .ministry-grid { grid-template-columns: 1fr 1fr; }
+            .ministry-hero { padding: 60px 24px; }
+        }
+        @media (max-width: 600px) {
+            .ministry-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+    <a href="/" class="site-nav-logo">
+        <div class="site-cross"></div>
+        <span>샘물교회</span>
+    </a>
+    <ul class="site-nav-links">
+        <li><a href="/">홈</a></li>
+        <li class="has-dropdown">
+            <a href="/about/church">교회소개</a>
+            <ul class="dropdown">
+                <li><a href="/about/church">교회소개</a></li>
+                <li><a href="/about/pastor">담임목사</a></li>
+                <li><a href="/about/staff">교역자 소개</a></li>
+            </ul>
+        </li>
+        <li><a href="/ministry" class="active">사역소개</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+    </ul>
+    <a href="/new-family" class="site-nav-cta">새가족 안내</a>
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/about/church">교회소개</a></li>
+        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
+        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
+        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
+        <li><a href="/ministry">사역소개</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
+    </ul>
+</div>
+
+<!-- 페이지 히어로 -->
+<div class="page-hero">
+    <div class="page-hero-inner">
+        <div class="page-hero-label">MINISTRY</div>
+        <h1 class="page-hero-title">사역 소개</h1>
+        <p class="page-hero-desc">샘물교회의 다양한 사역을 사진으로 만나보세요.</p>
+    </div>
+</div>
+
+<!-- 사역 사진 목록 -->
+<div class="page-content">
+    <div class="page-inner" style="max-width: 1100px;">
+
+        <!-- 카테고리 필터 -->
+        <div class="ministry-filter">
+            <button class="ministry-filter-btn active" data-cat="ALL">전체</button>
+            <button class="ministry-filter-btn" data-cat="WORSHIP">찬양 사역</button>
+            <button class="ministry-filter-btn" data-cat="CHILDREN">어린이 사역</button>
+            <button class="ministry-filter-btn" data-cat="YOUTH">청년부</button>
+            <button class="ministry-filter-btn" data-cat="MISSION">선교 사역</button>
+            <button class="ministry-filter-btn" data-cat="COMMUNITY">소그룹</button>
+            <button class="ministry-filter-btn" data-cat="ETC">기타</button>
+        </div>
+
+        <!-- 사진 그리드 -->
+        <div class="ministry-grid" id="ministryGrid">
+
+            <!-- 사진이 있을 때 -->
+            <th:block th:if="${not #lists.isEmpty(photos)}">
+                <div class="ministry-card"
+                     th:each="photo : ${photos}"
+                     th:attr="data-cat=${photo.category}"
+                     th:onclick="|openLightbox('${photo.photoUrl}', '${photo.title}', '${photo.description != null ? photo.description : ''}')|">
+                    <!-- 사진 -->
+                    <img class="ministry-card-img"
+                         th:src="${photo.photoUrl}"
+                         th:alt="${photo.title}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="ministry-card-placeholder" style="display:none;">📷</div>
+                    <!-- 정보 -->
+                    <div class="ministry-card-body">
+                        <span class="ministry-card-tag" th:text="${photo.category}">CATEGORY</span>
+                        <h3 th:text="${photo.title}">사역 제목</h3>
+                        <p th:if="${photo.description != null and !photo.description.isEmpty()}"
+                           th:text="${photo.description}">사역 설명</p>
+                    </div>
+                </div>
+            </th:block>
+
+            <!-- 사진이 없을 때 -->
+            <div class="ministry-empty" th:if="${#lists.isEmpty(photos)}">
+                <p>등록된 사역 사진이 없습니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 라이트박스 -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+    <div class="lightbox-inner" onclick="event.stopPropagation()">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <img class="lightbox-img" id="lightboxImg" src="" alt="">
+        <div class="lightbox-info">
+            <h3 id="lightboxTitle"></h3>
+            <p id="lightboxDesc"></p>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="site-footer-top">
+        <div class="site-footer-brand">
+            <div class="site-footer-brand-logo">
+                <div class="site-cross"></div>
+                <span>샘물교회</span>
+            </div>
+            <p>말씀과 기도 위에 세워진 교회,<br>모든 이를 환영합니다.</p>
+        </div>
+        <div class="site-footer-col">
+            <h4>CHURCH</h4>
+            <ul>
+                <li><a href="/about/church">교회 소개</a></li>
+                <li><a href="/about/pastor">담임목사</a></li>
+                <li><a href="/ministry">사역 소개</a></li>
+            </ul>
+        </div>
+        <div class="site-footer-col">
+            <h4>WORSHIP</h4>
+            <ul>
+                <li><a href="/worship/schedule">예배 시간</a></li>
+                <li><a href="/worship/department">부서 예배</a></li>
+                <li><a href="/notice/list">공지사항</a></li>
+            </ul>
+        </div>
+        <div class="site-footer-col">
+            <h4>CONNECT</h4>
+            <ul>
+                <li><a href="/location">오시는 길</a></li>
+                <li><a href="/new-family">새가족 등록</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="site-footer-bottom">
+        <p>© 2026 샘물교회. All rights reserved.</p>
+        <div class="site-footer-socials">
+            <a href="#">Y</a><a href="#">f</a><a href="#">▶</a>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/nav.js"></script>
+<script>
+    /* 카테고리 필터 */
+    const filterBtns = document.querySelectorAll('.ministry-filter-btn');
+    const cards = document.querySelectorAll('.ministry-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const cat = btn.dataset.cat;
+            cards.forEach(card => {
+                if (cat === 'ALL' || card.dataset.cat === cat) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    /* 라이트박스 */
+    function openLightbox(url, title, desc) {
+        document.getElementById('lightboxImg').src = url;
+        document.getElementById('lightboxTitle').textContent = title;
+        document.getElementById('lightboxDesc').textContent = desc;
+        document.getElementById('lightboxOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+        document.getElementById('lightboxOverlay').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeLightbox();
+    });
+</script>
+</body>
+</html>
