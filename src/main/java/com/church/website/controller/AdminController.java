@@ -1,8 +1,10 @@
 package com.church.website.controller;
 
 import com.church.website.entity.MainImage;
+import com.church.website.entity.MinistryPhoto;
 import com.church.website.entity.Notice;
 import com.church.website.service.MainImageService;
+import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NewFamilyService;
 import com.church.website.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class AdminController {
     private final NoticeService noticeService;
     private final MainImageService mainImageService;
     private final NewFamilyService newFamilyService;
+    private final MinistryPhotoService ministryPhotoService;
 
     /**
      * 관리자 메인 페이지
@@ -178,6 +181,74 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
         return "redirect:/admin/images";
+    }
+
+    // ====== 사역사진 관리 ======
+
+    /**
+     * 사역사진 목록
+     */
+    @GetMapping("/ministry")
+    public String ministryList(Model model) {
+        model.addAttribute("photos", ministryPhotoService.getAllPhotos());
+        return "admin/ministry/list";
+    }
+
+    /**
+     * 사역사진 등록 폼
+     */
+    @GetMapping("/ministry/new")
+    public String ministryForm(Model model) {
+        model.addAttribute("photo", new MinistryPhoto());
+        return "admin/ministry/form";
+    }
+
+    /**
+     * 사역사진 수정 폼
+     */
+    @GetMapping("/ministry/edit/{id}")
+    public String ministryEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("photo", ministryPhotoService.getPhotoById(id));
+        return "admin/ministry/form";
+    }
+
+    /**
+     * 사역사진 등록/수정 처리
+     */
+    @PostMapping("/ministry/save")
+    public String ministrySave(@ModelAttribute MinistryPhoto photo,
+                               @RequestParam(value = "isActive", required = false) String isActiveStr,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            photo.setIsActive("true".equals(isActiveStr));
+            if (photo.getId() == null) {
+                ministryPhotoService.createPhoto(photo);
+                redirectAttributes.addFlashAttribute("message", "사역사진이 등록되었습니다.");
+            } else {
+                ministryPhotoService.updatePhoto(photo.getId(), photo);
+                redirectAttributes.addFlashAttribute("message", "사역사진이 수정되었습니다.");
+            }
+            return "redirect:/admin/ministry";
+        } catch (Exception e) {
+            log.error("사역사진 저장 실패", e);
+            redirectAttributes.addFlashAttribute("error", "저장 중 오류가 발생했습니다.");
+            return "redirect:/admin/ministry";
+        }
+    }
+
+    /**
+     * 사역사진 삭제
+     */
+    @PostMapping("/ministry/delete/{id}")
+    public String ministryDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            ministryPhotoService.deletePhoto(id);
+            redirectAttributes.addFlashAttribute("message", "사역사진이 삭제되었습니다.");
+        } catch (Exception e) {
+            log.error("사역사진 삭제 실패", e);
+            redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/ministry";
     }
 
     // ====== 새가족 관리 ======

@@ -1,6 +1,7 @@
 package com.church.website.controller;
 
 import com.church.website.service.MainImageService;
+import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ public class MainController {
 
     private final MainImageService mainImageService;
     private final NoticeService noticeService;
+    private final MinistryPhotoService ministryPhotoService;
 
     /**
      * 홈 페이지
@@ -87,6 +89,15 @@ public class MainController {
         PageRequest pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
         model.addAttribute("notices", noticeService.getNoticesPaged(pageable));
         return "notice/list";
+    }
+
+    /**
+     * 사역소개 페이지
+     */
+    @GetMapping("/ministry")
+    public String ministryPage(Model model) {
+        model.addAttribute("photos", ministryPhotoService.getActivePhotos());
+        return "ministry/index";
     }
 
     /**

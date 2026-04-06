@@ -32,7 +32,7 @@ public class SecurityConfig {
         log.info("=== SecurityFilterChain 설정 시작 ===");
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/about/**", "/worship/**", "/notice/**", "/location", "/new-family/**", "/login", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()  // 일반 페이지, 정적 리소스, H2 콘솔 허용
+                .requestMatchers("/", "/about/**", "/worship/**", "/notice/**", "/location", "/ministry/**", "/new-family/**", "/login", "/css/**", "/js/**", "/images/**", "/h2-console/**").permitAll()  // 일반 페이지, 정적 리소스, H2 콘솔 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지는 ADMIN 역할 필요
                 .anyRequest().permitAll()
             )
