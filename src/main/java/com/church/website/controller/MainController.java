@@ -1,5 +1,6 @@
 package com.church.website.controller;
 
+import com.church.website.entity.MinistryPhoto;
 import com.church.website.service.MainImageService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NoticeService;
@@ -11,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
  * 일반 사용자용 메인 컨트롤러
@@ -33,6 +36,12 @@ public class MainController {
         model.addAttribute("mainImages", mainImageService.getActiveImages());
         model.addAttribute("recentNotices", noticeService.getRecentNotices());
         model.addAttribute("popupNotices", noticeService.getActivePopups());
+
+        // 메인 사역소개 섹션용 — 활성화된 사진 최대 4건 (2×2 그리드)
+        List<MinistryPhoto> allPhotos = ministryPhotoService.getActivePhotos();
+        model.addAttribute("mainMinistryPhotos",
+                allPhotos.size() > 4 ? allPhotos.subList(0, 4) : allPhotos);
+
         return "index";
     }
 

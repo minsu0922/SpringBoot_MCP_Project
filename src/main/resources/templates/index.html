@@ -59,13 +59,59 @@
         .main-nav-links .has-dropdown > a::after { content: ''; display: inline-block; width: 4px; height: 4px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) translateY(-2px); margin-left: 2px; transition: transform 0.2s; }
         .main-nav-links .has-dropdown:hover > a::after { transform: rotate(225deg) translateY(-2px); }
         /* 드롭다운 메뉴 */
-        .main-nav-links .dropdown { display: none; position: absolute; top: calc(100% + 16px); left: 0; min-width: 140px; background: rgba(13,43,85,0.98); backdrop-filter: blur(12px); border: 1px solid rgba(181,212,244,0.12); border-radius: 3px; padding: 6px 0; list-style: none; z-index: 300; box-shadow: 0 8px 24px rgba(5,12,28,0.35); }
+        .main-nav-links .dropdown { display: none; position: absolute; top: 100%; left: 0; min-width: 140px; background: rgba(13,43,85,0.98); backdrop-filter: blur(12px); border: 1px solid rgba(181,212,244,0.12); border-radius: 3px; padding: 14px 0 6px; list-style: none; z-index: 300; box-shadow: 0 8px 24px rgba(5,12,28,0.35); }
         .main-nav-links .has-dropdown:hover .dropdown { display: block; }
         .main-nav-links .dropdown li a { display: block; padding: 10px 18px; font-size: 13px; font-weight: 300; color: rgba(250,251,253,0.72); white-space: nowrap; }
         .main-nav-links .dropdown li a::after { display: none; }
         .main-nav-links .dropdown li a:hover { color: var(--gold-light); background: rgba(181,212,244,0.07); }
         .main-nav-cta { padding: 8px 20px; border: 1px solid var(--gold); border-radius: 2px; font-size: 12px; letter-spacing: 0.1em; color: var(--gold); text-decoration: none; transition: all 0.2s; }
         .main-nav-cta:hover { background: var(--gold); color: var(--navy); }
+
+        /* HAMBURGER */
+        .main-hamburger {
+            display: none;
+            flex-direction: column; justify-content: center; gap: 5px;
+            width: 36px; height: 36px;
+            background: none; border: none; cursor: pointer; padding: 4px;
+            z-index: 201;
+        }
+        .main-hamburger span {
+            display: block; width: 22px; height: 2px;
+            background: rgba(250,251,253,0.85); border-radius: 2px;
+            transition: all 0.3s ease; transform-origin: center;
+        }
+        .main-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .main-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .main-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        @media (max-width: 900px) { .main-hamburger { display: flex; } .main-nav-cta { display: none; } }
+
+        /* MOBILE MENU */
+        .main-mobile-menu {
+            display: none;
+            position: fixed; top: 72px; left: 0; right: 0;
+            background: rgba(13,43,85,0.99);
+            backdrop-filter: blur(12px);
+            z-index: 199;
+            border-bottom: 1px solid rgba(181,212,244,0.12);
+            opacity: 0; transform: translateY(-8px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+        }
+        .main-mobile-menu.open {
+            display: block; opacity: 1; transform: translateY(0); pointer-events: auto;
+        }
+        .main-mobile-menu ul { list-style: none; padding: 16px 0 24px; margin: 0; }
+        .main-mobile-menu ul li { border-bottom: 1px solid rgba(181,212,244,0.07); }
+        .main-mobile-menu ul li a {
+            display: block; padding: 14px 28px;
+            font-size: 15px; font-weight: 300; letter-spacing: 0.04em;
+            color: rgba(250,251,253,0.8); text-decoration: none; transition: color 0.2s;
+        }
+        .main-mobile-menu ul li a:hover { color: var(--gold-light); background: rgba(181,212,244,0.05); }
+        .main-mobile-menu ul li a.mobile-sub {
+            padding-left: 44px; font-size: 14px; color: rgba(250,251,253,0.6); border-bottom: none;
+        }
+        .main-mobile-menu ul li a.mobile-cta { color: var(--gold); font-weight: 400; border-top: 1px solid rgba(181,212,244,0.12); margin-top: 8px; }
 
         /* HERO */
         .main-hero { height: 100vh; margin-top: 0; padding-top: 72px; position: relative; display: flex; align-items: center; overflow: hidden; }
@@ -93,7 +139,7 @@
         @keyframes mainBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
 
         /* SECTION COMMON */
-        .main-section { padding: 100px 80px; min-height: 100vh; }
+        .main-section { padding: 100px 80px; }
         .main-section-label { font-size: 10px; letter-spacing: 0.25em; font-weight: 400; color: var(--navy-mid); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .main-section-label::after { content: ''; display: block; width: 24px; height: 1px; background: var(--navy-mid); }
         .main-section-title { font-family: 'Noto Serif KR', serif; font-size: clamp(24px, 3vw, 36px); font-weight: 300; line-height: 1.4; color: var(--text-dark); margin-bottom: 16px; }
@@ -111,33 +157,88 @@
         .main-worship-time { margin-left: auto; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--navy-mid); white-space: nowrap; }
 
         /* VERSE */
-        .main-verse { background: var(--navy); text-align: center; padding: 80px; position: relative; overflow: hidden; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .main-verse { background: var(--navy); text-align: center; padding: 80px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .main-verse::before { content: '\201C'; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-family: 'Cormorant Garamond', serif; font-size: 220px; font-weight: 300; color: rgba(181,212,244,0.05); line-height: 1; pointer-events: none; }
         .main-verse-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(20px, 3vw, 34px); font-weight: 300; font-style: italic; color: var(--white); line-height: 1.6; max-width: 700px; margin: 0 auto 20px; }
         .main-verse-ref { font-size: 13px; font-weight: 300; letter-spacing: 0.12em; color: var(--gold-light); }
 
         /* MINISTRY GRID */
-        .main-ministry-wrap { padding: 100px 80px; background: var(--white); min-height: 100vh; display: flex; align-items: center; }
+        .main-ministry-wrap {
+            padding: 0 80px;
+            background: #3d5a73;       /* 네이비(#0D2B55)와 흰배경(#F4F7FC)의 중간 — 블루-그레이 */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
         .main-ministry-inner { max-width: 1100px; margin: 0 auto; width: 100%; }
-        .main-ministry-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; }
-        .main-ministry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-        .main-ministry-item { position: relative; overflow: hidden; aspect-ratio: 3/4; background: var(--navy); cursor: pointer; }
-        .main-ministry-item:first-child { aspect-ratio: auto; grid-row: span 2; }
-        .main-ministry-bg { position: absolute; inset: 0; transition: transform 0.5s ease; }
-        .main-ministry-item:nth-child(1) .main-ministry-bg { background: linear-gradient(160deg, #0D3570 0%, #185FA5 100%); }
-        .main-ministry-item:nth-child(2) .main-ministry-bg { background: linear-gradient(160deg, #0A2748 0%, #0D3570 100%); }
-        .main-ministry-item:nth-child(3) .main-ministry-bg { background: linear-gradient(160deg, #062040 0%, #0A2748 100%); }
-        .main-ministry-item:nth-child(4) .main-ministry-bg { background: linear-gradient(160deg, #0D3570 0%, #1060A0 100%); }
-        .main-ministry-item:nth-child(5) .main-ministry-bg { background: linear-gradient(160deg, #0A2748 0%, #0D3570 100%); }
+        .main-ministry-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 20px;
+        }
+        /* 2×2 그리드 — 4개 카드가 한 섹션에 꽉 참 */
+        .main-ministry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 12px;
+            height: calc(100vh - 72px - 120px); /* 뷰포트 - 헤더 영역 여백 */
+        }
+        .main-ministry-item {
+            position: relative; overflow: hidden;
+            background: var(--navy-mid);
+            cursor: pointer;
+            text-decoration: none; display: block;
+            border-radius: 6px;
+            min-height: 0; /* grid 자식 높이 팽창 방지 */
+        }
+        .main-ministry-bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            transition: transform 0.5s ease;
+        }
+        .main-ministry-item:nth-child(1) .main-ministry-bg { background-color: #0D3570; }
+        .main-ministry-item:nth-child(2) .main-ministry-bg { background-color: #0A2748; }
+        .main-ministry-item:nth-child(3) .main-ministry-bg { background-color: #0f3d7a; }
+        .main-ministry-item:nth-child(4) .main-ministry-bg { background-color: #0A2748; }
         .main-ministry-item:hover .main-ministry-bg { transform: scale(1.04); }
-        .main-ministry-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,20,40,0.9) 0%, transparent 60%); }
-        .main-ministry-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 26px; }
-        .main-ministry-tag { display: inline-block; margin-bottom: 8px; padding: 3px 10px; border: 1px solid rgba(201,168,76,0.5); border-radius: 20px; font-size: 10px; letter-spacing: 0.1em; color: var(--gold-light); }
-        .main-ministry-content h3 { font-family: 'Noto Serif KR', serif; font-size: 17px; font-weight: 400; color: var(--white); margin-bottom: 5px; }
-        .main-ministry-content p { font-size: 12px; font-weight: 300; line-height: 1.7; color: rgba(181,212,244,0.75); }
+        .main-ministry-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(5,15,35,0.85) 0%, rgba(5,15,35,0.2) 55%, transparent 100%);
+            transition: background 0.3s;
+        }
+        .main-ministry-item:hover .main-ministry-overlay {
+            background: linear-gradient(to top, rgba(5,15,35,0.65) 0%, rgba(5,15,35,0.1) 55%, transparent 100%);
+        }
+        .main-ministry-content {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 22px 26px;
+        }
+        .main-ministry-tag {
+            display: inline-block; margin-bottom: 8px;
+            padding: 3px 10px;
+            border: 1px solid rgba(201,168,76,0.55); border-radius: 20px;
+            font-size: 10px; letter-spacing: 0.1em; color: var(--gold-light);
+        }
+        .main-ministry-content h3 {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 18px; font-weight: 400; color: var(--white);
+            margin-bottom: 5px; line-height: 1.4;
+        }
+        .main-ministry-content p {
+            font-size: 13px; font-weight: 300; line-height: 1.6;
+            color: rgba(181,212,244,0.82);
+        }
+        /* 헤더 텍스트 색 조정 (배경 네이비) */
+        .main-ministry-wrap .main-section-label { color: rgba(255,255,255,0.6); }
+        .main-ministry-wrap .main-section-label::after { background: rgba(255,255,255,0.45); }
+        .main-ministry-wrap .main-section-title { color: #ffffff; }
+        .main-ministry-wrap .main-btn-ghost-dark { color: rgba(255,255,255,0.7); }
+        .main-ministry-wrap .main-btn-ghost-dark:hover { color: #fff; }
+        .main-ministry-wrap .main-arrow { background: rgba(255,255,255,0.7) !important; }
 
         /* NEWS */
-        .main-news { background: #F4F7FC; border-top: 1px solid rgba(24,95,165,0.08); padding: 100px 80px; min-height: 100vh; display: flex; align-items: center; }
+        .main-news { background: #F4F7FC; border-top: 1px solid rgba(24,95,165,0.08); padding: 100px 80px; display: flex; align-items: center; }
         .main-news-inner { max-width: 1100px; margin: 0 auto; width: 100%; }
         .main-news-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 44px; }
         .main-news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -156,7 +257,7 @@
         .main-news-body p { font-size: 12px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
 
         /* LOCATION */
-        .main-location { background: var(--white); padding: 100px 80px; min-height: 100vh; display: flex; align-items: center; }
+        .main-location { background: var(--white); padding: 100px 80px; display: flex; align-items: center; }
         .main-location-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: center; width: 100%; }
         .main-location-map { height: 300px; border-radius: 4px; background: linear-gradient(135deg, #0D2B55 0%, #185FA5 100%); display: flex; align-items: center; justify-content: center; color: rgba(181,212,244,0.5); font-size: 13px; letter-spacing: 0.1em; position: relative; overflow: hidden; border: 1px solid rgba(24,95,165,0.15); }
         .main-location-map::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px), repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px); }
@@ -170,7 +271,7 @@
         .main-location-val { font-size: 13px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
 
         /* CTA BANNER */
-        .main-cta { background: var(--navy); padding: 80px; display: flex; align-items: center; justify-content: space-between; gap: 40px; min-height: 100vh; }
+        .main-cta { background: var(--navy); padding: 80px; display: flex; align-items: center; justify-content: space-between; gap: 40px; }
         .main-cta-title { font-family: 'Noto Serif KR', serif; font-size: 30px; font-weight: 300; color: var(--white); line-height: 1.4; margin-bottom: 10px; }
         .main-cta-desc { font-size: 14px; font-weight: 300; color: rgba(181,212,244,0.7); }
 
@@ -208,8 +309,9 @@
             .main-hero-content { padding: 0 32px; }
             .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-location, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
             .main-worship-inner { grid-template-columns: 1fr; gap: 40px; }
-            .main-ministry-grid { grid-template-columns: 1fr 1fr; }
-            .main-ministry-item:first-child { grid-row: span 1; aspect-ratio: 3/4; }
+            .main-ministry-wrap { padding: 24px; height: auto; min-height: 100vh; }
+            .main-ministry-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; gap: 8px; height: auto; }
+            .main-ministry-item { height: 26vh; }
             .main-news-grid { grid-template-columns: 1fr; }
             .main-location-inner { grid-template-columns: 1fr; }
             .main-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -235,12 +337,37 @@
             </ul>
         </li>
         <li><a href="/ministry">사역소개</a></li>
-        <li><a href="/worship/schedule">예배안내</a></li>
+        <li class="has-dropdown">
+            <a href="/worship/schedule">예배안내</a>
+            <ul class="dropdown">
+                <li><a href="/worship/schedule">예배 시간표</a></li>
+                <li><a href="/worship/department">부서별 안내</a></li>
+            </ul>
+        </li>
         <li><a href="/notice/list">공지사항</a></li>
         <li><a href="/location">오시는 길</a></li>
     </ul>
     <a href="/new-family" class="main-nav-cta">새가족 안내</a>
+    <button class="main-hamburger" id="mainHamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+    </button>
 </nav>
+<div class="main-mobile-menu" id="mainMobileMenu">
+    <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/about/church">교회소개</a></li>
+        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
+        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
+        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
+        <li><a href="/ministry">사역소개</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
+        <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
+    </ul>
+</div>
 
 <!-- HERO -->
 <section class="main-hero" data-section="0">
@@ -344,51 +471,62 @@
             </a>
         </div>
         <div class="main-ministry-grid">
-            <div class="main-ministry-item">
-                <div class="main-ministry-bg"></div>
-                <div class="main-ministry-overlay"></div>
-                <div class="main-ministry-content">
-                    <span class="main-ministry-tag">WORSHIP</span>
-                    <h3>찬양 사역</h3>
-                    <p>음악으로 하나님께 영광을 돌리는 찬양팀과 함께하세요.</p>
-                </div>
-            </div>
-            <div class="main-ministry-item">
-                <div class="main-ministry-bg"></div>
-                <div class="main-ministry-overlay"></div>
-                <div class="main-ministry-content">
-                    <span class="main-ministry-tag">CHILDREN</span>
-                    <h3>어린이 사역</h3>
-                    <p>다음 세대를 위한 말씀 교육</p>
-                </div>
-            </div>
-            <div class="main-ministry-item">
-                <div class="main-ministry-bg"></div>
-                <div class="main-ministry-overlay"></div>
-                <div class="main-ministry-content">
-                    <span class="main-ministry-tag">YOUTH</span>
-                    <h3>청년부</h3>
-                    <p>믿음으로 세워지는 청년 공동체</p>
-                </div>
-            </div>
-            <div class="main-ministry-item">
-                <div class="main-ministry-bg"></div>
-                <div class="main-ministry-overlay"></div>
-                <div class="main-ministry-content">
-                    <span class="main-ministry-tag">MISSION</span>
-                    <h3>선교 사역</h3>
-                    <p>국내외 선교를 통한 복음 전파</p>
-                </div>
-            </div>
-            <div class="main-ministry-item">
-                <div class="main-ministry-bg"></div>
-                <div class="main-ministry-overlay"></div>
-                <div class="main-ministry-content">
-                    <span class="main-ministry-tag">COMMUNITY</span>
-                    <h3>소그룹 모임</h3>
-                    <p>가정과 직장 속 작은 교회</p>
-                </div>
-            </div>
+            <!-- DB 사진이 있을 때: 동적 출력 -->
+            <th:block th:if="${not #lists.isEmpty(mainMinistryPhotos)}">
+                <a class="main-ministry-item"
+                   th:each="photo : ${mainMinistryPhotos}"
+                   th:href="@{/ministry}">
+                    <div class="main-ministry-bg"
+                         th:style="${photo.photoUrl != null} ? 'background-image: url(' + ${photo.photoUrl} + '); background-size: cover; background-position: center;' : ''">
+                    </div>
+                    <div class="main-ministry-overlay"></div>
+                    <div class="main-ministry-content">
+                        <span class="main-ministry-tag" th:text="${photo.category}">CATEGORY</span>
+                        <h3 th:text="${photo.title}">사역 제목</h3>
+                        <p th:if="${photo.description != null and !photo.description.isEmpty()}"
+                           th:text="${#strings.length(photo.description) > 40 ? #strings.substring(photo.description,0,40)+'…' : photo.description}">사역 설명</p>
+                    </div>
+                </a>
+            </th:block>
+            <!-- DB 사진이 없을 때: 기본 더미 카드 표시 -->
+            <th:block th:if="${#lists.isEmpty(mainMinistryPhotos)}">
+                <a class="main-ministry-item" href="/ministry">
+                    <div class="main-ministry-bg" style="background: linear-gradient(135deg,#0D3570,#185FA5);"></div>
+                    <div class="main-ministry-overlay"></div>
+                    <div class="main-ministry-content">
+                        <span class="main-ministry-tag">WORSHIP</span>
+                        <h3>찬양 사역</h3>
+                        <p>음악으로 하나님께 영광을 돌리는 찬양팀</p>
+                    </div>
+                </a>
+                <a class="main-ministry-item" href="/ministry">
+                    <div class="main-ministry-bg" style="background: linear-gradient(135deg,#062040,#0A2748);"></div>
+                    <div class="main-ministry-overlay"></div>
+                    <div class="main-ministry-content">
+                        <span class="main-ministry-tag">YOUTH</span>
+                        <h3>청년부</h3>
+                        <p>믿음으로 세워지는 청년 공동체</p>
+                    </div>
+                </a>
+                <a class="main-ministry-item" href="/ministry">
+                    <div class="main-ministry-bg" style="background: linear-gradient(135deg,#0D3570,#1060A0);"></div>
+                    <div class="main-ministry-overlay"></div>
+                    <div class="main-ministry-content">
+                        <span class="main-ministry-tag">MISSION</span>
+                        <h3>선교 사역</h3>
+                        <p>국내외 선교를 통한 복음 전파</p>
+                    </div>
+                </a>
+                <a class="main-ministry-item" href="/ministry">
+                    <div class="main-ministry-bg" style="background: linear-gradient(135deg,#0A2748,#0D3570);"></div>
+                    <div class="main-ministry-overlay"></div>
+                    <div class="main-ministry-content">
+                        <span class="main-ministry-tag">COMMUNITY</span>
+                        <h3>소그룹 모임</h3>
+                        <p>가정과 직장 속 작은 교회</p>
+                    </div>
+                </a>
+            </th:block>
         </div>
     </div>
 </div>
@@ -407,11 +545,21 @@
             </a>
         </div>
         <!-- Thymeleaf 공지사항 동적 출력 -->
-        <div th:if="${not #lists.isEmpty(recentNotices)}">
-            <div class="main-notice-item" th:each="notice : ${recentNotices}">
-                <a th:href="@{/notice/detail/{id}(id=${notice.id})}" th:text="${notice.title}">공지사항 제목</a>
-                <span class="main-notice-date" th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">날짜</span>
-            </div>
+        <div class="main-news-grid" th:if="${not #lists.isEmpty(recentNotices)}">
+            <a class="main-news-card"
+               th:each="notice : ${recentNotices}"
+               th:href="@{/notice/detail/{id}(id=${notice.id})}">
+                <div class="main-news-thumb">
+                    <div class="main-news-thumb-bg"></div>
+                    <span class="main-news-badge">공지</span>
+                </div>
+                <div class="main-news-body">
+                    <div class="main-news-date" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd')}">날짜</div>
+                    <h3 th:text="${notice.title}">공지사항 제목</h3>
+                    <p th:if="${notice.content != null}"
+                       th:text="${#strings.length(notice.content) > 60 ? #strings.substring(notice.content, 0, 60) + '…' : notice.content}">내용 미리보기</p>
+                </div>
+            </a>
         </div>
         <p th:if="${#lists.isEmpty(recentNotices)}" style="font-size:14px; color: var(--text-muted); font-weight:300;">등록된 공지사항이 없습니다.</p>
     </div>
@@ -462,7 +610,7 @@
     <div class="main-footer-top">
         <div class="main-footer-brand">
             <div class="main-footer-brand-logo">
-                <div class="main-nav-cross"></div>
+                <div class="main-nav-cross" style="width:22px;height:22px;position:relative;flex-shrink:0;"></div>
                 <span>샘물교회</span>
             </div>
             <p>말씀과 기도 위에 세워진 교회,<br>샘물교회는 모든 이를 환영합니다.<br>주님의 사랑으로 하나되는 공동체.</p>
@@ -533,5 +681,33 @@
 <script src="/js/slider.js"></script>
 <script src="/js/popup.js"></script>
 <script src="/js/section-scroll.js"></script>
+<script>
+    /* 메인 모바일 햄버거 */
+    (function () {
+        const hamburger = document.getElementById('mainHamburger');
+        const mobileMenu = document.getElementById('mainMobileMenu');
+        if (!hamburger || !mobileMenu) return;
+        hamburger.addEventListener('click', function () {
+            const isOpen = mobileMenu.classList.toggle('open');
+            hamburger.classList.toggle('open', isOpen);
+            hamburger.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+        });
+        mobileMenu.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                mobileMenu.classList.remove('open');
+                hamburger.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+        document.addEventListener('click', function (e) {
+            if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.classList.remove('open');
+                hamburger.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
+    })();
+</script>
 </body>
 </html>

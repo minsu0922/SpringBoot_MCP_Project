@@ -15,11 +15,22 @@
     </a>
     <ul class="site-nav-links">
         <li><a href="/">홈</a></li>
-        <li><a href="/about/church">교회소개</a></li>
-        <li><a href="/about/pastor">담임목사</a></li>
-        <li><a href="/about/staff">교역자 소개</a></li>
+        <li class="has-dropdown">
+            <a href="/about/church">교회소개</a>
+            <ul class="dropdown">
+                <li><a href="/about/church">교회소개</a></li>
+                <li><a href="/about/pastor">담임목사</a></li>
+                <li><a href="/about/staff">교역자 소개</a></li>
+            </ul>
+        </li>
         <li><a href="/ministry">사역소개</a></li>
-        <li><a href="/worship/schedule">예배안내</a></li>
+        <li class="has-dropdown">
+            <a href="/worship/schedule">예배안내</a>
+            <ul class="dropdown">
+                <li><a href="/worship/schedule">예배 시간표</a></li>
+                <li><a href="/worship/department">부서별 안내</a></li>
+            </ul>
+        </li>
         <li><a href="/notice/list" class="active">공지사항</a></li>
         <li><a href="/location">오시는 길</a></li>
     </ul>
@@ -32,10 +43,13 @@
     <ul>
         <li><a href="/">홈</a></li>
         <li><a href="/about/church">교회소개</a></li>
-        <li><a href="/about/pastor">담임목사</a></li>
-        <li><a href="/about/staff">교역자 소개</a></li>
+        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
+        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
+        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
         <li><a href="/ministry">사역소개</a></li>
         <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
+        <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
         <li><a href="/notice/list">공지사항</a></li>
         <li><a href="/location">오시는 길</a></li>
         <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
