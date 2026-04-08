@@ -1,170 +1,513 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${notice.id == null ? '공지사항 작성' : '공지사항 수정'}">공지사항 작성</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="datetime-local"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        textarea {
-            min-height: 300px;
-            resize: vertical;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-primary:hover { background-color: #0056b3; }
-        .btn-secondary { background-color: #6c757d; color: white; }
-        .btn-secondary:hover { background-color: #545b62; }
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-        /* 팝업 노출 설정 박스 */
-        .popup-setting-box {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            background-color: #fafafa;
-            transition: border-color 0.3s;
-        }
-        .popup-setting-box.active {
-            border-color: #007bff;
-            background-color: #f0f7ff;
-        }
-        .popup-toggle-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .popup-toggle-row label {
-            margin: 0;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 26px;
-        }
-        .toggle-switch input { display: none; }
-        .toggle-slider {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            border-radius: 26px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .toggle-slider:before {
-            content: "";
-            position: absolute;
-            width: 20px; height: 20px;
-            left: 3px; bottom: 3px;
-            background-color: white;
-            border-radius: 50%;
-            transition: 0.3s;
-        }
-        .toggle-switch input:checked + .toggle-slider { background-color: #007bff; }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1 style="margin: 0;" th:text="${notice.id == null ? '공지사항 작성' : '공지사항 수정'}">공지사항 작성</h1>
-        <div>
-            <a href="/admin/notices" class="btn btn-secondary">목록으로</a>
-        </div>
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'notice')}">
+
+<title th:fragment="title" th:text="${notice.id == null ? '공지사항 작성' : '공지사항 수정'}">공지사항 작성</title>
+
+<main th:fragment="main">
+<style>
+    .form-card {
+        background: #fff;
+        border: 1px solid #DDE4EF;
+        border-radius: 10px;
+        overflow: hidden;
+        max-width: 820px;
+    }
+    .form-card-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid #EEF2F8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .form-card-title { font-size: 14px; font-weight: 600; color: #0A1F3D; }
+    .form-card-body  { padding: 24px 22px; }
+
+    .form-group { margin-bottom: 22px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #0A1F3D;
+        font-family: 'Noto Sans KR', sans-serif;
+        background: #FAFBFD;
+        transition: border-color 0.15s;
+        box-sizing: border-box;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #185FA5;
+        background: #fff;
+    }
+    textarea.form-control {
+        min-height: 280px;
+        resize: vertical;
+        line-height: 1.7;
+    }
+
+    /* ── 팝업 설정 박스 ── */
+    .popup-box {
+        border: 1px solid #DDE4EF;
+        border-radius: 8px;
+        background: #FAFBFD;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+    .popup-box.active { border-color: #185FA5; }
+
+    .popup-toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+    }
+    .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    .toggle-switch input { display: none; }
+    .toggle-slider {
+        position: absolute;
+        inset: 0;
+        background: #DDE4EF;
+        border-radius: 24px;
+        cursor: pointer;
+        transition: 0.25s;
+    }
+    .toggle-slider::before {
+        content: '';
+        position: absolute;
+        width: 18px; height: 18px;
+        left: 3px; top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.25s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #185FA5; }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .toggle-label { font-size: 13px; color: #3A5278; cursor: pointer; font-weight: 500; }
+    .toggle-desc  { margin-left: auto; font-size: 11px; color: #7A96B8; }
+
+    /* ── 팝업 기간 설정 ── */
+    .popup-period {
+        display: none;
+        border-top: 1px solid #EEF2F8;
+        padding: 18px 18px 20px;
+        background: #F0F6FF;
+    }
+    .popup-period.visible { display: block; }
+    .popup-period-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: #185FA5;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .popup-period-title::before {
+        content: '';
+        display: inline-block;
+        width: 3px; height: 12px;
+        background: #185FA5;
+        border-radius: 2px;
+    }
+    .period-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    /* ── 커스텀 날짜/시간 입력 ── */
+    .dt-field { }
+    .dt-label {
+        display: block;
+        font-size: 11px;
+        color: #7A96B8;
+        font-weight: 600;
+        margin-bottom: 6px;
+        letter-spacing: 0.04em;
+    }
+    .dt-inputs {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+    .dt-sep {
+        font-size: 18px;
+        color: #DDE4EF;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    /* 날짜 select 공통 */
+    .dt-select {
+        padding: 9px 8px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #0A1F3D;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.15s;
+        appearance: none;
+        -webkit-appearance: none;
+        font-family: 'Noto Sans KR', sans-serif;
+        text-align: center;
+    }
+    .dt-select:focus {
+        outline: none;
+        border-color: #185FA5;
+        background: #fff;
+    }
+    .dt-select:hover { border-color: #7A96B8; }
+
+    .dt-year  { width: 80px; }
+    .dt-month { width: 56px; }
+    .dt-day   { width: 52px; }
+    .dt-hour  { width: 56px; }
+    .dt-min   { width: 56px; }
+
+    /* hidden input (실제 전송값) */
+    input[type="hidden"].dt-value { display: none; }
+
+    .period-notice {
+        margin-top: 12px;
+        font-size: 11px;
+        color: #185FA5;
+        background: #E6F1FB;
+        border-radius: 5px;
+        padding: 7px 12px;
+        line-height: 1.6;
+        border-left: 3px solid #185FA5;
+    }
+
+    /* ── 버튼 ── */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 22px;
+        border-top: 1px solid #EEF2F8;
+        background: #F8FAFD;
+    }
+    .btn-cancel {
+        padding: 9px 18px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        background: #fff;
+        color: #3A5278;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: border-color 0.15s;
+    }
+    .btn-cancel:hover { border-color: #7A96B8; }
+    .btn-save {
+        padding: 9px 22px;
+        border: none;
+        border-radius: 6px;
+        background: #0D2B55;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.15s;
+    }
+    .btn-save:hover { background: #185FA5; }
+</style>
+
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="form-card-title" th:text="${notice.id == null ? '새 공지사항 작성' : '공지사항 수정'}">공지사항 작성</div>
+        <a href="/admin/notices" style="font-size:12px; color:#7A96B8;">← 목록으로</a>
     </div>
 
-    <div class="content">
-        <form th:action="@{/admin/notices/save}" method="post">
-            <input type="hidden" th:field="${notice.id}" />
+    <form th:action="@{/admin/notices/save}" method="post" id="noticeForm">
+        <input type="hidden" th:field="${notice.id}" />
 
+        <!-- 팝업 활성화 여부 (ModelAttribute의 popup 필드와 분리된 별도 파라미터) -->
+        <input type="hidden" name="popupEnabled" id="popupEnabledInput" value="false">
+
+        <!-- 날짜/시간 hidden 전송값 -->
+        <input type="hidden" name="popupStartDate" id="popupStartDateVal">
+        <input type="hidden" name="popupEndDate"   id="popupEndDateVal">
+
+        <div class="form-card-body">
+
+            <!-- 제목 -->
             <div class="form-group">
-                <label for="title">제목 *</label>
-                <input type="text" id="title" th:field="${notice.title}" required placeholder="제목을 입력하세요" />
+                <label class="form-label" for="title">제목 <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="title" class="form-control"
+                       th:field="${notice.title}" required placeholder="제목을 입력하세요" />
             </div>
 
+            <!-- 내용 -->
             <div class="form-group">
-                <label for="content">내용 *</label>
-                <textarea id="content" th:field="${notice.content}" required placeholder="내용을 입력하세요"></textarea>
+                <label class="form-label" for="content">내용 <span style="color:#dc3545;">*</span></label>
+                <textarea id="content" class="form-control"
+                          th:field="${notice.content}" required placeholder="내용을 입력하세요"></textarea>
             </div>
 
-            <!-- 팝업 노출 설정 -->
+            <!-- 팝업 설정 -->
             <div class="form-group">
-                <label>팝업 설정</label>
-                <div class="popup-setting-box" id="popupSettingBox">
+                <label class="form-label">팝업 노출 설정</label>
+                <div class="popup-box" id="popupBox">
+
+                    <!-- 토글 -->
                     <div class="popup-toggle-row">
                         <label class="toggle-switch">
-                            <input type="checkbox" id="popupToggle" th:field="${notice.popup}" onchange="togglePopupBox(this)" />
+                            <input type="checkbox" id="popupToggle"
+                                   th:checked="${notice.popup}"
+                                   onchange="onPopupToggle(this.checked)">
                             <span class="toggle-slider"></span>
                         </label>
-                        <label for="popupToggle">메인 화면 팝업으로 노출</label>
+                        <label class="toggle-label" for="popupToggle">메인 화면 팝업으로 노출</label>
+                        <span class="toggle-desc" id="toggleDesc">비활성</span>
+                    </div>
+
+                    <!-- 기간 설정 -->
+                    <div class="popup-period" id="popupPeriod">
+                        <div class="popup-period-title">노출 기간 설정</div>
+                        <div class="period-row">
+
+                            <!-- 시작 일시 -->
+                            <div class="dt-field">
+                                <span class="dt-label">시작 일시</span>
+                                <div class="dt-inputs">
+                                    <select class="dt-select dt-year"  id="sYear"  onchange="updateDt('start')"></select>
+                                    <select class="dt-select dt-month" id="sMonth" onchange="updateDt('start')"></select>
+                                    <select class="dt-select dt-day"   id="sDay"   onchange="updateDt('start')"></select>
+                                    <span class="dt-sep">·</span>
+                                    <select class="dt-select dt-hour"  id="sHour"  onchange="updateDt('start')"></select>
+                                    <select class="dt-select dt-min"   id="sMin"   onchange="updateDt('start')"></select>
+                                </div>
+                            </div>
+
+                            <!-- 종료 일시 -->
+                            <div class="dt-field">
+                                <span class="dt-label">종료 일시</span>
+                                <div class="dt-inputs">
+                                    <select class="dt-select dt-year"  id="eYear"  onchange="updateDt('end')"></select>
+                                    <select class="dt-select dt-month" id="eMonth" onchange="updateDt('end')"></select>
+                                    <select class="dt-select dt-day"   id="eDay"   onchange="updateDt('end')"></select>
+                                    <span class="dt-sep">·</span>
+                                    <select class="dt-select dt-hour"  id="eHour"  onchange="updateDt('end')"></select>
+                                    <select class="dt-select dt-min"   id="eMin"   onchange="updateDt('end')"></select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="period-notice">
+                            설정한 기간 동안 메인 홈페이지에 팝업으로 자동 노출됩니다.
+                            기간을 설정하지 않으면 팝업이 표시되지 않습니다.
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div style="text-align: center; margin-top: 30px;">
-                <button type="submit" class="btn btn-primary">저장</button>
-                <a href="/admin/notices" class="btn btn-secondary">취소</a>
-            </div>
-        </form>
-    </div>
+        </div>
 
-    <script>
-        window.onload = function() {
-            const toggle = document.getElementById('popupToggle');
-            togglePopupBox(toggle);
-        };
+        <div class="form-actions">
+            <a href="/admin/notices" class="btn-cancel">취소</a>
+            <button type="submit" class="btn-save">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 7l3.5 3.5L11 3"/>
+                </svg>
+                저장
+            </button>
+        </div>
+    </form>
+</div>
 
-        function togglePopupBox(checkbox) {
-            const settingBox = document.getElementById('popupSettingBox');
-            if (checkbox.checked) {
-                settingBox.classList.add('active');
-            } else {
-                settingBox.classList.remove('active');
-            }
+<script th:inline="javascript">
+    /* ── 서버에서 내려온 기존 기간값 ── */
+    const initStart = /*[[${notice.popupStartDate != null ? #temporals.format(notice.popupStartDate, 'yyyy-MM-dd''T''HH:mm') : ''}]]*/ '';
+    const initEnd   = /*[[${notice.popupEndDate   != null ? #temporals.format(notice.popupEndDate,   'yyyy-MM-dd''T''HH:mm') : ''}]]*/ '';
+    const initPopup = /*[[${notice.popup}]]*/ false;
+
+    /* ── select 옵션 채우기 ── */
+    function fillSelect(el, from, to, pad, suffix) {
+        el.innerHTML = '';
+        for (let i = from; i <= to; i++) {
+            const opt = document.createElement('option');
+            opt.value = String(i).padStart(pad, '0');
+            opt.textContent = String(i).padStart(pad, '0') + (suffix || '');
+            el.appendChild(opt);
         }
-    </script>
-</body>
+    }
+
+    function initSelects() {
+        const now = new Date();
+        const cy  = now.getFullYear();
+
+        ['sYear','eYear'].forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            for (let y = cy - 1; y <= cy + 5; y++) {
+                const opt = document.createElement('option');
+                opt.value = String(y);
+                opt.textContent = y + '년';
+                el.appendChild(opt);
+            }
+        });
+        ['sMonth','eMonth'].forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            for (let m = 1; m <= 12; m++) {
+                const opt = document.createElement('option');
+                opt.value = String(m).padStart(2,'0');
+                opt.textContent = String(m).padStart(2,'0') + '월';
+                el.appendChild(opt);
+            }
+        });
+        ['sDay','eDay'].forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            for (let d = 1; d <= 31; d++) {
+                const opt = document.createElement('option');
+                opt.value = String(d).padStart(2,'0');
+                opt.textContent = String(d).padStart(2,'0') + '일';
+                el.appendChild(opt);
+            }
+        });
+        ['sHour','eHour'].forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            for (let h = 0; h <= 23; h++) {
+                const opt = document.createElement('option');
+                opt.value = String(h).padStart(2,'0');
+                opt.textContent = String(h).padStart(2,'0') + '시';
+                el.appendChild(opt);
+            }
+        });
+        ['sMin','eMin'].forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            [0,10,20,30,40,50].forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = String(m).padStart(2,'0');
+                opt.textContent = String(m).padStart(2,'0') + '분';
+                el.appendChild(opt);
+            });
+        });
+    }
+
+    /* ── 기존값 → select 복원 ── */
+    function applyValue(prefix, isoStr) {
+        if (!isoStr) return;
+        // "2026-04-08T14:30"
+        const [datePart, timePart] = isoStr.split('T');
+        const [y, m, d] = datePart.split('-');
+        const [hh, mm]  = timePart.split(':');
+        const minRounded = ['00','10','20','30','40','50'].reduce((a,b) =>
+            Math.abs(parseInt(b) - parseInt(mm)) < Math.abs(parseInt(a) - parseInt(mm)) ? b : a);
+
+        setSelect(prefix + 'Year',  y);
+        setSelect(prefix + 'Month', m);
+        setSelect(prefix + 'Day',   d);
+        setSelect(prefix + 'Hour',  hh);
+        setSelect(prefix + 'Min',   minRounded);
+    }
+
+    function setSelect(id, val) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const opt = Array.from(el.options).find(o => o.value === val || o.value === String(parseInt(val)).padStart(2,'0'));
+        if (opt) el.value = opt.value;
+    }
+
+    /* ── select → hidden input 동기화 ── */
+    function updateDt(which) {
+        const p  = which === 'start' ? 's' : 'e';
+        const id = which === 'start' ? 'popupStartDateVal' : 'popupEndDateVal';
+        const y  = document.getElementById(p + 'Year').value;
+        const m  = document.getElementById(p + 'Month').value;
+        const d  = document.getElementById(p + 'Day').value;
+        const h  = document.getElementById(p + 'Hour').value;
+        const mi = document.getElementById(p + 'Min').value;
+        document.getElementById(id).value = y + '-' + m + '-' + d + 'T' + h + ':' + mi;
+    }
+
+    /* ── 팝업 토글 ── */
+    function onPopupToggle(checked) {
+        document.getElementById('popupBox').classList.toggle('active', checked);
+        document.getElementById('popupPeriod').classList.toggle('visible', checked);
+        document.getElementById('toggleDesc').textContent = checked ? '활성 — 기간을 설정하세요' : '비활성';
+        document.getElementById('popupEnabledInput').value = checked ? 'true' : 'false';
+    }
+
+    /* ── 폼 제출 전 날짜값 최종 동기화 ── */
+    document.getElementById('noticeForm').addEventListener('submit', function () {
+        updateDt('start');
+        updateDt('end');
+    });
+
+    /* ── 초기화 ── */
+    document.addEventListener('DOMContentLoaded', function () {
+        initSelects();
+
+        // 기존 값 복원 또는 기본값(오늘 ~ 7일 후)
+        const now = new Date();
+        const def = d => String(d).padStart(2,'0');
+
+        if (initStart) {
+            applyValue('s', initStart);
+        } else {
+            setSelect('sYear',  String(now.getFullYear()));
+            setSelect('sMonth', def(now.getMonth() + 1));
+            setSelect('sDay',   def(now.getDate()));
+            setSelect('sHour',  '09');
+            setSelect('sMin',   '00');
+        }
+
+        if (initEnd) {
+            applyValue('e', initEnd);
+        } else {
+            const next = new Date(now);
+            next.setDate(next.getDate() + 7);
+            setSelect('eYear',  String(next.getFullYear()));
+            setSelect('eMonth', def(next.getMonth() + 1));
+            setSelect('eDay',   def(next.getDate()));
+            setSelect('eHour',  '23');
+            setSelect('eMin',   '50');
+        }
+
+        // 초기 hidden value 세팅
+        updateDt('start');
+        updateDt('end');
+
+        // 팝업 토글 초기 상태
+        onPopupToggle(initPopup);
+        document.getElementById('popupToggle').checked = initPopup;
+    });
+</script>
+</main>
+
+</th:block>
 </html>

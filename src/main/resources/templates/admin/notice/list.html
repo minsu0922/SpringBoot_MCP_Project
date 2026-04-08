@@ -1,143 +1,213 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공지사항 관리</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1 style="margin: 0;">📢 공지사항 관리</h1>
-        <div>
-            <a href="/admin" class="btn btn-secondary">관리자 메인</a>
-        </div>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'notice')}">
+
+<title th:fragment="title">공지사항 관리</title>
+
+<main th:fragment="main">
+<style>
+    .page-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #0D2B55;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 18px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #185FA5; }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.15s;
+    }
+    .btn-sm:hover { opacity: 0.85; }
+    .btn-edit   { background: #E6F1FB; color: #185FA5; }
+    .btn-delete { background: #FCEBEB; color: #A32D2D; }
+
+    .alert { padding: 12px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+    .alert-success { background: #EAF3DE; color: #3B6D11; border: 1px solid #C0DD97; }
+    .alert-error   { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; }
+
+    .data-table {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #DDE4EF;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .data-table table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+        background: #F8FAFD;
+        font-size: 12px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #DDE4EF;
+    }
+    .data-table td {
+        padding: 13px 16px;
+        font-size: 13px;
+        color: #3A5278;
+        border-bottom: 1px solid #F4F7FC;
+        vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #FAFBFD; }
+    .num-cell   { color: #7A96B8; font-size: 12px; }
+    .title-cell { color: #0A1F3D; font-weight: 500; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .action-cell { display: flex; gap: 6px; }
+    .empty-row td { text-align: center; color: #7A96B8; padding: 40px !important; }
+
+    /* 팝업 배지 */
+    .popup-badge-on {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 10px;
+        white-space: nowrap;
+    }
+    .popup-badge-on.active   { background: #EAF3DE; color: #3B6D11; }
+    .popup-badge-on.inactive { background: #FAEEDA; color: #854F0B; }
+    .popup-badge-on.expired  { background: #F1EFE8; color: #5F5E5A; }
+
+    /* 팝업 기간 표시 */
+    .popup-period-text {
+        font-size: 11px;
+        color: #7A96B8;
+        margin-top: 3px;
+        line-height: 1.4;
+    }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+<div class="page-toolbar">
+    <div style="font-size:13px; color:#7A96B8;">
+        전체 <strong style="color:#0A1F3D;" th:text="${#lists.size(notices)}">0</strong>건
     </div>
+    <a href="/admin/notices/new" class="btn-primary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/>
+        </svg>
+        새 공지사항 작성
+    </a>
+</div>
 
-    <div class="content">
-        <!-- 메시지 알림 -->
-        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+<div class="data-table">
+    <table>
+        <thead>
+            <tr>
+                <th style="width:50px;">번호</th>
+                <th>제목</th>
+                <th style="width:90px;">작성자</th>
+                <th style="width:65px;">조회수</th>
+                <th style="width:130px;">작성일</th>
+                <th style="width:150px;">팝업 상태</th>
+                <th style="width:120px;">관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${#lists.isEmpty(notices)}" class="empty-row">
+                <td colspan="7">등록된 공지사항이 없습니다.</td>
+            </tr>
+            <tr th:each="notice, stat : ${notices}">
+                <td class="num-cell" th:text="${stat.count}"></td>
+                <td class="title-cell" th:text="${notice.title}"></td>
+                <td th:text="${notice.author}"></td>
+                <td th:text="${notice.viewCount}"></td>
+                <td style="font-size:12px;" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}"></td>
 
-        <div style="margin-bottom: 20px;">
-            <a href="/admin/notices/new" class="btn btn-primary">새 공지사항 작성</a>
-        </div>
+                <!-- 팝업 상태 컬럼 -->
+                <td>
+                    <!-- 팝업 OFF -->
+                    <span th:if="${!notice.popup}" style="font-size:11px; color:#B5D4F4;">—</span>
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 60px;">번호</th>
-                    <th>제목</th>
-                    <th style="width: 120px;">작성자</th>
-                    <th style="width: 100px;">조회수</th>
-                    <th style="width: 150px;">작성일</th>
-                    <th style="width: 180px;">관리</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:if="${#lists.isEmpty(notices)}">
-                    <td colspan="6" style="text-align: center; color: #999;">등록된 공지사항이 없습니다.</td>
-                </tr>
-                <tr th:each="notice, iterStat : ${notices}">
-                    <td th:text="${iterStat.count}"></td>
-                    <td th:text="${notice.title}"></td>
-                    <td th:text="${notice.author}"></td>
-                    <td th:text="${notice.viewCount}"></td>
-                    <td th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                    <td>
-                        <a th:href="@{/admin/notices/edit/{id}(id=${notice.id})}" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;">수정</a>
-                        <form th:action="@{/admin/notices/delete/{id}(id=${notice.id})}" method="post" style="display: inline;" 
+                    <!-- 팝업 ON -->
+                    <th:block th:if="${notice.popup}">
+                        <!--/* 현재 활성 (기간 내) */-->
+                        <span th:if="${notice.popupStartDate != null and notice.popupEndDate != null
+                                       and #temporals.createNow().isAfter(notice.popupStartDate)
+                                       and #temporals.createNow().isBefore(notice.popupEndDate)}"
+                              class="popup-badge-on active">
+                            ● 노출중
+                        </span>
+
+                        <!--/* 기간 미도래 */-->
+                        <span th:if="${notice.popupStartDate != null
+                                       and #temporals.createNow().isBefore(notice.popupStartDate)}"
+                              class="popup-badge-on inactive">
+                            ◎ 예정
+                        </span>
+
+                        <!--/* 기간 만료 */-->
+                        <span th:if="${notice.popupEndDate != null
+                                       and #temporals.createNow().isAfter(notice.popupEndDate)}"
+                              class="popup-badge-on expired">
+                            ✕ 만료
+                        </span>
+
+                        <!--/* 기간 미설정 */-->
+                        <span th:if="${notice.popupStartDate == null or notice.popupEndDate == null}"
+                              class="popup-badge-on inactive">
+                            ⚠ 기간없음
+                        </span>
+
+                        <!-- 기간 텍스트 -->
+                        <div class="popup-period-text"
+                             th:if="${notice.popupStartDate != null and notice.popupEndDate != null}">
+                            <span th:text="${#temporals.format(notice.popupStartDate, 'MM.dd HH:mm')}"></span>
+                            ~
+                            <span th:text="${#temporals.format(notice.popupEndDate, 'MM.dd HH:mm')}"></span>
+                        </div>
+                    </th:block>
+                </td>
+
+                <td>
+                    <div class="action-cell">
+                        <a th:href="@{/admin/notices/edit/{id}(id=${notice.id})}" class="btn-sm btn-edit">수정</a>
+                        <form th:action="@{/admin/notices/delete/{id}(id=${notice.id})}" method="post"
                               onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                            <button type="submit" class="btn btn-danger" style="font-size: 12px; padding: 5px 10px;">삭제</button>
+                            <button type="submit" class="btn-sm btn-delete">삭제</button>
                         </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</body>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</main>
+
+</th:block>
 </html>

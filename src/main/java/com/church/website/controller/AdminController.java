@@ -34,11 +34,21 @@ public class AdminController {
     private final MinistryPhotoService ministryPhotoService;
 
     /**
-     * 관리자 메인 페이지
+     * 관리자 메인 페이지 (대시보드)
      */
     @GetMapping("")
     public String adminMain(Model model) {
+        // 통계
+        model.addAttribute("noticeCount",    noticeService.getAllNotices().size());
+        model.addAttribute("ministryCount",  ministryPhotoService.getAllPhotos().size());
+        model.addAttribute("imageCount",     mainImageService.getAllImages().size());
         model.addAttribute("uncheckedCount", newFamilyService.getUncheckedCount());
+
+        // 최근 공지사항 5건
+        java.util.List<Notice> all = noticeService.getAllNotices();
+        model.addAttribute("recentNotices",
+            all.stream().limit(5).collect(java.util.stream.Collectors.toList()));
+
         return "admin/index";
     }
 
@@ -63,11 +73,11 @@ public class AdminController {
     }
 
     /**
-     * 공지사항 수정 폼
+     * 공지사항 수정 폼 (조회수 증가 없음)
      */
     @GetMapping("/notices/edit/{id}")
     public String noticeEditForm(@PathVariable Long id, Model model) {
-        model.addAttribute("notice", noticeService.getNoticeById(id));
+        model.addAttribute("notice", noticeService.getNoticeByIdNoCount(id));
         return "admin/notice/form";
     }
 
@@ -77,11 +87,16 @@ public class AdminController {
     @PostMapping("/notices/save")
     public String noticeSave(
             @ModelAttribute Notice notice,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime popupStartDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime popupEndDate,
+            @RequestParam(value = "popupEnabled", required = false) String popupEnabled,
+            @RequestParam(value = "popupStartDate", required = false)
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime popupStartDate,
+            @RequestParam(value = "popupEndDate", required = false)
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime popupEndDate,
             Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
+            // @ModelAttribute의 popup 자동바인딩과 분리된 별도 파라미터로 처리
+            notice.setPopup("true".equals(popupEnabled));
             notice.setPopupStartDate(popupStartDate);
             notice.setPopupEndDate(popupEndDate);
 

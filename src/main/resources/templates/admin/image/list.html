@@ -1,170 +1,166 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메인화면 사진 관리</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .thumbnail {
-            width: 80px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        .badge-active {
-            background-color: #28a745;
-            color: white;
-        }
-        .badge-inactive {
-            background-color: #6c757d;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1 style="margin: 0;">🖼️ 메인화면 사진 관리</h1>
-        <div>
-            <a href="/admin" class="btn btn-secondary">관리자 메인</a>
-        </div>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'image')}">
+
+<title th:fragment="title">메인화면 사진 관리</title>
+
+<main th:fragment="main">
+<style>
+    .page-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #0D2B55;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 18px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #185FA5; }
+
+    .alert { padding: 12px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+    .alert-success { background: #EAF3DE; color: #3B6D11; border: 1px solid #C0DD97; }
+    .alert-error   { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; }
+
+    .data-table {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #DDE4EF;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .data-table table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+        background: #F8FAFD;
+        font-size: 12px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #DDE4EF;
+        white-space: nowrap;
+    }
+    .data-table td {
+        padding: 10px 16px;
+        font-size: 13px;
+        color: #3A5278;
+        border-bottom: 1px solid #F4F7FC;
+        vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #FAFBFD; }
+    .empty-row td { text-align: center; color: #7A96B8; padding: 40px !important; }
+
+    .thumbnail {
+        width: 80px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 1px solid #DDE4EF;
+        display: block;
+    }
+    .status-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+    }
+    .status-active   { background: #EAF3DE; color: #3B6D11; }
+    .status-inactive { background: #FCEBEB; color: #A32D2D; }
+
+    .action-cell { display: flex; gap: 6px; }
+    .btn-sm {
+        font-size: 12px;
+        padding: 5px 12px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.15s;
+    }
+    .btn-sm:hover { opacity: 0.85; }
+    .btn-edit   { background: #E6F1FB; color: #185FA5; }
+    .btn-delete { background: #FCEBEB; color: #A32D2D; }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+<div class="page-toolbar">
+    <div style="font-size:13px; color:#7A96B8;">
+        전체 <strong style="color:#0A1F3D;" th:text="${#lists.size(images)}">0</strong>건
     </div>
+    <a href="/admin/images/new" class="btn-primary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/>
+        </svg>
+        이미지 등록
+    </a>
+</div>
 
-    <div class="content">
-        <!-- 메시지 알림 -->
-        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
-
-        <div style="margin-bottom: 20px;">
-            <a href="/admin/images/new" class="btn btn-primary">새 이미지 등록</a>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 100px;">미리보기</th>
-                    <th>제목</th>
-                    <th>설명</th>
-                    <th style="width: 80px;">순서</th>
-                    <th style="width: 80px;">상태</th>
-                    <th style="width: 150px;">등록일</th>
-                    <th style="width: 180px;">관리</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:if="${#lists.isEmpty(images)}">
-                    <td colspan="7" style="text-align: center; color: #999;">등록된 이미지가 없습니다.</td>
-                </tr>
-                <tr th:each="image : ${images}">
-                    <td>
-                        <img th:src="${image.imageUrl}" alt="thumbnail" class="thumbnail" 
-                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%2260%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%2260%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E'" />
-                    </td>
-                    <td th:text="${image.title}"></td>
-                    <td th:text="${image.description}"></td>
-                    <td th:text="${image.displayOrder}"></td>
-                    <td>
-                        <span th:class="${image.isActive ? 'badge badge-active' : 'badge badge-inactive'}"
-                              th:text="${image.isActive ? '활성' : '비활성'}"></span>
-                    </td>
-                    <td th:text="${#temporals.format(image.createdAt, 'yyyy-MM-dd')}"></td>
-                    <td>
-                        <a th:href="@{/admin/images/edit/{id}(id=${image.id})}" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;">수정</a>
-                        <form th:action="@{/admin/images/delete/{id}(id=${image.id})}" method="post" style="display: inline;" 
-                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                            <button type="submit" class="btn btn-danger" style="font-size: 12px; padding: 5px 10px;">삭제</button>
+<div class="data-table">
+    <table>
+        <thead>
+            <tr>
+                <th style="width:100px;">미리보기</th>
+                <th>제목</th>
+                <th>설명</th>
+                <th style="width:70px;">순서</th>
+                <th style="width:80px;">상태</th>
+                <th style="width:110px;">등록일</th>
+                <th style="width:120px;">관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${#lists.isEmpty(images)}" class="empty-row">
+                <td colspan="7">등록된 이미지가 없습니다.</td>
+            </tr>
+            <tr th:each="image : ${images}">
+                <td>
+                    <img class="thumbnail" th:src="${image.imageUrl}" alt="썸네일"
+                         onerror="this.style.display='none';" />
+                </td>
+                <td style="font-weight:500; color:#0A1F3D;" th:text="${image.title}"></td>
+                <td style="color:#7A96B8; font-size:12px;" th:text="${image.description}"></td>
+                <td style="text-align:center;" th:text="${image.displayOrder}"></td>
+                <td>
+                    <span class="status-badge"
+                          th:classappend="${image.isActive} ? 'status-active' : 'status-inactive'"
+                          th:text="${image.isActive} ? '활성' : '비활성'"></span>
+                </td>
+                <td style="font-size:12px;" th:text="${#temporals.format(image.createdAt, 'yyyy.MM.dd')}"></td>
+                <td>
+                    <div class="action-cell">
+                        <a th:href="@{/admin/images/edit/{id}(id=${image.id})}" class="btn-sm btn-edit">수정</a>
+                        <form th:action="@{/admin/images/delete/{id}(id=${image.id})}" method="post"
+                              onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display:inline;">
+                            <button type="submit" class="btn-sm btn-delete">삭제</button>
                         </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</body>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</main>
+
+</th:block>
 </html>
