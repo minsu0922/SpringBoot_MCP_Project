@@ -1,125 +1,182 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>새가족 관리 · 관리자</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .header { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .logout-btn { background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 14px; }
-        .content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .badge { display: inline-block; background: #dc3545; color: white; font-size: 12px; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
-        .badge-zero { background: #6c757d; }
-        .alert { padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
-        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; padding: 12px 14px; text-align: left; font-size: 13px; color: #495057; border-bottom: 2px solid #dee2e6; white-space: nowrap; }
-        td { padding: 12px 14px; border-bottom: 1px solid #dee2e6; font-size: 13px; color: #333; vertical-align: middle; }
-        tr:hover td { background: #f8f9fa; }
-        .status-new { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; background: #fff3cd; color: #856404; }
-        .status-done { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; background: #d1e7dd; color: #0a3622; }
-        .btn { display: inline-block; padding: 5px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; }
-        .btn-check { background: #0D2B55; color: white; }
-        .btn-check:hover { background: #185FA5; }
-        .btn-delete { background: #dc3545; color: white; margin-left: 4px; }
-        .btn-delete:hover { background: #c82333; }
-        .btn-memo { background: #6f42c1; color: white; margin-left: 4px; }
-        .btn-memo:hover { background: #5a32a3; }
-        .memo-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; }
-        .empty { text-align: center; padding: 40px; color: #999; }
-        .nav-links a { margin-right: 16px; text-decoration: none; color: #007bff; font-size: 14px; }
-        .nav-links a:hover { text-decoration: underline; }
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-        /* 메모 모달 */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-overlay.show { display: flex; }
-        .modal { background: white; border-radius: 8px; padding: 28px; max-width: 480px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); position: relative; }
-        .modal-title { font-size: 15px; font-weight: bold; color: #0D2B55; margin-bottom: 6px; }
-        .modal-meta { font-size: 12px; color: #999; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
-        .modal-body { font-size: 14px; color: #444; line-height: 1.8; white-space: pre-wrap; min-height: 60px; }
-        .modal-empty { font-size: 14px; color: #aaa; font-style: italic; }
-        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: #999; line-height: 1; }
-        .modal-close:hover { color: #333; }
-    </style>
-</head>
-<body>
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'family')}">
 
-<div class="header">
-    <div>
-        <h1 style="margin: 0;">새가족 관리</h1>
-        <div style="color:#666; font-size:13px; margin-top:4px;" sec:authorize="isAuthenticated()">
-            로그인: <span sec:authentication="name"></span>
-        </div>
+<title th:fragment="title">새가족 관리</title>
+
+<main th:fragment="main">
+<style>
+    .alert { padding: 12px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+    .alert-success { background: #EAF3DE; color: #3B6D11; border: 1px solid #C0DD97; }
+    .alert-error   { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; }
+
+    .page-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+    .family-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #dc3545;
+        color: #fff;
+        margin-left: 8px;
+    }
+    .family-badge.zero { background: #DDE4EF; color: #7A96B8; }
+
+    .data-table {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #DDE4EF;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .data-table table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+        background: #F8FAFD;
+        font-size: 12px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #DDE4EF;
+        white-space: nowrap;
+    }
+    .data-table td {
+        padding: 12px 16px;
+        font-size: 13px;
+        color: #3A5278;
+        border-bottom: 1px solid #F4F7FC;
+        vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #FAFBFD; }
+    .empty-row td { text-align: center; color: #7A96B8; padding: 40px !important; }
+
+    .status-new  { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #FAEEDA; color: #854F0B; }
+    .status-done { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; background: #EAF3DE; color: #3B6D11; }
+
+    .action-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sm {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.15s;
+        white-space: nowrap;
+    }
+    .btn-sm:hover { opacity: 0.85; }
+    .btn-check  { background: #E6F1FB; color: #185FA5; }
+    .btn-memo   { background: #EEEDFE; color: #534AB7; }
+    .btn-delete { background: #FCEBEB; color: #A32D2D; }
+
+    .memo-cell { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #7A96B8; font-size: 12px; }
+
+    /* Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(10,31,61,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+        background: #fff;
+        border-radius: 12px;
+        padding: 28px;
+        max-width: 460px;
+        width: 90%;
+        border: 1px solid #DDE4EF;
+        position: relative;
+    }
+    .modal-name { font-size: 15px; font-weight: 600; color: #0A1F3D; margin-bottom: 4px; }
+    .modal-date { font-size: 12px; color: #7A96B8; padding-bottom: 14px; border-bottom: 1px solid #EEF2F8; margin-bottom: 14px; }
+    .modal-body { font-size: 14px; color: #3A5278; line-height: 1.8; white-space: pre-wrap; min-height: 60px; }
+    .modal-empty { font-size: 13px; color: #7A96B8; font-style: italic; }
+    .modal-close {
+        position: absolute;
+        top: 14px; right: 16px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #7A96B8;
+        line-height: 1;
+    }
+    .modal-close:hover { color: #0A1F3D; }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+<div class="page-toolbar">
+    <div style="font-size:13px; color:#7A96B8;">
+        새가족 등록 목록
+        <span class="family-badge"
+              th:classappend="${uncheckedCount == 0} ? 'zero'"
+              th:text="${uncheckedCount} + '건 미확인'"></span>
     </div>
-    <form th:action="@{/logout}" method="post" style="margin:0;">
-        <button type="submit" class="logout-btn">로그아웃</button>
-    </form>
+    <a href="/new-family" target="_blank" style="font-size:12px; color:#7A96B8;">등록 폼 미리보기 ↗</a>
 </div>
 
-<div class="content">
-
-    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
-
-    <div class="toolbar">
-        <div>
-            <strong>새가족 등록 목록</strong>
-            <span class="badge" th:classappend="${uncheckedCount == 0} ? 'badge-zero'"
-                  th:text="${uncheckedCount} + '건 미확인'"></span>
-        </div>
-        <div class="nav-links">
-            <a href="/admin">← 관리자 메인</a>
-            <a href="/new-family" target="_blank">등록 폼 미리보기 ↗</a>
-        </div>
-    </div>
-
+<div class="data-table">
     <table>
         <thead>
             <tr>
-                <th>번호</th>
+                <th style="width:50px;">번호</th>
                 <th>이름</th>
                 <th>연락처</th>
-                <th>방문 경로</th>
-                <th>메모</th>
-                <th>등록일</th>
-                <th>상태</th>
-                <th>처리</th>
+                <th>방문경로</th>
+                <th style="width:150px;">메모</th>
+                <th style="width:110px;">등록일</th>
+                <th style="width:80px;">상태</th>
+                <th style="width:160px;">관리</th>
             </tr>
         </thead>
         <tbody>
-            <tr th:if="${#lists.isEmpty(list)}">
-                <td colspan="8" class="empty">등록된 새가족이 없습니다.</td>
+            <tr th:if="${#lists.isEmpty(list)}" class="empty-row">
+                <td colspan="8">등록된 새가족이 없습니다.</td>
             </tr>
-            <tr th:each="nf : ${list}">
-                <td th:text="${nf.id}"></td>
-                <td><strong th:text="${nf.name}"></strong></td>
+            <tr th:each="nf, stat : ${list}">
+                <td style="color:#7A96B8; font-size:12px;" th:text="${stat.count}"></td>
+                <td style="font-weight:500; color:#0A1F3D;" th:text="${nf.name}"></td>
                 <td th:text="${nf.phone}"></td>
-                <td th:text="${nf.visitRoute != null ? nf.visitRoute : '-'}"></td>
-                <td class="memo-cell" th:text="${nf.memo != null ? nf.memo : '-'}"></td>
-                <td th:text="${#temporals.format(nf.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${nf.visitRoute}"></td>
+                <td class="memo-cell" th:text="${nf.memo}"></td>
+                <td th:text="${#temporals.format(nf.registeredAt, 'yyyy.MM.dd')}"></td>
                 <td>
-                    <span th:if="${!nf.checked}" class="status-new">미확인</span>
-                    <span th:if="${nf.checked}" class="status-done">확인 완료</span>
+                    <span th:if="${!nf.checked}"  class="status-new">미확인</span>
+                    <span th:if="${nf.checked}"   class="status-done">확인완료</span>
                 </td>
                 <td>
-                    <!-- 메모 보기 버튼 -->
-                    <button type="button" class="btn btn-memo"
-                            th:attr="onclick='openMemo(' + ${nf.id} + ', \'' + ${nf.name} + '\', \'' + ${#temporals.format(nf.createdAt,'yyyy-MM-dd HH:mm')} + '\', this)'">
-                        메모
-                    </button>
-                    <!-- 확인 처리 -->
-                    <form th:if="${!nf.checked}" th:action="@{/admin/new-family/check/{id}(id=${nf.id})}"
-                          method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-check">확인</button>
-                    </form>
-                    <!-- 삭제 -->
-                    <form th:action="@{/admin/new-family/delete/{id}(id=${nf.id})}" method="post"
-                          style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-delete">삭제</button>
-                    </form>
+                    <div class="action-cell">
+                        <form th:if="${!nf.checked}" th:action="@{/admin/new-family/check/{id}(id=${nf.id})}" method="post">
+                            <button type="submit" class="btn-sm btn-check">확인처리</button>
+                        </form>
+                        <button type="button" class="btn-sm btn-memo"
+                                th:onclick="'openMemo(' + ${nf.id} + ', \'' + ${nf.name} + '\', \'' + ${#temporals.format(nf.registeredAt,'yyyy.MM.dd')} + '\')'">
+                            메모보기
+                        </button>
+                        <form th:action="@{/admin/new-family/delete/{id}(id=${nf.id})}" method="post"
+                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                            <button type="submit" class="btn-sm btn-delete">삭제</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -130,13 +187,12 @@
 <div class="modal-overlay" id="memoModal">
     <div class="modal">
         <button class="modal-close" onclick="closeMemo()">×</button>
-        <div class="modal-title" id="memoName"></div>
-        <div class="modal-meta" id="memoDate"></div>
-        <div class="modal-body" id="memoContent"></div>
+        <div class="modal-name" id="memoName"></div>
+        <div class="modal-date" id="memoDate"></div>
+        <div id="memoContent"></div>
     </div>
 </div>
 
-<!-- 메모 데이터 (Thymeleaf로 JS 객체 생성) -->
 <script th:inline="javascript">
     const memoData = {};
     /*<![CDATA[*/
@@ -145,7 +201,7 @@
     });
     /*]]>*/
 
-    function openMemo(id, name, date, btn) {
+    function openMemo(id, name, date) {
         document.getElementById('memoName').textContent = name + ' 님의 메모';
         document.getElementById('memoDate').textContent = '등록일: ' + date;
         const content = memoData[id];
@@ -172,6 +228,7 @@
         if (e.key === 'Escape') closeMemo();
     });
 </script>
+</main>
 
-</body>
+</th:block>
 </html>

@@ -1,133 +1,184 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사역사진 등록/수정 - 관리자</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Noto Sans KR', Arial, sans-serif; background: #f4f6f9; color: #333; }
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-        .admin-wrap { max-width: 700px; margin: 0 auto; padding: 30px 20px; }
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'ministry')}">
 
-        .admin-header {
-            background: #fff;
-            padding: 20px 24px;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-header h1 { font-size: 18px; font-weight: 600; color: #0D2B55; }
+<title th:fragment="title" th:text="${photo.id != null} ? '사역사진 수정' : '사역사진 등록'">사역사진 등록</title>
 
-        .form-card {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            padding: 28px 28px;
-        }
+<main th:fragment="main">
+<style>
+    .form-card {
+        background: #fff;
+        border: 1px solid #DDE4EF;
+        border-radius: 10px;
+        overflow: hidden;
+        max-width: 760px;
+    }
+    .form-card-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid #EEF2F8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .form-card-title { font-size: 14px; font-weight: 600; color: #0A1F3D; }
+    .form-card-body  { padding: 24px 22px; }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #0D2B55;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #dce3ea;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.2s;
-            background: #fff;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #185FA5;
-            box-shadow: 0 0 0 3px rgba(24,95,165,0.08);
-        }
-        .form-group textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
-        .form-hint { font-size: 11px; color: #888; margin-top: 5px; }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .form-group { margin-bottom: 22px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #0A1F3D;
+        font-family: 'Noto Sans KR', sans-serif;
+        background: #FAFBFD;
+        transition: border-color 0.15s;
+        box-sizing: border-box;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #185FA5;
+        background: #fff;
+    }
+    textarea.form-control { resize: vertical; min-height: 90px; line-height: 1.7; }
+    .form-hint { font-size: 11px; color: #7A96B8; margin-top: 5px; }
 
-        /* 미리보기 */
-        .preview-wrap {
-            margin-top: 10px;
-            border: 1px dashed #dce3ea;
-            border-radius: 4px;
-            overflow: hidden;
-            min-height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f9fafb;
-        }
-        .preview-wrap img {
-            max-width: 100%;
-            max-height: 260px;
-            object-fit: contain;
-            display: block;
-        }
-        .preview-placeholder {
-            color: #bbb;
-            font-size: 13px;
-            text-align: center;
-            padding: 30px;
-        }
+    /* 미리보기 */
+    .preview-wrap {
+        margin-top: 10px;
+        border: 1.5px dashed #DDE4EF;
+        border-radius: 8px;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F8FAFD;
+        overflow: hidden;
+    }
+    .preview-wrap img {
+        max-width: 100%;
+        max-height: 260px;
+        object-fit: contain;
+        display: block;
+    }
+    .preview-placeholder {
+        color: #B5D4F4;
+        font-size: 13px;
+        text-align: center;
+        padding: 30px;
+    }
 
-        /* 토글 */
-        .toggle-row { display: flex; align-items: center; gap: 10px; }
-        .toggle-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
-        .toggle-row label { font-size: 13px; cursor: pointer; color: #333; }
+    /* 토글 */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        background: #FAFBFD;
+    }
+    .toggle-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #185FA5; }
+    .toggle-label { font-size: 13px; color: #3A5278; cursor: pointer; }
 
-        /* 버튼 */
-        .form-actions { display: flex; gap: 10px; margin-top: 24px; }
-        .btn { display: inline-block; padding: 10px 24px; border-radius: 4px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; text-decoration: none; transition: background 0.2s; }
-        .btn-primary { background: #0D2B55; color: #fff; }
-        .btn-primary:hover { background: #185FA5; }
-        .btn-secondary { background: #6c757d; color: #fff; }
-        .btn-secondary:hover { background: #545b62; }
-    </style>
-</head>
-<body>
-<div class="admin-wrap">
+    /* 버튼 */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 22px;
+        border-top: 1px solid #EEF2F8;
+        background: #F8FAFD;
+    }
+    .btn-cancel {
+        padding: 9px 18px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        background: #fff;
+        color: #3A5278;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: border-color 0.15s;
+    }
+    .btn-cancel:hover { border-color: #7A96B8; }
+    .btn-save {
+        padding: 9px 22px;
+        border: none;
+        border-radius: 6px;
+        background: #0D2B55;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.15s;
+    }
+    .btn-save:hover { background: #185FA5; }
+</style>
 
-    <div class="admin-header">
-        <h1 th:text="${photo.id != null} ? '사역사진 수정' : '사역사진 등록'">사역사진 등록</h1>
-        <a href="/admin/ministry" class="btn btn-secondary">← 목록으로</a>
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="form-card-title" th:text="${photo.id != null} ? '사역사진 수정' : '사역사진 등록'">사역사진 등록</div>
+        <a href="/admin/ministry" style="font-size:12px; color:#7A96B8;">← 목록으로</a>
     </div>
 
-    <div class="form-card">
-        <form th:action="@{/admin/ministry/save}" method="post">
-            <input type="hidden" th:field="*{id}" th:object="${photo}">
+    <form th:action="@{/admin/ministry/save}" method="post">
+        <input type="hidden" th:field="*{id}" th:object="${photo}">
 
-            <!-- 카테고리 -->
-            <div class="form-group">
-                <label for="category">사역 카테고리 <span style="color:#dc3545;">*</span></label>
-                <select id="category" name="category" required th:object="${photo}">
-                    <option value="">카테고리 선택</option>
-                    <option value="WORSHIP"   th:selected="${photo.category == 'WORSHIP'}">찬양 사역 (WORSHIP)</option>
-                    <option value="CHILDREN"  th:selected="${photo.category == 'CHILDREN'}">어린이 사역 (CHILDREN)</option>
-                    <option value="YOUTH"     th:selected="${photo.category == 'YOUTH'}">청년부 (YOUTH)</option>
-                    <option value="MISSION"   th:selected="${photo.category == 'MISSION'}">선교 사역 (MISSION)</option>
-                    <option value="COMMUNITY" th:selected="${photo.category == 'COMMUNITY'}">소그룹 (COMMUNITY)</option>
-                    <option value="ETC"       th:selected="${photo.category == 'ETC'}">기타 (ETC)</option>
-                </select>
+        <div class="form-card-body">
+
+            <!-- 카테고리 + 표시순서 한 줄 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="category">카테고리 <span style="color:#dc3545;">*</span></label>
+                    <select id="category" name="category" class="form-control" required th:object="${photo}">
+                        <option value="">카테고리 선택</option>
+                        <option value="WORSHIP"   th:selected="${photo.category == 'WORSHIP'}">찬양 사역 (WORSHIP)</option>
+                        <option value="CHILDREN"  th:selected="${photo.category == 'CHILDREN'}">어린이 사역 (CHILDREN)</option>
+                        <option value="YOUTH"     th:selected="${photo.category == 'YOUTH'}">청년부 (YOUTH)</option>
+                        <option value="MISSION"   th:selected="${photo.category == 'MISSION'}">선교 사역 (MISSION)</option>
+                        <option value="COMMUNITY" th:selected="${photo.category == 'COMMUNITY'}">소그룹 (COMMUNITY)</option>
+                        <option value="ETC"       th:selected="${photo.category == 'ETC'}">기타 (ETC)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="displayOrder">표시 순서</label>
+                    <input type="number" id="displayOrder" name="displayOrder" class="form-control"
+                           th:value="${photo.displayOrder != null ? photo.displayOrder : 0}"
+                           min="0" max="999">
+                    <div class="form-hint">숫자가 작을수록 앞에 표시됩니다.</div>
+                </div>
             </div>
 
             <!-- 제목 -->
             <div class="form-group">
-                <label for="title">사역 제목 <span style="color:#dc3545;">*</span></label>
-                <input type="text" id="title" name="title"
+                <label class="form-label" for="title">사역 제목 <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="title" name="title" class="form-control"
                        th:value="${photo.title}"
                        placeholder="예) 2024 찬양의 밤"
                        required maxlength="100">
@@ -135,8 +186,8 @@
 
             <!-- 설명 -->
             <div class="form-group">
-                <label for="description">사역 설명</label>
-                <textarea id="description" name="description"
+                <label class="form-label" for="description">사역 설명</label>
+                <textarea id="description" name="description" class="form-control"
                           placeholder="사역에 대한 간단한 설명을 입력하세요. (선택사항)"
                           maxlength="500"
                           th:text="${photo.description}"></textarea>
@@ -144,54 +195,47 @@
 
             <!-- 사진 URL -->
             <div class="form-group">
-                <label for="photoUrl">사진 URL <span style="color:#dc3545;">*</span></label>
-                <input type="url" id="photoUrl" name="photoUrl"
+                <label class="form-label" for="photoUrl">사진 URL <span style="color:#dc3545;">*</span></label>
+                <input type="url" id="photoUrl" name="photoUrl" class="form-control"
                        th:value="${photo.photoUrl}"
                        placeholder="https://example.com/photo.jpg"
                        required maxlength="500"
                        oninput="updatePreview(this.value)">
-                <p class="form-hint">이미지 URL을 직접 입력하세요. (jpg, png, webp 등)</p>
-                <!-- 미리보기 -->
+                <div class="form-hint">이미지 URL을 직접 입력하세요. (jpg, png, webp 등)</div>
                 <div class="preview-wrap" id="previewWrap">
                     <img id="previewImg"
                          th:src="${photo.photoUrl}"
                          th:style="${photo.photoUrl != null and !photo.photoUrl.isEmpty()} ? '' : 'display:none'"
                          alt="미리보기">
-                    <div class="preview-placeholder"
-                         id="previewPlaceholder"
+                    <div class="preview-placeholder" id="previewPlaceholder"
                          th:style="${photo.photoUrl != null and !photo.photoUrl.isEmpty()} ? 'display:none' : ''">
-                        📷 URL 입력 시 미리보기가 표시됩니다
+                        URL 입력 시 미리보기가 표시됩니다
                     </div>
                 </div>
             </div>
 
-            <!-- 표시 순서 -->
+            <!-- 공개 여부 -->
             <div class="form-group">
-                <label for="displayOrder">표시 순서</label>
-                <input type="number" id="displayOrder" name="displayOrder"
-                       th:value="${photo.displayOrder != null ? photo.displayOrder : 0}"
-                       min="0" max="999" value="0">
-                <p class="form-hint">숫자가 작을수록 앞에 표시됩니다.</p>
-            </div>
-
-            <!-- 활성화 여부 -->
-            <div class="form-group">
-                <label>공개 여부</label>
+                <label class="form-label">공개 여부</label>
                 <div class="toggle-row">
                     <input type="checkbox" id="isActive" name="isActive" value="true"
                            th:checked="${photo.isActive == null or photo.isActive}">
-                    <label for="isActive">사역소개 페이지에 표시</label>
+                    <label class="toggle-label" for="isActive">사역소개 페이지에 표시</label>
                 </div>
             </div>
 
-            <!-- 버튼 -->
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">저장하기</button>
-                <a href="/admin/ministry" class="btn btn-secondary">취소</a>
-            </div>
-        </form>
-    </div>
+        </div>
 
+        <div class="form-actions">
+            <a href="/admin/ministry" class="btn-cancel">취소</a>
+            <button type="submit" class="btn-save">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 7l3.5 3.5L11 3"/>
+                </svg>
+                저장
+            </button>
+        </div>
+    </form>
 </div>
 
 <script>
@@ -205,14 +249,16 @@
             img.onerror = function() {
                 img.style.display = 'none';
                 placeholder.style.display = '';
-                placeholder.textContent = '❌ 이미지를 불러올 수 없습니다.';
+                placeholder.textContent = '이미지를 불러올 수 없습니다.';
             };
         } else {
             img.style.display = 'none';
             placeholder.style.display = '';
-            placeholder.textContent = '📷 URL 입력 시 미리보기가 표시됩니다';
+            placeholder.textContent = 'URL 입력 시 미리보기가 표시됩니다';
         }
     }
 </script>
-</body>
+</main>
+
+</th:block>
 </html>

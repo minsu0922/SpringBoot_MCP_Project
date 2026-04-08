@@ -651,31 +651,54 @@
     </div>
 </footer>
 
-<!-- 팝업 (팝업 공지사항이 있을 때만 노출) -->
+<!-- 팝업 (기간 내 활성 팝업 공지사항이 있을 때만 노출) -->
 <th:block th:if="${not #lists.isEmpty(popupNotices)}">
-    <th:block th:with="popup=${popupNotices[0]}">
-        <div class="popup-overlay" id="popupOverlay"></div>
-        <div class="popup-container" id="popupContainer">
-            <div class="popup-header">
-                <h3>교회 공지사항</h3>
+    <div class="popup-overlay" id="popupOverlay"></div>
+
+    <!-- 다중 팝업: 각 공지를 슬라이드로 표시 -->
+    <div class="popup-container" id="popupContainer">
+        <div class="popup-header">
+            <h3>교회 공지사항</h3>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <!-- 팝업이 2개 이상일 때 페이지 표시 -->
+                <span class="popup-pager" id="popupPager"
+                      th:if="${#lists.size(popupNotices) > 1}"
+                      style="font-size:11px; color:rgba(181,212,244,0.6); letter-spacing:0.05em;">
+                    1 / <span th:text="${#lists.size(popupNotices)}">1</span>
+                </span>
                 <button class="popup-close" id="popupClose">&times;</button>
             </div>
-            <div class="popup-body">
-                <div class="popup-content">
-                    <span class="popup-badge">NOTICE</span>
-                    <h4 th:text="${popup.title}">공지사항 제목</h4>
-                    <p th:text="${popup.content}">공지사항 내용</p>
+        </div>
+
+        <!-- 슬라이드 래퍼 -->
+        <div class="popup-slides" id="popupSlides">
+            <div class="popup-slide" th:each="popup, stat : ${popupNotices}"
+                 th:attr="data-index=${stat.index}">
+                <div class="popup-body">
+                    <div class="popup-content">
+                        <span class="popup-badge">NOTICE</span>
+                        <h4 th:text="${popup.title}">공지사항 제목</h4>
+                        <p th:text="${popup.content}">공지사항 내용</p>
+                    </div>
                 </div>
             </div>
-            <div class="popup-footer">
-                <div class="popup-checkbox">
-                    <input type="checkbox" id="hideForDay">
-                    <label for="hideForDay">하루 동안 보지 않기</label>
-                </div>
+        </div>
+
+        <div class="popup-footer">
+            <div class="popup-checkbox">
+                <input type="checkbox" id="hideForDay">
+                <label for="hideForDay">하루 동안 보지 않기</label>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <!-- 이전/다음 버튼 (2개 이상일 때만 의미있음) -->
+                <button class="popup-nav-btn" id="popupPrev"
+                        th:if="${#lists.size(popupNotices) > 1}">&#8249;</button>
+                <button class="popup-nav-btn" id="popupNext"
+                        th:if="${#lists.size(popupNotices) > 1}">&#8250;</button>
                 <button class="popup-button" id="popupConfirm">확인</button>
             </div>
         </div>
-    </th:block>
+    </div>
 </th:block>
 
 <script src="/js/slider.js"></script>

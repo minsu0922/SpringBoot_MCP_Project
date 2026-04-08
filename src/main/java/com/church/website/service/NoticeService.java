@@ -51,7 +51,7 @@ public class NoticeService {
     }
 
     /**
-     * 공지사항 상세 조회 및 조회수 증가
+     * 공지사항 상세 조회 및 조회수 증가 (일반 사용자용)
      */
     @Transactional
     public Notice getNoticeById(Long id) {
@@ -59,6 +59,15 @@ public class NoticeService {
                 .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
         notice.setViewCount(notice.getViewCount() + 1);
         return noticeRepository.save(notice);
+    }
+
+    /**
+     * 공지사항 조회 (조회수 증가 없음 - 관리자용)
+     */
+    @Transactional(readOnly = true)
+    public Notice getNoticeByIdNoCount(Long id) {
+        return noticeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
     }
 
     /**

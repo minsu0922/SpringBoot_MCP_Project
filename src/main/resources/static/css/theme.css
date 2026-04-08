@@ -517,6 +517,27 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 }
 .site-footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
 
+/* ── 팝업 슬라이드 (다중 팝업) ── */
+.popup-slides { flex: 1; overflow: hidden; position: relative; }
+.popup-slide  { display: none; height: 100%; }
+.popup-slide.active { display: block; }
+.popup-slide .popup-body { height: 100%; overflow-y: auto; }
+
+/* 이전/다음 버튼 */
+.popup-nav-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(181,212,244,0.25);
+    background: rgba(13,43,85,0.06);
+    color: var(--navy-mid);
+    font-size: 18px; line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-family: sans-serif;
+}
+.popup-nav-btn:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
 /* ── 팝업 ── */
 .popup-overlay {
     display: none;

@@ -1,78 +1,94 @@
 /**
- * 메인 페이지 팝업 관리 스크립트
- * - 페이지 로드 시 팝업 자동 표시
- * - 하루 동안 보지 않기 기능 (localStorage 사용)
- * - 팝업 닫기 및 오버레이 클릭 이벤트 처리
+ * 샘물교회 메인 팝업 관리 스크립트
+ * - 기간 설정된 팝업 공지사항 노출
+ * - 다중 팝업 슬라이드 지원
+ * - 하루 동안 보지 않기 (localStorage)
+ * - ESC / 오버레이 클릭으로 닫기
  */
 
 const POPUP_HIDE_KEY = 'churchPopupHideUntil';
 
-document.addEventListener('DOMContentLoaded', function() {
-    // 팝업 요소가 존재하는지 먼저 확인 (팝업 공지사항이 없으면 요소 자체가 없음)
-    const overlay = document.getElementById('popupOverlay');
-    const container = document.getElementById('popupContainer');
-    const closeBtn = document.getElementById('popupClose');
-    const confirmBtn = document.getElementById('popupConfirm');
+document.addEventListener('DOMContentLoaded', function () {
 
-    if (!overlay || !container) {
-        return; // 활성 팝업 공지사항 없음, 아무것도 하지 않음
+    const overlay    = document.getElementById('popupOverlay');
+    const container  = document.getElementById('popupContainer');
+    const closeBtn   = document.getElementById('popupClose');
+    const confirmBtn = document.getElementById('popupConfirm');
+    const prevBtn    = document.getElementById('popupPrev');
+    const nextBtn    = document.getElementById('popupNext');
+    const pagerEl    = document.getElementById('popupPager');
+
+    // 팝업 요소 없으면 종료 (활성 팝업 없음)
+    if (!overlay || !container) return;
+
+    const slides = Array.from(container.querySelectorAll('.popup-slide'));
+    const total  = slides.length;
+    let current  = 0;
+
+    // ── 슬라이드 전환 ──
+    function goTo(index) {
+        slides[current].classList.remove('active');
+        current = (index + total) % total;
+        slides[current].classList.add('active');
+        if (pagerEl) {
+            pagerEl.innerHTML = (current + 1) + ' / ' + total;
+        }
     }
 
-    // 숨김 기한 확인 후 팝업 표시
+    // 첫 슬라이드 활성화
+    if (slides.length > 0) slides[0].classList.add('active');
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(current - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+    // ── 숨김 기한 확인 후 팝업 표시 ──
     const hideUntil = localStorage.getItem(POPUP_HIDE_KEY);
-    const now = new Date().getTime();
+    const now = Date.now();
     if (!hideUntil || now > parseInt(hideUntil)) {
         showPopup();
     }
 
-    // 닫기 버튼
-    if (closeBtn) {
-        closeBtn.addEventListener('click', hidePopup);
-    }
+    // ── 이벤트 바인딩 ──
+    if (closeBtn) closeBtn.addEventListener('click', hidePopup);
 
-    // 확인 버튼
     if (confirmBtn) {
-        confirmBtn.addEventListener('click', function() {
-            const hideCheckbox = document.getElementById('hideForDay');
-            if (hideCheckbox && hideCheckbox.checked) {
-                setHideForDay();
-            }
+        confirmBtn.addEventListener('click', function () {
+            const cb = document.getElementById('hideForDay');
+            if (cb && cb.checked) setHideForDay();
             hidePopup();
         });
     }
 
-    // 오버레이 클릭
     overlay.addEventListener('click', hidePopup);
 
-    // ESC 키
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && container.classList.contains('show')) {
-            hidePopup();
-        }
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && container.classList.contains('show')) hidePopup();
+        if (e.key === 'ArrowLeft'  && total > 1) goTo(current - 1);
+        if (e.key === 'ArrowRight' && total > 1) goTo(current + 1);
     });
 });
 
 function showPopup() {
-    const overlay = document.getElementById('popupOverlay');
+    const overlay   = document.getElementById('popupOverlay');
     const container = document.getElementById('popupContainer');
     if (!overlay || !container) return;
-    setTimeout(() => {
+    setTimeout(function () {
         overlay.classList.add('show');
         container.classList.add('show');
-    }, 100);
+    }, 300);
     document.body.style.overflow = 'hidden';
 }
 
 function hidePopup() {
-    const overlay = document.getElementById('popupOverlay');
+    const overlay   = document.getElementById('popupOverlay');
     const container = document.getElementById('popupContainer');
     if (!overlay || !container) return;
     overlay.classList.remove('show');
     container.classList.remove('show');
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = '';
 }
 
 function setHideForDay() {
-    const hideUntil = new Date().getTime() + (24 * 60 * 60 * 1000);
-    localStorage.setItem(POPUP_HIDE_KEY, hideUntil.toString());
+    const until = Date.now() + 24 * 60 * 60 * 1000;
+    localStorage.setItem(POPUP_HIDE_KEY, until.toString());
 }
