@@ -261,8 +261,8 @@
             <th:block th:if="${not #lists.isEmpty(photos)}">
                 <div class="ministry-card"
                      th:each="photo : ${photos}"
-                     th:attr="data-cat=${photo.category}"
-                     th:onclick="|openLightbox('${photo.photoUrl}', '${photo.title}', '${photo.description != null ? photo.description : ''}')|">
+                     th:attr="data-cat=${photo.category},data-url=${photo.photoUrl},data-title=${photo.title},data-desc=${photo.description}"
+                     onclick="openLightboxFromCard(this)">
                     <!-- 사진 -->
                     <img class="ministry-card-img"
                          th:src="${photo.photoUrl}"
@@ -364,6 +364,12 @@
     });
 
     /* 라이트박스 */
+    function openLightboxFromCard(card) {
+        const url   = card.dataset.url   || '';
+        const title = card.dataset.title || '';
+        const desc  = card.dataset.desc  || '';
+        openLightbox(url, title, desc);
+    }
     function openLightbox(url, title, desc) {
         document.getElementById('lightboxImg').src = url;
         document.getElementById('lightboxTitle').textContent = title;
