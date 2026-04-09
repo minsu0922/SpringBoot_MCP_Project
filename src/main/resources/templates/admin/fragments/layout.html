@@ -293,14 +293,6 @@
                 사역소개 관리
             </a>
 
-            <a th:href="@{/admin/images}" class="sb-item" th:classappend="${activeMenu == 'image'} ? 'active'">
-                <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M11 3a2 2 0 1 0 0-4v4zM1 5h14v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5z"/>
-                    <circle cx="11" cy="3" r="2"/>
-                </svg>
-                메인화면 사진
-            </a>
-
             <div class="sb-divider"></div>
 
             <!-- 교인 그룹 -->
@@ -322,7 +314,7 @@
             <!-- 시스템 그룹 -->
             <div class="sb-group-label">시스템</div>
 
-            <a href="#" class="sb-item" th:classappend="${activeMenu == 'account'} ? 'active'">
+            <a th:href="@{/admin/account}" class="sb-item" th:classappend="${activeMenu == 'account'} ? 'active'">
                 <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="8" cy="5" r="3"/>
                     <path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/>
@@ -330,7 +322,7 @@
                 계정 관리
             </a>
 
-            <a href="#" class="sb-item" th:classappend="${activeMenu == 'settings'} ? 'active'">
+            <a th:href="@{/admin/settings}" class="sb-item" th:classappend="${activeMenu == 'settings'} ? 'active'">
                 <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="8" cy="8" r="2.5"/>
                     <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.22 3.22l1.42 1.42M11.36 11.36l1.42 1.42M3.22 12.78l1.42-1.42M11.36 4.64l1.42-1.42"/>

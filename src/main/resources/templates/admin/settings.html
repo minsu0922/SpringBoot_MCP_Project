@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'settings')}">
+
+<title th:fragment="title">설정</title>
+
+<main th:fragment="main">
+<style>
+    .settings-card {
+        background: #fff;
+        border: 1px solid #DDE4EF;
+        border-radius: 10px;
+        overflow: hidden;
+        max-width: 820px;
+    }
+    .settings-card + .settings-card { margin-top: 24px; }
+
+    .card-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid #EEF2F8;
+        font-size: 14px;
+        font-weight: 600;
+        color: #0A1F3D;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .card-body { padding: 24px 22px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) {
+        .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 9px 13px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #0A1F3D;
+        background: #FAFBFD;
+        box-sizing: border-box;
+        font-family: 'Noto Sans KR', sans-serif;
+        transition: border-color 0.15s;
+    }
+    .form-control:focus { outline: none; border-color: #185FA5; background: #fff; }
+    textarea.form-control { resize: vertical; min-height: 80px; line-height: 1.7; }
+    .form-hint { font-size: 11px; color: #7A96B8; margin-top: 4px; }
+
+    .section-divider {
+        font-size: 11px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 24px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #EEF2F8;
+    }
+    .section-divider:first-child { margin-top: 0; }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 22px;
+        border-top: 1px solid #EEF2F8;
+        background: #F8FAFD;
+    }
+    .btn-save {
+        padding: 9px 22px;
+        border: none;
+        border-radius: 6px;
+        background: #0D2B55;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.15s;
+    }
+    .btn-save:hover { background: #185FA5; }
+
+    .alert { padding: 12px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; max-width: 820px; }
+    .alert-success { background: #EAF3DE; color: #3B6D11; border: 1px solid #C0DD97; }
+    .alert-danger  { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; }
+
+    /* 지도 미리보기 버튼 */
+    .coord-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #185FA5;
+        cursor: pointer;
+        text-decoration: none;
+        background: #E6F1FB;
+        padding: 5px 12px;
+        border-radius: 4px;
+        border: none;
+        transition: background 0.15s;
+    }
+    .coord-preview:hover { background: #C8DFF7; }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="settings-card">
+    <div class="card-header">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="#185FA5" stroke-width="1.5">
+            <circle cx="7.5" cy="7.5" r="2"/>
+            <path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2M3.1 3.1l1.4 1.4M10.5 10.5l1.4 1.4M3.1 11.9l1.4-1.4M10.5 4.5l1.4-1.4"/>
+        </svg>
+        교회 기본 정보
+    </div>
+
+    <form th:action="@{/admin/settings/save}" method="post" th:object="${location}">
+        <div class="card-body">
+
+            <!-- 기본 정보 -->
+            <div class="section-divider">기본 정보</div>
+            <div class="form-group">
+                <label class="form-label" for="churchName">교회 이름 <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="churchName" name="churchName" class="form-control"
+                       th:value="${location.churchName}" required maxlength="100"
+                       placeholder="예) 샘물교회">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="address">주소 <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="address" name="address" class="form-control"
+                       th:value="${location.address}" required maxlength="200"
+                       placeholder="예) 서울특별시 강남구 테헤란로 123">
+            </div>
+
+            <!-- 연락처 -->
+            <div class="section-divider">연락처</div>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label class="form-label" for="phone">전화번호</label>
+                    <input type="text" id="phone" name="phone" class="form-control"
+                           th:value="${location.phone}"
+                           placeholder="02-1234-5678" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="fax">팩스</label>
+                    <input type="text" id="fax" name="fax" class="form-control"
+                           th:value="${location.fax}"
+                           placeholder="02-1234-5679" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">이메일</label>
+                    <input type="email" id="email" name="email" class="form-control"
+                           th:value="${location.email}"
+                           placeholder="info@church.kr" maxlength="100">
+                </div>
+            </div>
+
+            <!-- 지도 좌표 -->
+            <div class="section-divider">지도 좌표 (카카오맵)</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="latitude">위도 (Latitude) <span style="color:#dc3545;">*</span></label>
+                    <input type="number" id="latitude" name="latitude" class="form-control"
+                           th:value="${location.latitude}" required step="0.000001"
+                           placeholder="37.123456">
+                    <div class="form-hint">소수점 6자리까지 입력 (예: 37.498095)</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="longitude">경도 (Longitude) <span style="color:#dc3545;">*</span></label>
+                    <input type="number" id="longitude" name="longitude" class="form-control"
+                           th:value="${location.longitude}" required step="0.000001"
+                           placeholder="127.123456">
+                    <div class="form-hint">소수점 6자리까지 입력 (예: 127.027610)</div>
+                </div>
+            </div>
+            <button type="button" class="coord-preview" onclick="previewMap()">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="5" cy="5" r="4"/>
+                    <line x1="8.5" y1="8.5" x2="11" y2="11"/>
+                </svg>
+                입력한 좌표로 카카오맵 미리보기
+            </button>
+
+            <!-- 교통 안내 -->
+            <div class="section-divider">교통 안내</div>
+            <div class="form-group">
+                <label class="form-label" for="subwayInfo">지하철</label>
+                <textarea id="subwayInfo" name="subwayInfo" class="form-control"
+                          th:text="${location.subwayInfo}"
+                          placeholder="예) 2호선 강남역 3번 출구에서 도보 5분"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="busInfo">버스</label>
+                <textarea id="busInfo" name="busInfo" class="form-control"
+                          th:text="${location.busInfo}"
+                          placeholder="예) 간선 146, 360번 / 지선 3412번 정류장 하차"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="carInfo">자동차</label>
+                    <textarea id="carInfo" name="carInfo" class="form-control"
+                              th:text="${location.carInfo}"
+                              placeholder="내비게이션: 교회 이름 또는 주소 검색"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="parkingInfo">주차 안내</label>
+                    <textarea id="parkingInfo" name="parkingInfo" class="form-control"
+                              th:text="${location.parkingInfo}"
+                              placeholder="예) 지하 2층 주차장 이용 가능 (2시간 무료)"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-save">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 7l3.5 3.5L11 3"/>
+                </svg>
+                저장
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function previewMap() {
+        const lat = document.getElementById('latitude').value;
+        const lng = document.getElementById('longitude').value;
+        if (!lat || !lng) {
+            alert('위도와 경도를 먼저 입력해주세요.');
+            return;
+        }
+        window.open(`https://map.kakao.com/link/map/교회위치,${lat},${lng}`, '_blank');
+    }
+</script>
+
+</main>
+
+</th:block>
+</html>

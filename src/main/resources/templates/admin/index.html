@@ -170,11 +170,6 @@
         <div class="stat-num" th:text="${ministryCount ?: 0}">0</div>
         <div class="stat-sub">전체 등록 건수</div>
     </div>
-    <div class="stat-card amber">
-        <div class="stat-label">메인화면 사진</div>
-        <div class="stat-num" th:text="${imageCount ?: 0}">0</div>
-        <div class="stat-sub">전체 등록 건수</div>
-    </div>
     <div class="stat-card red">
         <div class="stat-label">새가족 미확인</div>
         <div class="stat-num" th:text="${uncheckedCount ?: 0}">0</div>
@@ -212,20 +207,6 @@
             <div>
                 <div class="sc-label">사역소개 관리</div>
                 <div class="sc-desc">사역 사진 등록 · 관리</div>
-            </div>
-        </a>
-
-        <a href="/admin/images" class="shortcut-card">
-            <div class="sc-icon amber">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M14 2a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4h8z"/>
-                    <circle cx="14" cy="6" r="2.5"/>
-                    <path d="M2 14l5-5 3 3 3-3 5 5"/>
-                </svg>
-            </div>
-            <div>
-                <div class="sc-label">메인화면 사진</div>
-                <div class="sc-desc">슬라이드 이미지 관리</div>
             </div>
         </a>
 

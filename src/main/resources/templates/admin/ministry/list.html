@@ -127,10 +127,43 @@
         font-size: 14px;
     }
     .empty-state .btn-primary { margin-top: 16px; }
+
+    /* 카테고리 탭 */
+    .cat-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .cat-tab {
+        padding: 6px 16px;
+        border: 1px solid #DDE4EF;
+        border-radius: 20px;
+        background: #fff;
+        color: #7A96B8;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        letter-spacing: 0.04em;
+    }
+    .cat-tab:hover { border-color: #185FA5; color: #185FA5; }
+    .cat-tab.active { background: #0D2B55; color: #fff; border-color: #0D2B55; }
 </style>
 
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
 <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<!-- 카테고리 탭 -->
+<div class="cat-tabs">
+    <button class="cat-tab active" data-cat="ALL">전체</button>
+    <button class="cat-tab" data-cat="WORSHIP">찬양 사역</button>
+    <button class="cat-tab" data-cat="CHILDREN">어린이 사역</button>
+    <button class="cat-tab" data-cat="YOUTH">청년부</button>
+    <button class="cat-tab" data-cat="MISSION">선교 사역</button>
+    <button class="cat-tab" data-cat="COMMUNITY">소그룹</button>
+    <button class="cat-tab" data-cat="ETC">기타</button>
+</div>
 
 <div class="page-toolbar">
     <div style="font-size:13px; color:#7A96B8;">
@@ -144,8 +177,8 @@
     </a>
 </div>
 
-<div class="photo-grid" th:if="${not #lists.isEmpty(photos)}">
-    <div class="photo-card" th:each="photo : ${photos}">
+<div class="photo-grid" id="photoGrid" th:if="${not #lists.isEmpty(photos)}">
+    <div class="photo-card" th:each="photo : ${photos}" th:attr="data-cat=${photo.category}">
         <img class="photo-card-img"
              th:src="${photo.photoUrl}"
              th:alt="${photo.title}"
@@ -184,6 +217,28 @@
     <p>등록된 사역 사진이 없습니다.</p>
     <a href="/admin/ministry/new" class="btn-primary" style="margin-top:16px; display:inline-flex;">첫 번째 사진 등록하기</a>
 </div>
+
+<script>
+    const tabs  = document.querySelectorAll('.cat-tab');
+    const cards = document.querySelectorAll('#photoGrid .photo-card');
+    const countEl = document.querySelector('.page-toolbar strong');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const cat = tab.dataset.cat;
+            let visible = 0;
+            cards.forEach(card => {
+                const show = cat === 'ALL' || card.dataset.cat === cat;
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            if (countEl) countEl.textContent = visible;
+        });
+    });
+</script>
 
 </main>
 

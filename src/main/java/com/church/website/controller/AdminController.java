@@ -1,12 +1,13 @@
 package com.church.website.controller;
 
-import com.church.website.entity.MainImage;
+import com.church.website.entity.Location;
 import com.church.website.entity.MinistryPhoto;
 import com.church.website.entity.Notice;
-import com.church.website.service.MainImageService;
+import com.church.website.service.LocationService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NewFamilyService;
 import com.church.website.service.NoticeService;
+import com.church.website.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,10 +19,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 
-/**
- * 관리자 페이지 컨트롤러
- * ADMIN 권한이 필요한 관리자 페이지 라우팅 처리
- */
 @Slf4j
 @Controller
 @RequestMapping("/admin")
@@ -29,61 +26,44 @@ import java.time.LocalDateTime;
 public class AdminController {
 
     private final NoticeService noticeService;
-    private final MainImageService mainImageService;
     private final NewFamilyService newFamilyService;
     private final MinistryPhotoService ministryPhotoService;
+    private final UserService userService;
+    private final LocationService locationService;
 
-    /**
-     * 관리자 메인 페이지 (대시보드)
-     */
+    // ====== 대시보드 ======
+
     @GetMapping("")
     public String adminMain(Model model) {
-        // 통계
         model.addAttribute("noticeCount",    noticeService.getAllNotices().size());
         model.addAttribute("ministryCount",  ministryPhotoService.getAllPhotos().size());
-        model.addAttribute("imageCount",     mainImageService.getAllImages().size());
         model.addAttribute("uncheckedCount", newFamilyService.getUncheckedCount());
-
-        // 최근 공지사항 5건
         java.util.List<Notice> all = noticeService.getAllNotices();
         model.addAttribute("recentNotices",
             all.stream().limit(5).collect(java.util.stream.Collectors.toList()));
-
         return "admin/index";
     }
 
     // ====== 공지사항 관리 ======
 
-    /**
-     * 공지사항 목록
-     */
     @GetMapping("/notices")
     public String noticeList(Model model) {
         model.addAttribute("notices", noticeService.getAllNotices());
         return "admin/notice/list";
     }
 
-    /**
-     * 공지사항 작성 폼
-     */
     @GetMapping("/notices/new")
     public String noticeForm(Model model) {
         model.addAttribute("notice", new Notice());
         return "admin/notice/form";
     }
 
-    /**
-     * 공지사항 수정 폼 (조회수 증가 없음)
-     */
     @GetMapping("/notices/edit/{id}")
     public String noticeEditForm(@PathVariable Long id, Model model) {
         model.addAttribute("notice", noticeService.getNoticeByIdNoCount(id));
         return "admin/notice/form";
     }
 
-    /**
-     * 공지사항 등록/수정 처리
-     */
     @PostMapping("/notices/save")
     public String noticeSave(
             @ModelAttribute Notice notice,
@@ -95,11 +75,9 @@ public class AdminController {
             Authentication auth,
             RedirectAttributes redirectAttributes) {
         try {
-            // @ModelAttribute의 popup 자동바인딩과 분리된 별도 파라미터로 처리
             notice.setPopup("true".equals(popupEnabled));
             notice.setPopupStartDate(popupStartDate);
             notice.setPopupEndDate(popupEndDate);
-
             if (notice.getId() == null) {
                 notice.setAuthor(auth.getName());
                 noticeService.createNotice(notice);
@@ -116,9 +94,6 @@ public class AdminController {
         }
     }
 
-    /**
-     * 공지사항 삭제
-     */
     @PostMapping("/notices/delete/{id}")
     public String noticeDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -131,116 +106,47 @@ public class AdminController {
         return "redirect:/admin/notices";
     }
 
-    // ====== 메인 이미지 관리 ======
-
-    /**
-     * 메인 이미지 목록
-     */
-    @GetMapping("/images")
-    public String imageList(Model model) {
-        model.addAttribute("images", mainImageService.getAllImages());
-        return "admin/image/list";
-    }
-
-    /**
-     * 메인 이미지 등록 폼
-     */
-    @GetMapping("/images/new")
-    public String imageForm(Model model) {
-        model.addAttribute("image", new MainImage());
-        return "admin/image/form";
-    }
-
-    /**
-     * 메인 이미지 수정 폼
-     */
-    @GetMapping("/images/edit/{id}")
-    public String imageEditForm(@PathVariable Long id, Model model) {
-        model.addAttribute("image", mainImageService.getImageById(id));
-        return "admin/image/form";
-    }
-
-    /**
-     * 메인 이미지 등록/수정 처리
-     */
-    @PostMapping("/images/save")
-    public String imageSave(@ModelAttribute MainImage image, RedirectAttributes redirectAttributes) {
-        try {
-            if (image.getId() == null) {
-                // 신규 등록
-                mainImageService.createImage(image);
-                redirectAttributes.addFlashAttribute("message", "이미지가 등록되었습니다.");
-            } else {
-                // 수정
-                mainImageService.updateImage(image.getId(), image);
-                redirectAttributes.addFlashAttribute("message", "이미지가 수정되었습니다.");
-            }
-            return "redirect:/admin/images";
-        } catch (Exception e) {
-            log.error("이미지 저장 실패", e);
-            redirectAttributes.addFlashAttribute("error", "저장 중 오류가 발생했습니다.");
-            return "redirect:/admin/images";
-        }
-    }
-
-    /**
-     * 메인 이미지 삭제
-     */
-    @PostMapping("/images/delete/{id}")
-    public String imageDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            mainImageService.deleteImage(id);
-            redirectAttributes.addFlashAttribute("message", "이미지가 삭제되었습니다.");
-        } catch (Exception e) {
-            log.error("이미지 삭제 실패", e);
-            redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
-        }
-        return "redirect:/admin/images";
-    }
-
     // ====== 사역사진 관리 ======
 
-    /**
-     * 사역사진 목록
-     */
     @GetMapping("/ministry")
     public String ministryList(Model model) {
         model.addAttribute("photos", ministryPhotoService.getAllPhotos());
         return "admin/ministry/list";
     }
 
-    /**
-     * 사역사진 등록 폼
-     */
     @GetMapping("/ministry/new")
     public String ministryForm(Model model) {
         model.addAttribute("photo", new MinistryPhoto());
         return "admin/ministry/form";
     }
 
-    /**
-     * 사역사진 수정 폼
-     */
     @GetMapping("/ministry/edit/{id}")
     public String ministryEditForm(@PathVariable Long id, Model model) {
         model.addAttribute("photo", ministryPhotoService.getPhotoById(id));
         return "admin/ministry/form";
     }
 
-    /**
-     * 사역사진 등록/수정 처리
-     */
     @PostMapping("/ministry/save")
     public String ministrySave(@ModelAttribute MinistryPhoto photo,
                                @RequestParam(value = "isActive", required = false) String isActiveStr,
+                               @RequestParam(value = "photoFile", required = false) org.springframework.web.multipart.MultipartFile photoFile,
                                RedirectAttributes redirectAttributes) {
         try {
             photo.setIsActive("true".equals(isActiveStr));
+            String uploadedUrl = null;
+            if (photoFile != null && !photoFile.isEmpty()) {
+                uploadedUrl = ministryPhotoService.saveFile(photoFile);
+            }
             if (photo.getId() == null) {
+                if (uploadedUrl == null) {
+                    redirectAttributes.addFlashAttribute("error", "사진 파일을 선택해주세요.");
+                    return "redirect:/admin/ministry/new";
+                }
+                photo.setPhotoUrl(uploadedUrl);
                 ministryPhotoService.createPhoto(photo);
                 redirectAttributes.addFlashAttribute("message", "사역사진이 등록되었습니다.");
             } else {
-                ministryPhotoService.updatePhoto(photo.getId(), photo);
+                ministryPhotoService.updatePhoto(photo.getId(), photo, uploadedUrl);
                 redirectAttributes.addFlashAttribute("message", "사역사진이 수정되었습니다.");
             }
             return "redirect:/admin/ministry";
@@ -251,12 +157,11 @@ public class AdminController {
         }
     }
 
-    /**
-     * 사역사진 삭제
-     */
     @PostMapping("/ministry/delete/{id}")
     public String ministryDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
+            com.church.website.entity.MinistryPhoto photo = ministryPhotoService.getPhotoById(id);
+            ministryPhotoService.deleteFile(photo.getPhotoUrl());
             ministryPhotoService.deletePhoto(id);
             redirectAttributes.addFlashAttribute("message", "사역사진이 삭제되었습니다.");
         } catch (Exception e) {
@@ -268,9 +173,6 @@ public class AdminController {
 
     // ====== 새가족 관리 ======
 
-    /**
-     * 새가족 목록
-     */
     @GetMapping("/new-family")
     public String newFamilyList(Model model) {
         model.addAttribute("list", newFamilyService.getAll());
@@ -278,9 +180,6 @@ public class AdminController {
         return "admin/new-family/list";
     }
 
-    /**
-     * 새가족 확인 처리
-     */
     @PostMapping("/new-family/check/{id}")
     public String newFamilyCheck(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -293,9 +192,6 @@ public class AdminController {
         return "redirect:/admin/new-family";
     }
 
-    /**
-     * 새가족 삭제
-     */
     @PostMapping("/new-family/delete/{id}")
     public String newFamilyDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -306,5 +202,120 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
         return "redirect:/admin/new-family";
+    }
+
+    // ====== 계정 관리 ======
+
+    @GetMapping("/account")
+    public String accountList(Model model, Authentication auth) {
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("currentUsername", auth.getName());
+        return "admin/account/list";
+    }
+
+    @PostMapping("/account/change-password")
+    public String changePassword(
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            Authentication auth,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("error", "새 비밀번호가 일치하지 않습니다.");
+                return "redirect:/admin/account";
+            }
+            if (newPassword.length() < 8) {
+                redirectAttributes.addFlashAttribute("error", "비밀번호는 8자 이상이어야 합니다.");
+                return "redirect:/admin/account";
+            }
+            userService.changePassword(auth.getName(), currentPassword, newPassword);
+            redirectAttributes.addFlashAttribute("message", "비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            log.error("비밀번호 변경 실패", e);
+            redirectAttributes.addFlashAttribute("error", "변경 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/account";
+    }
+
+    @PostMapping("/account/create")
+    public String createAccount(
+            @RequestParam String username,
+            @RequestParam String password,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (password.length() < 8) {
+                redirectAttributes.addFlashAttribute("error", "비밀번호는 8자 이상이어야 합니다.");
+                return "redirect:/admin/account";
+            }
+            userService.createUser(username, password);
+            redirectAttributes.addFlashAttribute("message", "계정이 추가되었습니다: " + username);
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            log.error("계정 추가 실패", e);
+            redirectAttributes.addFlashAttribute("error", "추가 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/account";
+    }
+
+    @PostMapping("/account/toggle/{id}")
+    public String toggleAccount(@PathVariable Long id, Authentication auth,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            com.church.website.entity.User target = userService.getUserById(id);
+            if (target.getUsername().equals(auth.getName())) {
+                redirectAttributes.addFlashAttribute("error", "현재 로그인 계정은 비활성화할 수 없습니다.");
+                return "redirect:/admin/account";
+            }
+            userService.toggleEnabled(id);
+            redirectAttributes.addFlashAttribute("message", "계정 상태가 변경되었습니다.");
+        } catch (Exception e) {
+            log.error("계정 상태 변경 실패", e);
+            redirectAttributes.addFlashAttribute("error", "변경 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/account";
+    }
+
+    @PostMapping("/account/delete/{id}")
+    public String deleteAccount(@PathVariable Long id, Authentication auth,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            com.church.website.entity.User target = userService.getUserById(id);
+            if (target.getUsername().equals(auth.getName())) {
+                redirectAttributes.addFlashAttribute("error", "현재 로그인 계정은 삭제할 수 없습니다.");
+                return "redirect:/admin/account";
+            }
+            userService.deleteUser(id);
+            redirectAttributes.addFlashAttribute("message", "계정이 삭제되었습니다.");
+        } catch (Exception e) {
+            log.error("계정 삭제 실패", e);
+            redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/account";
+    }
+
+    // ====== 설정 ======
+
+    @GetMapping("/settings")
+    public String settings(Model model) {
+        Location location = locationService.getActiveLocation().orElse(new Location());
+        model.addAttribute("location", location);
+        return "admin/settings";
+    }
+
+    @PostMapping("/settings/save")
+    public String settingsSave(@ModelAttribute Location location,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            locationService.save(location);
+            redirectAttributes.addFlashAttribute("message", "교회 정보가 저장되었습니다.");
+        } catch (Exception e) {
+            log.error("설정 저장 실패", e);
+            redirectAttributes.addFlashAttribute("error", "저장 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/settings";
     }
 }

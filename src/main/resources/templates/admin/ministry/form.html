@@ -62,29 +62,65 @@
     textarea.form-control { resize: vertical; min-height: 90px; line-height: 1.7; }
     .form-hint { font-size: 11px; color: #7A96B8; margin-top: 5px; }
 
+    /* 업로드 존 */
+    .upload-zone {
+        border: 2px dashed #DDE4EF;
+        border-radius: 8px;
+        padding: 32px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        background: #F8FAFD;
+    }
+    .upload-zone:hover,
+    .upload-zone.dragover {
+        border-color: #185FA5;
+        background: #EEF5FB;
+    }
+    .upload-zone-text {
+        font-size: 13px;
+        color: #3A5278;
+        margin-top: 10px;
+        font-weight: 500;
+    }
+    .upload-zone-hint {
+        font-size: 11px;
+        color: #7A96B8;
+        margin-top: 4px;
+    }
+
     /* 미리보기 */
     .preview-wrap {
-        margin-top: 10px;
-        border: 1.5px dashed #DDE4EF;
-        border-radius: 8px;
-        min-height: 160px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #F8FAFD;
-        overflow: hidden;
+        margin-top: 12px;
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
     }
     .preview-wrap img {
         max-width: 100%;
-        max-height: 260px;
+        max-height: 280px;
         object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid #DDE4EF;
         display: block;
     }
-    .preview-placeholder {
-        color: #B5D4F4;
-        font-size: 13px;
-        text-align: center;
-        padding: 30px;
+    .preview-remove {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: none;
+        background: #dc3545;
+        color: #fff;
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
     }
 
     /* 토글 */
@@ -147,7 +183,7 @@
         <a href="/admin/ministry" style="font-size:12px; color:#7A96B8;">← 목록으로</a>
     </div>
 
-    <form th:action="@{/admin/ministry/save}" method="post">
+    <form th:action="@{/admin/ministry/save}" method="post" enctype="multipart/form-data">
         <input type="hidden" th:field="*{id}" th:object="${photo}">
 
         <div class="form-card-body">
@@ -193,24 +229,38 @@
                           th:text="${photo.description}"></textarea>
             </div>
 
-            <!-- 사진 URL -->
+            <!-- 사진 파일 업로드 -->
             <div class="form-group">
-                <label class="form-label" for="photoUrl">사진 URL <span style="color:#dc3545;">*</span></label>
-                <input type="url" id="photoUrl" name="photoUrl" class="form-control"
-                       th:value="${photo.photoUrl}"
-                       placeholder="https://example.com/photo.jpg"
-                       required maxlength="500"
-                       oninput="updatePreview(this.value)">
-                <div class="form-hint">이미지 URL을 직접 입력하세요. (jpg, png, webp 등)</div>
-                <div class="preview-wrap" id="previewWrap">
+                <label class="form-label" for="photoFile">
+                    사진 파일
+                    <span th:if="${photo.id == null}" style="color:#dc3545;">*</span>
+                    <span th:if="${photo.id != null}" style="color:#7A96B8; font-weight:400;">(변경 시에만 선택)</span>
+                </label>
+
+                <!-- 드래그&드롭 업로드 영역 -->
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('photoFile').click()">
+                    <div class="upload-zone-inner" id="uploadZoneInner">
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#B5D4F4" stroke-width="1.5">
+                            <rect x="3" y="8" width="30" height="22" rx="2"/>
+                            <circle cx="12" cy="16" r="3"/>
+                            <path d="M3 25l8-8 6 6 5-5 10 10"/>
+                        </svg>
+                        <p class="upload-zone-text">클릭하거나 파일을 드래그하여 업로드</p>
+                        <p class="upload-zone-hint">JPG, PNG, WEBP 지원 · 최대 10MB</p>
+                    </div>
+                </div>
+                <input type="file" id="photoFile" name="photoFile"
+                       accept="image/jpeg,image/png,image/webp,image/gif"
+                       style="display:none;"
+                       onchange="handleFileSelect(this)">
+
+                <!-- 미리보기 -->
+                <div class="preview-wrap" id="previewWrap"
+                     th:style="${photo.photoUrl != null and !photo.photoUrl.isEmpty()} ? '' : 'display:none'">
                     <img id="previewImg"
                          th:src="${photo.photoUrl}"
-                         th:style="${photo.photoUrl != null and !photo.photoUrl.isEmpty()} ? '' : 'display:none'"
                          alt="미리보기">
-                    <div class="preview-placeholder" id="previewPlaceholder"
-                         th:style="${photo.photoUrl != null and !photo.photoUrl.isEmpty()} ? 'display:none' : ''">
-                        URL 입력 시 미리보기가 표시됩니다
-                    </div>
+                    <button type="button" class="preview-remove" onclick="clearFile()" title="사진 제거">×</button>
                 </div>
             </div>
 
@@ -239,23 +289,60 @@
 </div>
 
 <script>
-    function updatePreview(url) {
-        const img = document.getElementById('previewImg');
-        const placeholder = document.getElementById('previewPlaceholder');
-        if (url && url.trim()) {
-            img.src = url;
-            img.style.display = 'block';
-            placeholder.style.display = 'none';
-            img.onerror = function() {
-                img.style.display = 'none';
-                placeholder.style.display = '';
-                placeholder.textContent = '이미지를 불러올 수 없습니다.';
-            };
-        } else {
-            img.style.display = 'none';
-            placeholder.style.display = '';
-            placeholder.textContent = 'URL 입력 시 미리보기가 표시됩니다';
+    const uploadZone = document.getElementById('uploadZone');
+
+    // 드래그&드롭
+    uploadZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) applyFile(file);
+    });
+
+    function handleFileSelect(input) {
+        if (input.files && input.files[0]) {
+            applyFile(input.files[0]);
         }
+    }
+
+    function applyFile(file) {
+        // 유효성 체크
+        const allowed = ['image/jpeg','image/png','image/webp','image/gif'];
+        if (!allowed.includes(file.type)) {
+            alert('JPG, PNG, WEBP, GIF 형식만 업로드할 수 있습니다.');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('파일 크기는 10MB 이하여야 합니다.');
+            return;
+        }
+        // DataTransfer로 input에 파일 세팅 (드래그드롭 경우)
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('photoFile').files = dt.files;
+
+        // 미리보기
+        const reader = new FileReader();
+        reader.onload = e => {
+            const wrap = document.getElementById('previewWrap');
+            const img  = document.getElementById('previewImg');
+            img.src = e.target.result;
+            wrap.style.display = '';
+            document.getElementById('uploadZone').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearFile() {
+        document.getElementById('photoFile').value = '';
+        document.getElementById('previewWrap').style.display = 'none';
+        document.getElementById('uploadZone').style.display = '';
+        document.getElementById('previewImg').src = '';
     }
 </script>
 </main>
