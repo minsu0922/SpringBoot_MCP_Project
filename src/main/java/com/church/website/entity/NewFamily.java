@@ -44,7 +44,12 @@ public class NewFamily {
     @Column(columnDefinition = "TEXT")
     private String memo;
 
+    /** 관리자 내부 메모 (후속 처리 기록용) */
+    @Column(columnDefinition = "TEXT")
+    private String adminMemo;
+
     /** 확인 여부 (관리자 처리 상태) */
+    @Builder.Default
     @Column(nullable = false)
     private boolean checked = false;
 

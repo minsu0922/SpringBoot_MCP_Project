@@ -190,7 +190,7 @@
                 계정 추가
             </div>
             <div class="panel-body">
-                <form th:action="@{/admin/account/create}" method="post">
+                <form th:action="@{/admin/account/create}" method="post" onsubmit="return validateNewAccount()">
                     <div class="form-group">
                         <label class="form-label" for="newUsername">사용자명</label>
                         <input type="text" id="newUsername" name="username"
@@ -202,11 +202,17 @@
                         <label class="form-label" for="newPw">비밀번호</label>
                         <input type="password" id="newPw" name="password"
                                class="form-control" required placeholder="8자 이상"
-                               minlength="8">
+                               minlength="8" oninput="checkNewMatch()">
                     </div>
-                    <button type="submit" class="btn-save"
-                            style="background:#0F6E56;"
-                            onclick="return confirm('새 관리자 계정을 추가하시겠습니까?')">계정 추가</button>
+                    <div class="form-group">
+                        <label class="form-label" for="newPwConfirm">비밀번호 확인</label>
+                        <input type="password" id="newPwConfirm"
+                               class="form-control" required placeholder="비밀번호 재입력"
+                               oninput="checkNewMatch()">
+                        <div class="form-hint" id="newMatchHint"></div>
+                    </div>
+                    <button type="submit" class="btn-save" id="newAccBtn"
+                            style="background:#0F6E56;">계정 추가</button>
                 </form>
             </div>
         </div>
@@ -272,6 +278,7 @@
 </div>
 
 <script>
+    /* 비밀번호 변경 - 일치 확인 */
     function checkMatch() {
         const np = document.getElementById('newPassword').value;
         const cp = document.getElementById('confirmPassword').value;
@@ -287,6 +294,35 @@
             hint.style.color = '#A32D2D';
             btn.disabled = true;
         }
+    }
+
+    /* 계정 추가 - 비밀번호 확인 실시간 피드백 */
+    function checkNewMatch() {
+        const pw  = document.getElementById('newPw').value;
+        const cpw = document.getElementById('newPwConfirm').value;
+        const hint = document.getElementById('newMatchHint');
+        const btn  = document.getElementById('newAccBtn');
+        if (!cpw) { hint.textContent = ''; btn.disabled = false; return; }
+        if (pw === cpw) {
+            hint.textContent = '✓ 비밀번호가 일치합니다.';
+            hint.style.color = '#3B6D11';
+            btn.disabled = false;
+        } else {
+            hint.textContent = '✗ 비밀번호가 일치하지 않습니다.';
+            hint.style.color = '#A32D2D';
+            btn.disabled = true;
+        }
+    }
+
+    /* 계정 추가 폼 제출 전 최종 검증 */
+    function validateNewAccount() {
+        const pw  = document.getElementById('newPw').value;
+        const cpw = document.getElementById('newPwConfirm').value;
+        if (pw !== cpw) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return false;
+        }
+        return confirm('새 관리자 계정을 추가하시겠습니까?');
     }
 </script>
 

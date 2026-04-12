@@ -117,7 +117,16 @@
     .btn-edit   { background: #E6F1FB; color: #185FA5; }
     .btn-delete { background: #FCEBEB; color: #A32D2D; }
 
-    .empty-state {
+    /* 인라인 순서 변경 */
+    .order-form { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+    .order-input {
+        width: 54px; padding: 4px 7px;
+        border: 1px solid #DDE4EF; border-radius: 5px;
+        font-size: 12px; color: #0A1F3D; text-align: center; outline: none;
+    }
+    .order-input:focus { border-color: #185FA5; }
+    .btn-order { font-size: 11px; padding: 4px 9px; background: #EEF2F8; color: #3A5278; border: none; border-radius: 5px; cursor: pointer; }
+    .btn-order:hover { background: #DDE4EF; }
         background: #fff;
         border: 1px solid #DDE4EF;
         border-radius: 10px;
@@ -201,7 +210,14 @@
             <div class="photo-card-desc"
                  th:if="${photo.description != null and !photo.description.isEmpty()}"
                  th:text="${photo.description}">설명</div>
-            <div class="photo-card-order" th:text="'표시 순서: ' + ${photo.displayOrder}"></div>
+            <div class="order-form">
+                <form th:action="@{/admin/ministry/order/{id}(id=${photo.id})}" method="post" style="display:flex; align-items:center; gap:5px;">
+                    <span style="font-size:11px; color:#7A96B8;">순서</span>
+                    <input type="number" name="displayOrder" class="order-input"
+                           th:value="${photo.displayOrder}" min="0" max="999">
+                    <button type="submit" class="btn-order">변경</button>
+                </form>
+            </div>
             <div class="photo-card-actions">
                 <a th:href="@{/admin/ministry/edit/{id}(id=${photo.id})}" class="btn-sm btn-edit">수정</a>
                 <form th:action="@{/admin/ministry/delete/{id}(id=${photo.id})}" method="post"
@@ -219,9 +235,10 @@
 </div>
 
 <script>
-    const tabs  = document.querySelectorAll('.cat-tab');
-    const cards = document.querySelectorAll('#photoGrid .photo-card');
-    const countEl = document.querySelector('.page-toolbar strong');
+    const tabs     = document.querySelectorAll('.cat-tab');
+    const cards    = document.querySelectorAll('#photoGrid .photo-card');
+    const countEl  = document.querySelector('.page-toolbar strong');
+    const totalCount = cards.length;   // 전체 건수 고정
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -235,7 +252,11 @@
                 card.style.display = show ? '' : 'none';
                 if (show) visible++;
             });
-            if (countEl) countEl.textContent = visible;
+            if (countEl) {
+                countEl.textContent = cat === 'ALL'
+                    ? totalCount
+                    : visible + ' / ' + totalCount;
+            }
         });
     });
 </script>

@@ -14,7 +14,18 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
+        gap: 12px;
+        flex-wrap: wrap;
     }
+    .search-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .search-input { padding: 7px 12px; border: 1px solid #DDE4EF; border-radius: 6px; font-size: 13px; color: #3A5278; outline: none; width: 200px; }
+    .search-input:focus { border-color: #185FA5; }
+    .filter-select { padding: 7px 12px; border: 1px solid #DDE4EF; border-radius: 6px; font-size: 13px; color: #3A5278; outline: none; background: #fff; cursor: pointer; }
+    .btn-search { padding: 7px 14px; background: #185FA5; color: #fff; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
+    .btn-search:hover { background: #0D4A84; }
+    .btn-reset-link { font-size: 12px; color: #7A96B8; text-decoration: none; padding: 7px 10px; border: 1px solid #DDE4EF; border-radius: 6px; background: #fff; }
+    .btn-reset-link:hover { border-color: #7A96B8; }
+    .result-info { font-size: 12px; color: #7A96B8; margin-bottom: 12px; }
     .btn-primary {
         display: inline-flex;
         align-items: center;
@@ -82,6 +93,7 @@
     .data-table tr:hover td { background: #FAFBFD; }
     .num-cell   { color: #7A96B8; font-size: 12px; }
     .title-cell { color: #0A1F3D; font-weight: 500; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .title-cell a:hover { color: #185FA5; text-decoration: underline; }
     .action-cell { display: flex; gap: 6px; }
     .empty-row td { text-align: center; color: #7A96B8; padding: 40px !important; }
 
@@ -112,16 +124,32 @@
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
 <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
 
-<div class="page-toolbar">
-    <div style="font-size:13px; color:#7A96B8;">
-        전체 <strong style="color:#0A1F3D;" th:text="${#lists.size(notices)}">0</strong>건
+<!-- 검색 툴바 -->
+<form th:action="@{/admin/notices}" method="get">
+    <div class="page-toolbar">
+        <div class="search-group">
+            <input type="text" name="keyword" class="search-input"
+                   th:value="${keyword}" placeholder="제목 검색…">
+            <select name="popupStatus" class="filter-select">
+                <option value=""    th:selected="${popupStatus == ''}">팝업 전체</option>
+                <option value="on"  th:selected="${popupStatus == 'on'}">팝업 ON</option>
+                <option value="off" th:selected="${popupStatus == 'off'}">팝업 OFF</option>
+            </select>
+            <button type="submit" class="btn-search">검색</button>
+            <a href="/admin/notices" class="btn-reset-link">초기화</a>
+        </div>
+        <a href="/admin/notices/new" class="btn-primary">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/>
+            </svg>
+            새 공지사항 작성
+        </a>
     </div>
-    <a href="/admin/notices/new" class="btn-primary">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/>
-        </svg>
-        새 공지사항 작성
-    </a>
+</form>
+
+<div class="result-info">
+    전체 <strong th:text="${totalCount}">0</strong>건 중
+    <strong th:text="${#lists.size(notices)}">0</strong>건 표시
 </div>
 
 <div class="data-table">
@@ -143,7 +171,11 @@
             </tr>
             <tr th:each="notice, stat : ${notices}">
                 <td class="num-cell" th:text="${stat.count}"></td>
-                <td class="title-cell" th:text="${notice.title}"></td>
+                <td class="title-cell">
+                    <a th:href="@{/admin/notices/edit/{id}(id=${notice.id})}"
+                       style="color:#0A1F3D; text-decoration:none;"
+                       th:text="${notice.title}"></a>
+                </td>
                 <td th:text="${notice.author}"></td>
                 <td th:text="${notice.viewCount}"></td>
                 <td style="font-size:12px;" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}"></td>
