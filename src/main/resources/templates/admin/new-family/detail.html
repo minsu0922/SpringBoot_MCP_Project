@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'family')}">
+
+<title th:fragment="title">새가족 상세</title>
+
+<main th:fragment="main">
+<style>
+    .alert { padding: 12px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+    .alert-success { background: #EAF3DE; color: #3B6D11; border: 1px solid #C0DD97; }
+    .alert-error   { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; }
+
+    .back-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        color: #7A96B8; font-size: 13px; text-decoration: none; margin-bottom: 20px;
+    }
+    .back-link:hover { color: #185FA5; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    .detail-card {
+        background: #fff; border: 1px solid #DDE4EF; border-radius: 10px; padding: 24px 28px;
+    }
+    .detail-card.full { grid-column: 1 / -1; }
+    .card-title {
+        font-size: 13px; font-weight: 600; color: #0A1F3D;
+        margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #EEF2F8;
+    }
+
+    .info-row { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+    .info-label {
+        flex-shrink: 0; width: 80px; font-size: 11px; font-weight: 600;
+        color: #7A96B8; letter-spacing: 0.06em; padding-top: 2px;
+    }
+    .info-value { font-size: 14px; color: #0A1F3D; line-height: 1.6; word-break: break-all; }
+    .info-value.pre { white-space: pre-wrap; font-size: 13px; color: #3A5278; }
+    .info-value.empty { color: #BCC9DC; font-style: italic; font-size: 13px; }
+
+    .status-new  { display: inline-block; padding: 4px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; background: #FAEEDA; color: #854F0B; }
+    .status-done { display: inline-block; padding: 4px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; background: #EAF3DE; color: #3B6D11; }
+
+    /* 관리자 메모 */
+    .admin-memo-area {
+        width: 100%; min-height: 120px; padding: 12px 14px;
+        border: 1px solid #DDE4EF; border-radius: 6px;
+        font-family: 'Noto Sans KR', sans-serif; font-size: 13px; color: #0A1F3D;
+        line-height: 1.7; resize: vertical; outline: none;
+    }
+    .admin-memo-area:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.08); }
+    .admin-memo-hint { font-size: 11px; color: #7A96B8; margin-top: 6px; }
+
+    /* 액션 버튼 그룹 */
+    .action-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid #EEF2F8; }
+    .btn {
+        padding: 7px 20px; border-radius: 6px; border: none;
+        font-size: 13px; font-weight: 500; cursor: pointer;
+        text-decoration: none; display: inline-block; transition: opacity 0.15s;
+        white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary   { background: #185FA5; color: #fff; }
+    .btn-success   { background: #3B7A20; color: #fff; }
+    .btn-warning   { background: #856404; color: #fff; }
+    .btn-danger    { background: #A32D2D; color: #fff; }
+    .btn-secondary { background: #EEF2F8; color: #3A5278; }
+
+    /* 상태 관리 버튼 영역 */
+    .status-action-box { display: flex; flex-direction: column; gap: 10px; }
+    .status-desc { font-size: 12px; color: #7A96B8; line-height: 1.6; margin-bottom: 2px; }
+    .status-btn-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+<a href="/admin/new-family" class="back-link">← 목록으로</a>
+
+<div class="detail-grid">
+
+    <!-- 기본 정보 -->
+    <div class="detail-card">
+        <div class="card-title">기본 정보</div>
+        <div class="info-row">
+            <span class="info-label">이름</span>
+            <span class="info-value" th:text="${nf.name}"></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">연락처</span>
+            <span class="info-value" th:text="${nf.phone}"></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">방문경로</span>
+            <span th:if="${nf.visitRoute != null and !#strings.isEmpty(nf.visitRoute)}"
+                  class="info-value" th:text="${nf.visitRoute}"></span>
+            <span th:if="${nf.visitRoute == null or #strings.isEmpty(nf.visitRoute)}"
+                  class="info-value empty">미입력</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">등록일시</span>
+            <span class="info-value"
+                  th:text="${#temporals.format(nf.createdAt, 'yyyy년 MM월 dd일 HH:mm')}"></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">상태</span>
+            <span th:if="${!nf.checked}" class="status-new">미확인</span>
+            <span th:if="${nf.checked}"  class="status-done">확인완료</span>
+        </div>
+    </div>
+
+    <!-- 상태 관리 -->
+    <div class="detail-card">
+        <div class="card-title">상태 관리</div>
+        <div class="status-action-box">
+
+            <!-- 확인 처리 -->
+            <div th:if="${!nf.checked}">
+                <p class="status-desc">담당 교역자가 연락을 완료했거나 처리가 끝난 경우 확인 처리를 진행하세요.</p>
+                <form th:action="@{/admin/new-family/check/{id}(id=${nf.id})}" method="post" style="display:inline;">
+                    <input type="hidden" name="from" value="detail">
+                    <button type="submit" class="btn btn-success">✓ 확인 처리</button>
+                </form>
+            </div>
+
+            <!-- 확인 취소 -->
+            <div th:if="${nf.checked}">
+                <p class="status-desc">현재 <strong style="color:#3B6D11;">확인완료</strong> 상태입니다. 실수로 처리한 경우 취소할 수 있습니다.</p>
+                <form th:action="@{/admin/new-family/uncheck/{id}(id=${nf.id})}" method="post" style="display:inline;"
+                      onsubmit="return confirm('확인을 취소하시겠습니까?');">
+                    <input type="hidden" name="from" value="detail">
+                    <button type="submit" class="btn btn-warning">↩ 확인 취소</button>
+                </form>
+            </div>
+
+            <!-- 삭제 -->
+            <div style="padding-top:10px; border-top:1px solid #EEF2F8;">
+                <p class="status-desc">등록 정보를 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.</p>
+                <form th:action="@{/admin/new-family/delete/{id}(id=${nf.id})}" method="post" style="display:inline;"
+                      onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                    <button type="submit" class="btn btn-danger">✕ 삭제</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 등록자 메모 -->
+    <div class="detail-card">
+        <div class="card-title">등록자 메모 (문의 내용)</div>
+        <div th:if="${nf.memo != null and !#strings.isEmpty(nf.memo)}"
+             class="info-value pre" th:text="${nf.memo}"></div>
+        <div th:if="${nf.memo == null or #strings.isEmpty(nf.memo)}"
+             class="info-value empty">작성된 내용이 없습니다.</div>
+    </div>
+
+    <!-- 관리자 내부 메모 -->
+    <div class="detail-card">
+        <div class="card-title">관리자 메모 (내부 기록용)</div>
+        <form th:action="@{/admin/new-family/admin-memo/{id}(id=${nf.id})}" method="post">
+            <textarea class="admin-memo-area" name="adminMemo"
+                      placeholder="담당자가 후속 처리 내용을 기록하는 공간입니다.&#10;예) 2025.04.10 전화 연결 완료, 다음 주 교육 참석 예정"
+                      th:text="${nf.adminMemo}"></textarea>
+            <p class="admin-memo-hint">이 메모는 관리자만 볼 수 있습니다.</p>
+            <button type="submit" class="btn btn-primary" style="margin-top:10px;">메모 저장</button>
+        </form>
+    </div>
+
+</div>
+</main>
+
+</th:block>
+</html>

@@ -175,6 +175,11 @@
         <div class="stat-num" th:text="${uncheckedCount ?: 0}">0</div>
         <div class="stat-sub" th:classappend="${uncheckedCount > 0} ? 'warn'" th:text="${uncheckedCount > 0} ? '확인이 필요합니다' : '모두 확인됨'">-</div>
     </div>
+    <div class="stat-card amber">
+        <div class="stat-label">새가족 전체</div>
+        <div class="stat-num" th:text="${newFamilyTotal ?: 0}">0</div>
+        <div class="stat-sub"><a href="/admin/new-family" style="color:#7A96B8; text-decoration:none;">목록 보기 →</a></div>
+    </div>
 </div>
 
 <!-- 바로가기 -->
@@ -240,12 +245,40 @@
     <div th:if="${recentNotices != null and not #lists.isEmpty(recentNotices)}">
         <div class="recent-row" th:each="n : ${recentNotices}">
             <span class="recent-tag tag-notice">공지</span>
-            <span th:text="${n.title}">공지 제목</span>
+            <a th:href="@{/admin/notices/edit/{id}(id=${n.id})}"
+               style="color:#3A5278; text-decoration:none; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+               th:text="${n.title}"></a>
             <span class="recent-date" th:text="${#temporals.format(n.createdAt, 'MM.dd')}">04.07</span>
         </div>
     </div>
     <div th:if="${recentNotices == null or #lists.isEmpty(recentNotices)}" class="recent-empty">
         등록된 공지사항이 없습니다.
+    </div>
+</div>
+
+<!-- 새가족 미확인 목록 -->
+<div class="recent-section" style="margin-top: 20px;">
+    <div class="recent-header">
+        <div class="recent-title">
+            새가족 미확인
+            <span style="display:inline-block; margin-left:8px; background:#dc3545; color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:500;"
+                  th:if="${uncheckedCount > 0}" th:text="${uncheckedCount} + '건'"></span>
+            <span style="display:inline-block; margin-left:8px; background:#DDE4EF; color:#7A96B8; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:500;"
+                  th:if="${uncheckedCount == 0}">모두 확인됨</span>
+        </div>
+        <a href="/admin/new-family?status=unchecked" class="recent-link">전체 보기 →</a>
+    </div>
+    <div th:if="${recentNewFamilies != null and not #lists.isEmpty(recentNewFamilies)}">
+        <div class="recent-row" th:each="nf : ${recentNewFamilies}">
+            <span class="recent-tag tag-family">새가족</span>
+            <a th:href="@{/admin/new-family/{id}(id=${nf.id})}"
+               style="color:#3A5278; text-decoration:none; flex:1;"
+               th:text="${nf.name} + ' (' + ${nf.phone} + ')'"></a>
+            <span class="recent-date" th:text="${#temporals.format(nf.createdAt, 'MM.dd')}"></span>
+        </div>
+    </div>
+    <div th:if="${recentNewFamilies == null or #lists.isEmpty(recentNewFamilies)}" class="recent-empty">
+        미확인 새가족이 없습니다. 🎉
     </div>
 </div>
 

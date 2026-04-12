@@ -4,6 +4,9 @@ import com.church.website.entity.NewFamily;
 import com.church.website.repository.NewFamilyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +27,26 @@ public class NewFamilyService {
         return newFamilyRepository.findAllByOrderByCreatedAtDesc();
     }
 
+    /** 검색 + 필터 + 페이지네이션 */
+    public Page<NewFamily> search(String keyword, String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return newFamilyRepository.searchByKeywordAndStatus(keyword, status, pageable);
+    }
+
+    /** 단건 조회 */
+    public NewFamily getById(Long id) {
+        return newFamilyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("새가족 정보를 찾을 수 없습니다."));
+    }
+
     /** 미확인 건수 */
     public long getUncheckedCount() {
         return newFamilyRepository.countByCheckedFalse();
+    }
+
+    /** 확인 건수 */
+    public long getCheckedCount() {
+        return newFamilyRepository.countByChecked(true);
     }
 
     /** 새가족 등록 */
@@ -36,7 +56,7 @@ public class NewFamilyService {
         return newFamilyRepository.save(newFamily);
     }
 
-    /** 확인 처리 */
+    /** 확인 처리 (checked = true) */
     @Transactional
     public void check(Long id) {
         NewFamily nf = newFamilyRepository.findById(id)
@@ -44,6 +64,26 @@ public class NewFamilyService {
         nf.setChecked(true);
         newFamilyRepository.save(nf);
         log.info("새가족 확인 처리: {}", nf.getName());
+    }
+
+    /** 확인 취소 (checked = false) */
+    @Transactional
+    public void uncheck(Long id) {
+        NewFamily nf = newFamilyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("새가족 정보를 찾을 수 없습니다."));
+        nf.setChecked(false);
+        newFamilyRepository.save(nf);
+        log.info("새가족 확인 취소: {}", nf.getName());
+    }
+
+    /** 관리자 메모 저장 */
+    @Transactional
+    public void saveAdminMemo(Long id, String adminMemo) {
+        NewFamily nf = newFamilyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("새가족 정보를 찾을 수 없습니다."));
+        nf.setAdminMemo(adminMemo);
+        newFamilyRepository.save(nf);
+        log.info("새가족 관리자 메모 저장: {}", nf.getName());
     }
 
     /** 삭제 */

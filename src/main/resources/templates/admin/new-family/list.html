@@ -13,167 +13,171 @@
     .alert-success { background: #EAF3DE; color: #3B6D11; border: 1px solid #C0DD97; }
     .alert-error   { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; }
 
-    .page-toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 18px;
-    }
-    .family-badge {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 10px;
-        font-size: 11px;
-        font-weight: 600;
-        background: #dc3545;
-        color: #fff;
-        margin-left: 8px;
-    }
+    /* 통계 카드 */
+    .stat-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .stat-card { flex: 1; background: #fff; border: 1px solid #DDE4EF; border-radius: 8px; padding: 14px 18px; }
+    .stat-card .sc-num   { font-size: 24px; font-weight: 700; color: #0A1F3D; }
+    .stat-card .sc-label { font-size: 11px; color: #7A96B8; margin-top: 2px; }
+    .stat-card.warn .sc-num { color: #854F0B; }
+
+    /* 툴바 */
+    .page-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+    .search-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .search-input { padding: 7px 12px; border: 1px solid #DDE4EF; border-radius: 6px; font-size: 13px; color: #3A5278; outline: none; width: 180px; }
+    .search-input:focus { border-color: #185FA5; }
+    .filter-select { padding: 7px 12px; border: 1px solid #DDE4EF; border-radius: 6px; font-size: 13px; color: #3A5278; outline: none; background: #fff; cursor: pointer; }
+    .btn-search { padding: 7px 14px; background: #185FA5; color: #fff; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .btn-search:hover { background: #0D4A84; }
+
+    .family-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #dc3545; color: #fff; margin-left: 8px; }
     .family-badge.zero { background: #DDE4EF; color: #7A96B8; }
 
-    .data-table {
-        width: 100%;
-        background: #fff;
-        border: 1px solid #DDE4EF;
-        border-radius: 10px;
-        overflow: hidden;
-    }
+    /* 테이블 */
+    .data-table { width: 100%; background: #fff; border: 1px solid #DDE4EF; border-radius: 10px; overflow: hidden; }
     .data-table table { width: 100%; border-collapse: collapse; }
-    .data-table th {
-        background: #F8FAFD;
-        font-size: 12px;
-        font-weight: 600;
-        color: #7A96B8;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 12px 16px;
-        text-align: left;
-        border-bottom: 1px solid #DDE4EF;
-        white-space: nowrap;
-    }
-    .data-table td {
-        padding: 12px 16px;
-        font-size: 13px;
-        color: #3A5278;
-        border-bottom: 1px solid #F4F7FC;
-        vertical-align: middle;
-    }
+    .data-table th { background: #F8FAFD; font-size: 12px; font-weight: 600; color: #7A96B8; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 14px; text-align: left; border-bottom: 1px solid #DDE4EF; white-space: nowrap; }
+    .data-table td { padding: 11px 14px; font-size: 13px; color: #3A5278; border-bottom: 1px solid #F4F7FC; vertical-align: middle; }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:hover td { background: #FAFBFD; }
     .empty-row td { text-align: center; color: #7A96B8; padding: 40px !important; }
 
+    .name-link { color: #0A1F3D; font-weight: 500; text-decoration: none; }
+    .name-link:hover { color: #185FA5; text-decoration: underline; }
+
     .status-new  { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #FAEEDA; color: #854F0B; }
     .status-done { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; background: #EAF3DE; color: #3B6D11; }
 
-    .action-cell { display: flex; gap: 6px; flex-wrap: wrap; }
-    .btn-sm {
-        font-size: 11px;
-        padding: 4px 10px;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        font-weight: 500;
-        transition: opacity 0.15s;
-        white-space: nowrap;
-    }
-    .btn-sm:hover { opacity: 0.85; }
-    .btn-check  { background: #E6F1FB; color: #185FA5; }
-    .btn-memo   { background: #EEEDFE; color: #534AB7; }
-    .btn-delete { background: #FCEBEB; color: #A32D2D; }
+    .action-cell { display: flex; gap: 5px; flex-wrap: nowrap; align-items: center; }
+    .btn-sm { font-size: 11px; padding: 4px 9px; border-radius: 5px; border: none; cursor: pointer; text-decoration: none; font-weight: 500; transition: opacity 0.15s; white-space: nowrap; display: inline-block; line-height: 1.5; }
+    .btn-sm:hover { opacity: 0.82; }
+    .btn-detail  { background: #E6F1FB; color: #185FA5; }
+    .btn-check   { background: #EAF3DE; color: #3B6D11; }
+    .btn-uncheck { background: #FFF3CD; color: #856404; }
+    .btn-delete  { background: #FCEBEB; color: #A32D2D; }
 
-    .memo-cell { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #7A96B8; font-size: 12px; }
+    .memo-cell { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #7A96B8; font-size: 12px; }
 
-    /* Modal */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(10,31,61,0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal {
-        background: #fff;
-        border-radius: 12px;
-        padding: 28px;
-        max-width: 460px;
-        width: 90%;
-        border: 1px solid #DDE4EF;
-        position: relative;
-    }
-    .modal-name { font-size: 15px; font-weight: 600; color: #0A1F3D; margin-bottom: 4px; }
-    .modal-date { font-size: 12px; color: #7A96B8; padding-bottom: 14px; border-bottom: 1px solid #EEF2F8; margin-bottom: 14px; }
-    .modal-body { font-size: 14px; color: #3A5278; line-height: 1.8; white-space: pre-wrap; min-height: 60px; }
-    .modal-empty { font-size: 13px; color: #7A96B8; font-style: italic; }
-    .modal-close {
-        position: absolute;
-        top: 14px; right: 16px;
-        background: none;
-        border: none;
-        font-size: 20px;
-        cursor: pointer;
-        color: #7A96B8;
-        line-height: 1;
-    }
-    .modal-close:hover { color: #0A1F3D; }
+    /* 페이지네이션 */
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 20px; }
+    .page-btn { padding: 6px 12px; border: 1px solid #DDE4EF; border-radius: 5px; font-size: 12px; color: #3A5278; background: #fff; cursor: pointer; text-decoration: none; display: inline-block; }
+    .page-btn:hover { background: #E6F1FB; border-color: #185FA5; color: #185FA5; }
+    .page-btn.active { background: #185FA5; color: #fff; border-color: #185FA5; }
+    .page-btn.disabled { pointer-events: none; color: #BCC9DC; border-color: #EEF2F8; }
+
+    .result-info { font-size: 12px; color: #7A96B8; margin-bottom: 10px; }
 </style>
 
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
 <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
 
-<div class="page-toolbar">
-    <div style="font-size:13px; color:#7A96B8;">
-        새가족 등록 목록
-        <span class="family-badge"
-              th:classappend="${uncheckedCount == 0} ? 'zero'"
-              th:text="${uncheckedCount} + '건 미확인'"></span>
+<!-- 통계 카드 -->
+<div class="stat-row">
+    <div class="stat-card">
+        <div class="sc-num" th:text="${uncheckedCount + checkedCount}"></div>
+        <div class="sc-label">전체 등록</div>
     </div>
-    <a href="/new-family" target="_blank" style="font-size:12px; color:#7A96B8;">등록 폼 미리보기 ↗</a>
+    <div class="stat-card warn">
+        <div class="sc-num" th:text="${uncheckedCount}"></div>
+        <div class="sc-label">미확인</div>
+    </div>
+    <div class="stat-card">
+        <div class="sc-num" th:text="${checkedCount}"></div>
+        <div class="sc-label">확인완료</div>
+    </div>
 </div>
 
+<!-- 검색 툴바 -->
+<form th:action="@{/admin/new-family}" method="get">
+    <div class="page-toolbar">
+        <div class="search-group">
+            <input type="text" name="keyword" class="search-input"
+                   th:value="${keyword}" placeholder="이름 검색…">
+            <select name="status" class="filter-select">
+                <option value=""          th:selected="${status == ''}">전체</option>
+                <option value="unchecked" th:selected="${status == 'unchecked'}">미확인</option>
+                <option value="checked"   th:selected="${status == 'checked'}">확인완료</option>
+            </select>
+            <button type="submit" class="btn-search">검색</button>
+            <a href="/admin/new-family" class="btn-sm" style="background:#EEF2F8;color:#7A96B8;padding:7px 12px;">초기화</a>
+        </div>
+        <div style="font-size:12px; color:#7A96B8;">
+            미확인
+            <span class="family-badge"
+                  th:classappend="${uncheckedCount == 0} ? 'zero'"
+                  th:text="${uncheckedCount} + '건'"></span>
+        </div>
+    </div>
+</form>
+
+<!-- 결과 정보 -->
+<div class="result-info">
+    총 <strong th:text="${totalElements}"></strong>건
+    <th:block th:if="${totalPages > 1}">
+        · <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span> 페이지
+    </th:block>
+</div>
+
+<!-- 목록 테이블 -->
 <div class="data-table">
     <table>
         <thead>
             <tr>
-                <th style="width:50px;">번호</th>
+                <th style="width:44px;">번호</th>
                 <th>이름</th>
                 <th>연락처</th>
                 <th>방문경로</th>
-                <th style="width:150px;">메모</th>
-                <th style="width:110px;">등록일</th>
-                <th style="width:80px;">상태</th>
-                <th style="width:160px;">관리</th>
+                <th style="width:110px;">메모</th>
+                <th style="width:96px;">등록일</th>
+                <th style="width:72px;">상태</th>
+                <th style="width:220px;">관리</th>
             </tr>
         </thead>
         <tbody>
             <tr th:if="${#lists.isEmpty(list)}" class="empty-row">
-                <td colspan="8">등록된 새가족이 없습니다.</td>
+                <td colspan="8">조건에 맞는 새가족이 없습니다.</td>
             </tr>
             <tr th:each="nf, stat : ${list}">
-                <td style="color:#7A96B8; font-size:12px;" th:text="${stat.count}"></td>
-                <td style="font-weight:500; color:#0A1F3D;" th:text="${nf.name}"></td>
-                <td th:text="${nf.phone}"></td>
-                <td th:text="${nf.visitRoute}"></td>
-                <td class="memo-cell" th:text="${nf.memo}"></td>
-                <td th:text="${#temporals.format(nf.registeredAt, 'yyyy.MM.dd')}"></td>
+                <td style="color:#7A96B8; font-size:12px;"
+                    th:text="${currentPage * 10 + stat.count}"></td>
                 <td>
-                    <span th:if="${!nf.checked}"  class="status-new">미확인</span>
-                    <span th:if="${nf.checked}"   class="status-done">확인완료</span>
+                    <a th:href="@{/admin/new-family/{id}(id=${nf.id})}"
+                       class="name-link" th:text="${nf.name}"></a>
+                </td>
+                <td th:text="${nf.phone}"></td>
+                <td th:text="${nf.visitRoute != null ? nf.visitRoute : '-'}"></td>
+                <td class="memo-cell" th:text="${nf.memo != null ? nf.memo : '-'}"></td>
+                <td th:text="${#temporals.format(nf.createdAt, 'yyyy.MM.dd')}"></td>
+                <td>
+                    <span th:if="${!nf.checked}" class="status-new">미확인</span>
+                    <span th:if="${nf.checked}"  class="status-done">확인완료</span>
                 </td>
                 <td>
                     <div class="action-cell">
-                        <form th:if="${!nf.checked}" th:action="@{/admin/new-family/check/{id}(id=${nf.id})}" method="post">
+                        <a th:href="@{/admin/new-family/{id}(id=${nf.id})}"
+                           class="btn-sm btn-detail">상세보기</a>
+
+                        <form th:if="${!nf.checked}"
+                              th:action="@{/admin/new-family/check/{id}(id=${nf.id})}" method="post" style="display:inline;">
+                            <input type="hidden" name="keyword" th:value="${keyword}">
+                            <input type="hidden" name="status"  th:value="${status}">
+                            <input type="hidden" name="page"    th:value="${currentPage}">
                             <button type="submit" class="btn-sm btn-check">확인처리</button>
                         </form>
-                        <button type="button" class="btn-sm btn-memo"
-                                th:onclick="'openMemo(' + ${nf.id} + ', \'' + ${nf.name} + '\', \'' + ${#temporals.format(nf.registeredAt,'yyyy.MM.dd')} + '\')'">
-                            메모보기
-                        </button>
-                        <form th:action="@{/admin/new-family/delete/{id}(id=${nf.id})}" method="post"
+
+                        <form th:if="${nf.checked}"
+                              th:action="@{/admin/new-family/uncheck/{id}(id=${nf.id})}" method="post" style="display:inline;"
+                              onsubmit="return confirm('확인을 취소하시겠습니까?');">
+                            <input type="hidden" name="keyword" th:value="${keyword}">
+                            <input type="hidden" name="status"  th:value="${status}">
+                            <input type="hidden" name="page"    th:value="${currentPage}">
+                            <button type="submit" class="btn-sm btn-uncheck">확인취소</button>
+                        </form>
+
+                        <form th:action="@{/admin/new-family/delete/{id}(id=${nf.id})}" method="post" style="display:inline;"
                               onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                            <input type="hidden" name="keyword" th:value="${keyword}">
+                            <input type="hidden" name="status"  th:value="${status}">
+                            <input type="hidden" name="page"    th:value="${currentPage}">
                             <button type="submit" class="btn-sm btn-delete">삭제</button>
                         </form>
                     </div>
@@ -183,51 +187,21 @@
     </table>
 </div>
 
-<!-- 메모 모달 -->
-<div class="modal-overlay" id="memoModal">
-    <div class="modal">
-        <button class="modal-close" onclick="closeMemo()">×</button>
-        <div class="modal-name" id="memoName"></div>
-        <div class="modal-date" id="memoDate"></div>
-        <div id="memoContent"></div>
-    </div>
+<!-- 페이지네이션 -->
+<div class="pagination" th:if="${totalPages > 1}">
+    <a th:href="@{/admin/new-family(keyword=${keyword},status=${status},page=${currentPage - 1})}"
+       class="page-btn" th:classappend="${currentPage == 0} ? 'disabled'">‹ 이전</a>
+
+    <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:href="@{/admin/new-family(keyword=${keyword},status=${status},page=${i})}"
+           class="page-btn" th:classappend="${i == currentPage} ? 'active'"
+           th:text="${i + 1}"></a>
+    </th:block>
+
+    <a th:href="@{/admin/new-family(keyword=${keyword},status=${status},page=${currentPage + 1})}"
+       class="page-btn" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">다음 ›</a>
 </div>
 
-<script th:inline="javascript">
-    const memoData = {};
-    /*<![CDATA[*/
-    [[${list}]].forEach(function(nf) {
-        memoData[nf.id] = nf.memo || '';
-    });
-    /*]]>*/
-
-    function openMemo(id, name, date) {
-        document.getElementById('memoName').textContent = name + ' 님의 메모';
-        document.getElementById('memoDate').textContent = '등록일: ' + date;
-        const content = memoData[id];
-        const bodyEl = document.getElementById('memoContent');
-        if (content && content.trim() !== '') {
-            bodyEl.className = 'modal-body';
-            bodyEl.textContent = content;
-        } else {
-            bodyEl.className = 'modal-empty';
-            bodyEl.textContent = '작성된 메모가 없습니다.';
-        }
-        document.getElementById('memoModal').classList.add('show');
-    }
-
-    function closeMemo() {
-        document.getElementById('memoModal').classList.remove('show');
-    }
-
-    document.getElementById('memoModal').addEventListener('click', function(e) {
-        if (e.target === this) closeMemo();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeMemo();
-    });
-</script>
 </main>
 
 </th:block>

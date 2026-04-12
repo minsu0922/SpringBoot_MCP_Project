@@ -31,24 +31,56 @@ public class AdminController {
     private final UserService userService;
     private final LocationService locationService;
 
+    // ====== 공통: 사이드바 뱃지용 미확인 건수 ======
+
+    @ModelAttribute
+    public void addCommonAttributes(Model model) {
+        model.addAttribute("uncheckedCount", newFamilyService.getUncheckedCount());
+    }
+
     // ====== 대시보드 ======
 
     @GetMapping("")
     public String adminMain(Model model) {
         model.addAttribute("noticeCount",    noticeService.getAllNotices().size());
         model.addAttribute("ministryCount",  ministryPhotoService.getAllPhotos().size());
-        model.addAttribute("uncheckedCount", newFamilyService.getUncheckedCount());
+        model.addAttribute("newFamilyTotal", newFamilyService.getAll().size());
         java.util.List<Notice> all = noticeService.getAllNotices();
         model.addAttribute("recentNotices",
             all.stream().limit(5).collect(java.util.stream.Collectors.toList()));
+        // 최근 새가족 미확인 목록 (최대 5건)
+        model.addAttribute("recentNewFamilies",
+            newFamilyService.getAll().stream()
+                .filter(nf -> !nf.isChecked())
+                .limit(5)
+                .collect(java.util.stream.Collectors.toList()));
         return "admin/index";
     }
 
     // ====== 공지사항 관리 ======
 
     @GetMapping("/notices")
-    public String noticeList(Model model) {
-        model.addAttribute("notices", noticeService.getAllNotices());
+    public String noticeList(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String popupStatus,
+            Model model) {
+        java.util.List<Notice> notices = noticeService.getAllNotices();
+        // 키워드 필터
+        if (!keyword.isEmpty()) {
+            notices = notices.stream()
+                .filter(n -> n.getTitle().contains(keyword))
+                .collect(java.util.stream.Collectors.toList());
+        }
+        // 팝업 상태 필터
+        if ("on".equals(popupStatus)) {
+            notices = notices.stream().filter(Notice::isPopup).collect(java.util.stream.Collectors.toList());
+        } else if ("off".equals(popupStatus)) {
+            notices = notices.stream().filter(n -> !n.isPopup()).collect(java.util.stream.Collectors.toList());
+        }
+        model.addAttribute("notices", notices);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("popupStatus", popupStatus);
+        model.addAttribute("totalCount", noticeService.getAllNotices().size());
         return "admin/notice/list";
     }
 
@@ -157,6 +189,22 @@ public class AdminController {
         }
     }
 
+    @PostMapping("/ministry/order/{id}")
+    public String ministryOrder(@PathVariable Long id,
+                                @RequestParam int displayOrder,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            com.church.website.entity.MinistryPhoto photo = ministryPhotoService.getPhotoById(id);
+            photo.setDisplayOrder(displayOrder);
+            ministryPhotoService.updatePhoto(id, photo, null);
+            redirectAttributes.addFlashAttribute("message", "표시 순서가 변경되었습니다.");
+        } catch (Exception e) {
+            log.error("사역사진 순서 변경 실패", e);
+            redirectAttributes.addFlashAttribute("error", "순서 변경 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/ministry";
+    }
+
     @PostMapping("/ministry/delete/{id}")
     public String ministryDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -174,14 +222,37 @@ public class AdminController {
     // ====== 새가족 관리 ======
 
     @GetMapping("/new-family")
-    public String newFamilyList(Model model) {
-        model.addAttribute("list", newFamilyService.getAll());
-        model.addAttribute("uncheckedCount", newFamilyService.getUncheckedCount());
+    public String newFamilyList(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+        int size = 10;
+        org.springframework.data.domain.Page<com.church.website.entity.NewFamily> result =
+                newFamilyService.search(keyword, status, page, size);
+        model.addAttribute("list",          result.getContent());
+        model.addAttribute("currentPage",   result.getNumber());
+        model.addAttribute("totalPages",    result.getTotalPages());
+        model.addAttribute("totalElements", result.getTotalElements());
+        model.addAttribute("keyword",       keyword);
+        model.addAttribute("status",        status);
+        model.addAttribute("checkedCount",   newFamilyService.getCheckedCount());
         return "admin/new-family/list";
     }
 
+    @GetMapping("/new-family/{id}")
+    public String newFamilyDetail(@PathVariable Long id, Model model) {
+        model.addAttribute("nf", newFamilyService.getById(id));
+        return "admin/new-family/detail";
+    }
+
     @PostMapping("/new-family/check/{id}")
-    public String newFamilyCheck(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String newFamilyCheck(@PathVariable Long id,
+                                 @RequestParam(defaultValue = "") String keyword,
+                                 @RequestParam(defaultValue = "") String status,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "list") String from,
+                                 RedirectAttributes redirectAttributes) {
         try {
             newFamilyService.check(id);
             redirectAttributes.addFlashAttribute("message", "확인 처리되었습니다.");
@@ -189,11 +260,52 @@ public class AdminController {
             log.error("새가족 확인 처리 실패", e);
             redirectAttributes.addFlashAttribute("error", "처리 중 오류가 발생했습니다.");
         }
-        return "redirect:/admin/new-family";
+        if ("detail".equals(from)) {
+            return "redirect:/admin/new-family/" + id;
+        }
+        return "redirect:/admin/new-family?keyword=" + keyword + "&status=" + status + "&page=" + page;
+    }
+
+    @PostMapping("/new-family/uncheck/{id}")
+    public String newFamilyUncheck(@PathVariable Long id,
+                                   @RequestParam(defaultValue = "") String keyword,
+                                   @RequestParam(defaultValue = "") String status,
+                                   @RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "list") String from,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            newFamilyService.uncheck(id);
+            redirectAttributes.addFlashAttribute("message", "확인이 취소되었습니다.");
+        } catch (Exception e) {
+            log.error("새가족 확인 취소 실패", e);
+            redirectAttributes.addFlashAttribute("error", "처리 중 오류가 발생했습니다.");
+        }
+        if ("detail".equals(from)) {
+            return "redirect:/admin/new-family/" + id;
+        }
+        return "redirect:/admin/new-family?keyword=" + keyword + "&status=" + status + "&page=" + page;
+    }
+
+    @PostMapping("/new-family/admin-memo/{id}")
+    public String newFamilyAdminMemo(@PathVariable Long id,
+                                     @RequestParam(defaultValue = "") String adminMemo,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            newFamilyService.saveAdminMemo(id, adminMemo);
+            redirectAttributes.addFlashAttribute("message", "메모가 저장되었습니다.");
+        } catch (Exception e) {
+            log.error("새가족 관리자 메모 저장 실패", e);
+            redirectAttributes.addFlashAttribute("error", "저장 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/new-family/" + id;
     }
 
     @PostMapping("/new-family/delete/{id}")
-    public String newFamilyDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String newFamilyDelete(@PathVariable Long id,
+                                  @RequestParam(defaultValue = "") String keyword,
+                                  @RequestParam(defaultValue = "") String status,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  RedirectAttributes redirectAttributes) {
         try {
             newFamilyService.delete(id);
             redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
@@ -201,7 +313,7 @@ public class AdminController {
             log.error("새가족 삭제 실패", e);
             redirectAttributes.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
-        return "redirect:/admin/new-family";
+        return "redirect:/admin/new-family?keyword=" + keyword + "&status=" + status + "&page=" + page;
     }
 
     // ====== 계정 관리 ======
