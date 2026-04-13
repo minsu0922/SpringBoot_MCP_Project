@@ -12,6 +12,8 @@
     let isScrolling = false;
     const DURATION = 800; // ms
 
+    const NAV_HEIGHT = 72; // 고정 네비 높이
+
     function goTo(index) {
         if (index < 0 || index >= sections.length) return;
         if (isScrolling) return;
@@ -20,7 +22,9 @@
         current = index;
 
         const target = sections[index];
-        const targetY = target.getBoundingClientRect().top + window.scrollY;
+        // 섹션 0(hero)은 이미 margin-top: 72px으로 밀려있으므로 네비 보정 불필요
+        // 섹션 1~5는 offsetTop 그대로 이동하면 네비(72px)에 가려지므로 빼줌
+        const targetY = index === 0 ? 0 : target.offsetTop - NAV_HEIGHT;
 
         window.scrollTo({ top: targetY, behavior: 'smooth' });
 
@@ -29,20 +33,20 @@
 
     /* 현재 뷰포트에 가장 가까운 섹션 인덱스 계산 */
     function getNearestSection() {
-        const scrollY = window.scrollY + window.innerHeight / 2;
+        // 네비 아래쪽 기준점으로 가장 가까운 섹션을 찾음
+        const viewTop = window.scrollY + NAV_HEIGHT;
         let nearest = 0;
         let minDist = Infinity;
         sections.forEach((sec, i) => {
-            const secMid = sec.offsetTop + sec.offsetHeight / 2;
-            const dist = Math.abs(scrollY - secMid);
+            const dist = Math.abs(viewTop - sec.offsetTop);
             if (dist < minDist) { minDist = dist; nearest = i; }
         });
         return nearest;
     }
 
     /* 휠 이벤트 */
-    let wheelAccum = 0;
-    const WHEEL_THRESHOLD = 50;
+    let lastWheelTime = 0;
+    const WHEEL_COOLDOWN = 900; // DURATION보다 약간 길게
 
     window.addEventListener('wheel', function (e) {
         // 팝업이 열려 있으면 스크롤 무시
@@ -51,14 +55,17 @@
 
         e.preventDefault();
 
-        wheelAccum += e.deltaY;
+        if (isScrolling) return; // 이동 중이면 입력 완전 차단
 
-        if (Math.abs(wheelAccum) >= WHEEL_THRESHOLD) {
-            const dir = wheelAccum > 0 ? 1 : -1;
-            wheelAccum = 0;
-            current = getNearestSection();
-            goTo(current + dir);
-        }
+        const now = Date.now();
+        if (now - lastWheelTime < WHEEL_COOLDOWN) return; // 쿨다운 중이면 무시
+
+        if (Math.abs(e.deltaY) < 20) return; // 너무 약한 입력 무시
+
+        lastWheelTime = now;
+        const dir = e.deltaY > 0 ? 1 : -1;
+        current = getNearestSection();
+        goTo(current + dir);
     }, { passive: false });
 
     /* 터치 스와이프 */
@@ -93,8 +100,8 @@
     window.addEventListener('resize', function () {
         if (!isScrolling) {
             current = getNearestSection();
-            const target = sections[current];
-            window.scrollTo({ top: target.offsetTop, behavior: 'instant' });
+            const targetY = current === 0 ? 0 : sections[current].offsetTop - NAV_HEIGHT;
+            window.scrollTo({ top: targetY, behavior: 'instant' });
         }
     });
 })();

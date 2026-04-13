@@ -6,6 +6,45 @@
     <title th:text="${notice.title} + ' - 샘물교회'">공지사항 상세 - 샘물교회</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/theme.css">
+    <style>
+        .notice-nav {
+            margin-top: 12px;
+            border-top: 1px solid rgba(24,95,165,0.1);
+            border-bottom: 1px solid rgba(24,95,165,0.1);
+        }
+        .notice-nav-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(24,95,165,0.07);
+        }
+        .notice-nav-row:last-child { border-bottom: none; }
+        .notice-nav-label {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            color: var(--navy-mid);
+            min-width: 40px;
+            flex-shrink: 0;
+        }
+        .notice-nav-link {
+            font-size: 13px;
+            font-weight: 300;
+            color: var(--text-dark);
+            text-decoration: none;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.2s;
+        }
+        a.notice-nav-link:hover { color: var(--navy-mid); }
+        .notice-nav-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+    </style>
 </head>
 <body>
 <nav class="site-nav">
@@ -90,6 +129,34 @@
 
         <div style="margin-top: 36px; text-align: center;">
             <a href="/notice/list" class="btn-outline">목록으로</a>
+        </div>
+
+        <!-- 이전글 / 다음글 -->
+        <div class="notice-nav">
+            <div class="notice-nav-row" th:if="${nextNotice != null}">
+                <span class="notice-nav-label">다음글</span>
+                <a th:href="@{/notice/detail/{id}(id=${nextNotice.id})}"
+                   th:text="${nextNotice.title}"
+                   class="notice-nav-link">다음 공지사항 제목</a>
+                <span class="notice-nav-date"
+                      th:text="${#temporals.format(nextNotice.createdAt, 'yyyy-MM-dd')}"></span>
+            </div>
+            <div class="notice-nav-row notice-nav-empty" th:if="${nextNotice == null}">
+                <span class="notice-nav-label">다음글</span>
+                <span class="notice-nav-link" style="color: var(--text-muted);">다음 글이 없습니다.</span>
+            </div>
+            <div class="notice-nav-row" th:if="${prevNotice != null}">
+                <span class="notice-nav-label">이전글</span>
+                <a th:href="@{/notice/detail/{id}(id=${prevNotice.id})}"
+                   th:text="${prevNotice.title}"
+                   class="notice-nav-link">이전 공지사항 제목</a>
+                <span class="notice-nav-date"
+                      th:text="${#temporals.format(prevNotice.createdAt, 'yyyy-MM-dd')}"></span>
+            </div>
+            <div class="notice-nav-row notice-nav-empty" th:if="${prevNotice == null}">
+                <span class="notice-nav-label">이전글</span>
+                <span class="notice-nav-link" style="color: var(--text-muted);">이전 글이 없습니다.</span>
+            </div>
         </div>
     </div>
 </div>

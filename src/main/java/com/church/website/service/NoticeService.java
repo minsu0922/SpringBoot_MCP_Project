@@ -5,6 +5,7 @@ import com.church.website.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,5 +108,23 @@ public class NoticeService {
 
         log.info("공지사항 삭제: {}", notice.getTitle());
         noticeRepository.delete(notice);
+    }
+
+    /**
+     * 이전 공지사항 조회 (id 기준 바로 이전 글)
+     */
+    @Transactional(readOnly = true)
+    public Notice getPrevNotice(Long id) {
+        List<Notice> list = noticeRepository.findPrevNotice(id, PageRequest.of(0, 1));
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
+     * 다음 공지사항 조회 (id 기준 바로 다음 글)
+     */
+    @Transactional(readOnly = true)
+    public Notice getNextNotice(Long id) {
+        List<Notice> list = noticeRepository.findNextNotice(id, PageRequest.of(0, 1));
+        return list.isEmpty() ? null : list.get(0);
     }
 }
