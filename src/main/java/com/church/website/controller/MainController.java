@@ -116,6 +116,8 @@ public class MainController {
     @GetMapping("/notice/detail/{id}")
     public String noticeDetail(@PathVariable Long id, Model model) {
         model.addAttribute("notice", noticeService.getNoticeById(id));
+        model.addAttribute("prevNotice", noticeService.getPrevNotice(id));
+        model.addAttribute("nextNotice", noticeService.getNextNotice(id));
         return "notice/detail";
     }
 

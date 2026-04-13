@@ -36,4 +36,16 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
      * 최근 공지사항 N개 조회 (메인화면용)
      */
     List<Notice> findTop5ByOrderByCreatedAtDesc();
+
+    /**
+     * 이전 글 (현재보다 id가 작은 것 중 가장 큰 것 = 바로 이전)
+     */
+    @Query("SELECT n FROM Notice n WHERE n.id < :id ORDER BY n.id DESC")
+    List<Notice> findPrevNotice(Long id, Pageable pageable);
+
+    /**
+     * 다음 글 (현재보다 id가 큰 것 중 가장 작은 것 = 바로 다음)
+     */
+    @Query("SELECT n FROM Notice n WHERE n.id > :id ORDER BY n.id ASC")
+    List<Notice> findNextNotice(Long id, Pageable pageable);
 }

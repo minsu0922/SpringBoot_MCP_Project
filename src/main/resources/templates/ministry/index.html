@@ -162,6 +162,25 @@
             transition: color 0.2s;
         }
         .lightbox-close:hover { color: #fff; }
+        .lightbox-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            color: rgba(255,255,255,0.8);
+            font-size: 28px;
+            width: 48px; height: 48px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, color 0.2s;
+            z-index: 9001;
+        }
+        .lightbox-nav:hover { background: rgba(255,255,255,0.18); color: #fff; }
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+        .lightbox-nav:disabled { opacity: 0.2; cursor: default; }
 
         /* 페이지 히어로 */
         .ministry-hero {
@@ -291,10 +310,13 @@
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
     <div class="lightbox-inner" onclick="event.stopPropagation()">
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev" onclick="moveLightbox(-1)">&#8249;</button>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext" onclick="moveLightbox(1)">&#8250;</button>
         <img class="lightbox-img" id="lightboxImg" src="" alt="">
         <div class="lightbox-info">
             <h3 id="lightboxTitle"></h3>
             <p id="lightboxDesc"></p>
+            <span id="lightboxCounter" style="font-size:12px; color:rgba(181,212,244,0.5); letter-spacing:0.1em;"></span>
         </div>
     </div>
 </div>
@@ -354,7 +376,9 @@
 
             const cat = btn.dataset.cat;
             cards.forEach(card => {
-                if (cat === 'ALL' || card.dataset.cat === cat) {
+                // DB 카테고리 값과 대소문자 무관하게 비교
+                const cardCat = (card.dataset.cat || '').toUpperCase();
+                if (cat === 'ALL' || cardCat === cat.toUpperCase()) {
                     card.style.display = '';
                 } else {
                     card.style.display = 'none';
@@ -364,25 +388,53 @@
     });
 
     /* 라이트박스 */
-    function openLightboxFromCard(card) {
-        const url   = card.dataset.url   || '';
-        const title = card.dataset.title || '';
-        const desc  = card.dataset.desc  || '';
-        openLightbox(url, title, desc);
+    let currentIndex = 0;
+    let visibleCards = [];
+
+    function getVisibleCards() {
+        return Array.from(document.querySelectorAll('.ministry-card'))
+            .filter(c => c.style.display !== 'none');
     }
-    function openLightbox(url, title, desc) {
-        document.getElementById('lightboxImg').src = url;
-        document.getElementById('lightboxTitle').textContent = title;
-        document.getElementById('lightboxDesc').textContent = desc;
+
+    function openLightboxFromCard(card) {
+        visibleCards = getVisibleCards();
+        currentIndex = visibleCards.indexOf(card);
+        renderLightbox();
         document.getElementById('lightboxOverlay').classList.add('show');
         document.body.style.overflow = 'hidden';
     }
+
+    function renderLightbox() {
+        const card = visibleCards[currentIndex];
+        if (!card) return;
+        document.getElementById('lightboxImg').src   = card.dataset.url   || '';
+        document.getElementById('lightboxImg').alt   = card.dataset.title || '';
+        document.getElementById('lightboxTitle').textContent = card.dataset.title || '';
+        document.getElementById('lightboxDesc').textContent  = card.dataset.desc  || '';
+        document.getElementById('lightboxCounter').textContent =
+            visibleCards.length > 1 ? (currentIndex + 1) + ' / ' + visibleCards.length : '';
+        document.getElementById('lightboxPrev').disabled = currentIndex <= 0;
+        document.getElementById('lightboxNext').disabled = currentIndex >= visibleCards.length - 1;
+    }
+
+    function moveLightbox(dir) {
+        const next = currentIndex + dir;
+        if (next < 0 || next >= visibleCards.length) return;
+        currentIndex = next;
+        renderLightbox();
+    }
+
     function closeLightbox() {
         document.getElementById('lightboxOverlay').classList.remove('show');
         document.body.style.overflow = '';
     }
+
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeLightbox();
+        const overlay = document.getElementById('lightboxOverlay');
+        if (!overlay.classList.contains('show')) return;
+        if (e.key === 'Escape')     closeLightbox();
+        if (e.key === 'ArrowLeft')  moveLightbox(-1);
+        if (e.key === 'ArrowRight') moveLightbox(1);
     });
 </script>
 </body>

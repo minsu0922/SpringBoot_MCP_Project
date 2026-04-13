@@ -84,11 +84,11 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:if="${#lists.isEmpty(notices)}">
+                <tr th:if="${notices.totalElements == 0}">
                     <td colspan="4" style="text-align:center; padding:40px; color:#999;">등록된 공지사항이 없습니다.</td>
                 </tr>
                 <tr th:each="notice, stat : ${notices.content}">
-                    <td th:text="${notices.totalElements - notices.number * notices.size - stat.index}"></td>
+                    <td th:text="${notices.totalElements - (notices.number * notices.size + stat.index)}"></td>
                     <td><a th:href="@{/notice/detail/{id}(id=${notice.id})}" th:text="${notice.title}">제목</a></td>
                     <td th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">날짜</td>
                     <td th:text="${notice.viewCount}">0</td>
