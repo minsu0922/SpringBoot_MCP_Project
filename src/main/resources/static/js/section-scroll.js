@@ -48,7 +48,19 @@
     let lastWheelTime = 0;
     const WHEEL_COOLDOWN = 900; // DURATION보다 약간 길게
 
+    // 지도 컨테이너 — index.html(#mainLocationMap)과 location.html(#map) 모두 대응
+    function isOverMap(e) {
+        const mapIds = ['mainLocationMap', 'map'];
+        return mapIds.some(function (id) {
+            const el = document.getElementById(id);
+            return el && el.contains(e.target);
+        });
+    }
+
     window.addEventListener('wheel', function (e) {
+        // 지도 위에서 휠 → 섹션 스크롤 개입하지 않음 (지도 자체 줌 동작)
+        if (isOverMap(e)) return;
+
         // 팝업이 열려 있으면 스크롤 무시
         const popup = document.getElementById('popupContainer');
         if (popup && popup.classList.contains('show')) return;
