@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/theme.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=11fd803d5d2ec36670b9fc590cb22442&libraries=services"></script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -634,34 +635,25 @@
             <div class="main-location-rows">
                 <div class="main-location-row">
                     <span class="main-location-lbl">주소</span>
-                    <span class="main-location-val">서울특별시 강남구 테헤란로 123</span>
+                    <span class="main-location-val">서울특별시 강동구 양재대로 1371 4층 406호</span>
                 </div>
                 <div class="main-location-row">
                     <span class="main-location-lbl">지하철</span>
-                    <span class="main-location-val">2호선 강남역 3번 출구 도보 5분</span>
+                    <span class="main-location-val">5호선 길동역 1번 출구 도보 5분</span>
                 </div>
                 <div class="main-location-row">
                     <span class="main-location-lbl">버스</span>
-                    <span class="main-location-val">146, 360, 740, 3414, 4318</span>
+                    <span class="main-location-val">301, 302, 320, 340, 3217, 3412</span>
                 </div>
                 <div class="main-location-row">
                     <span class="main-location-lbl">전화</span>
-                    <span class="main-location-val">02-1234-5678</span>
-                </div>
-                <div class="main-location-row">
-                    <span class="main-location-lbl">이메일</span>
-                    <span class="main-location-val">info@church.com</span>
+                    <span class="main-location-val">0507-1377-3927</span>
                 </div>
             </div>
             <br>
             <a href="/location" class="main-btn-primary" style="display:inline-block; margin-top:8px;">상세 위치 보기</a>
         </div>
-        <div class="main-location-map">
-            <div class="main-map-pin">
-                <div class="main-map-dot"></div>
-                <span>샘물교회</span>
-            </div>
-        </div>
+        <div id="mainLocationMap" style="height:300px; border-radius:4px; border:1px solid rgba(24,95,165,0.15); overflow:hidden;"></div>
     </div>
 </section>
 
@@ -838,5 +830,57 @@
         window.addEventListener('scroll', updateIndicator, { passive: true });
         updateIndicator();
     })();
+</script>
+<script>
+    /* 메인 페이지 카카오맵 - 오시는 길 섹션 */
+    (function () {
+        var mapEl = document.getElementById('mainLocationMap');
+        if (!mapEl) return;
+        var mapInitialized = false;
+
+        function initMap() {
+            if (mapInitialized) return;
+            mapInitialized = true;
+            try {
+                var geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch('서울특별시 강동구 양재대로 1371', function(result, status) {
+                    var coords;
+                    if (status === kakao.maps.services.Status.OK) {
+                        coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                    } else {
+                        coords = new kakao.maps.LatLng(37.5376, 127.1457);
+                    }
+                    var map = new kakao.maps.Map(mapEl, { center: coords, level: 3 });
+                    var marker = new kakao.maps.Marker({ position: coords });
+                    marker.setMap(map);
+                    var infowindow = new kakao.maps.InfoWindow({
+                        content: '<div style="padding:8px 12px;font-size:13px;font-weight:500;color:#0D2B55;white-space:nowrap;">샘물교회</div>'
+                    });
+                    infowindow.open(map, marker);
+                    kakao.maps.event.addListener(marker, 'click', function() {
+                        window.open('https://map.kakao.com/link/to/샘물교회,' + coords.getLat() + ',' + coords.getLng());
+                    });
+                });
+            } catch (e) {
+                mapEl.style.background = 'linear-gradient(135deg,#0D2B55,#185FA5)';
+                mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(181,212,244,0.6);font-size:13px;">지도를 불러올 수 없습니다</div>';
+            }
+        }
+
+        // IntersectionObserver: 지도 영역이 실제로 보일 때 초기화
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function(entries) {
+                if (entries[0].isIntersecting) {
+                    initMap();
+                    observer.disconnect();
+                }
+            }, { threshold: 0.1 });
+            observer.observe(mapEl);
+        } else {
+            // 구형 브라우저 fallback: 페이지 로드 후 바로 초기화
+            initMap();
+        }
+    })();
+</script>
 </body>
 </html>

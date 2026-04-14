@@ -1,6 +1,10 @@
 // 이미지 슬라이더 자동 재생 스크립트
 document.addEventListener('DOMContentLoaded', function() {
     const slider = document.querySelector('.slider-wrapper');
+
+    // 슬라이더 요소가 없는 페이지에서는 실행하지 않음
+    if (!slider) return;
+
     const dots = document.querySelectorAll('.slider-dot');
     let currentSlide = 0;
     const totalSlides = 3;
@@ -10,14 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function goToSlide(slideIndex) {
         currentSlide = slideIndex;
         slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        
+
         // 활성 도트 업데이트
         dots.forEach((dot, index) => {
-            if (index === currentSlide) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
+            dot.classList.toggle('active', index === currentSlide);
         });
     }
 
@@ -42,10 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 마우스 호버 시 자동 재생 일시 정지
     const sliderContainer = document.querySelector('.slider');
     if (sliderContainer) {
-        sliderContainer.addEventListener('mouseenter', () => {
-            clearInterval(autoPlay);
-        });
-
+        sliderContainer.addEventListener('mouseenter', () => clearInterval(autoPlay));
         sliderContainer.addEventListener('mouseleave', () => {
             autoPlay = setInterval(nextSlide, slideInterval);
         });
