@@ -138,21 +138,32 @@
         border: none; transition: background 0.15s;
     }
     .btn-preview-toggle:hover { background: #C8DFF7; }
+    .btn-coord-search {
+        padding: 9px 16px;
+        border: 1px solid #185FA5;
+        border-radius: 6px;
+        background: #185FA5;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        margin-top: 8px;
-        font-size: 12px;
-        color: #185FA5;
-        cursor: pointer;
-        text-decoration: none;
-        background: #E6F1FB;
-        padding: 5px 12px;
-        border-radius: 4px;
-        border: none;
+        white-space: nowrap;
         transition: background 0.15s;
     }
-    .coord-preview:hover { background: #C8DFF7; }
+    .btn-coord-search:hover { background: #0D2B55; border-color: #0D2B55; }
+
+    .coord-result-item {
+        padding: 8px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.12s;
+        border-bottom: 1px solid #DCE9F8;
+    }
+    .coord-result-item:last-child { border-bottom: none; }
+    .coord-result-item:hover { background: #D6EAFF; }
 </style>
 
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
@@ -210,29 +221,46 @@
 
             <!-- 지도 좌표 -->
             <div class="section-divider">지도 좌표 (카카오맵)</div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="latitude">위도 (Latitude) <span style="color:#dc3545;">*</span></label>
-                    <input type="number" id="latitude" name="latitude" class="form-control"
-                           th:value="${location.latitude}" required step="0.000001"
-                           placeholder="37.123456">
-                    <div class="form-hint">소수점 6자리까지 입력 (예: 37.498095)</div>
+
+            <!-- 주소 검색 -->
+            <div class="form-group">
+                <label class="form-label">주소로 좌표 검색</label>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="addrSearch" class="form-control"
+                           th:placeholder="${location.address} ?: '예) 서울특별시 강동구 양재대로 1371'"
+                           style="flex:1;"
+                           onkeydown="if(event.key==='Enter'){event.preventDefault();searchCoord();}">
+                    <button type="button" onclick="searchCoord()" class="btn-coord-search">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <circle cx="5.5" cy="5.5" r="4"/>
+                            <line x1="8.8" y1="8.8" x2="12" y2="12"/>
+                        </svg>
+                        검색
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="longitude">경도 (Longitude) <span style="color:#dc3545;">*</span></label>
-                    <input type="number" id="longitude" name="longitude" class="form-control"
-                           th:value="${location.longitude}" required step="0.000001"
-                           placeholder="127.123456">
-                    <div class="form-hint">소수점 6자리까지 입력 (예: 127.027610)</div>
+                <div id="searchResult" style="display:none; margin-top:10px; padding:12px 14px;
+                     background:#F0F7FF; border:1px solid #B5D4F4; border-radius:6px; font-size:13px; color:#0A1F3D;">
                 </div>
             </div>
-            <button type="button" class="coord-preview" onclick="previewMap()">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="5" cy="5" r="4"/>
-                    <line x1="8.5" y1="8.5" x2="11" y2="11"/>
-                </svg>
-                입력한 좌표로 카카오맵 미리보기
-            </button>
+
+            <!-- 지도 미리보기 -->
+            <div id="coordMapPreview" style="display:none; height:220px; border-radius:6px;
+                 border:1px solid #DDE4EF; overflow:hidden; margin-bottom:16px;"></div>
+
+            <!-- 숨겨진 실제 저장 필드 -->
+            <div class="form-row" style="display:none;">
+                <input type="number" id="latitude"  name="latitude"
+                       th:value="${location.latitude}"  step="0.000001">
+                <input type="number" id="longitude" name="longitude"
+                       th:value="${location.longitude}" step="0.000001">
+            </div>
+            <!-- 현재 저장된 좌표 표시 -->
+            <div id="currentCoord" style="font-size:12px; color:#7A96B8; margin-bottom:8px;">
+                <span th:if="${location.latitude != null}">
+                    현재 저장된 좌표: <strong th:text="${location.latitude}"></strong>, <strong th:text="${location.longitude}"></strong>
+                </span>
+                <span th:if="${location.latitude == null}">좌표 미설정</span>
+            </div>
 
             <!-- 교통 안내 -->
             <div class="section-divider">교통 안내</div>
@@ -326,30 +354,110 @@
     </div>
 </div>
 
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=11fd803d5d2ec36670b9fc590cb22442&libraries=services"></script>
 <script>
-    function previewMap() {
-        const lat = document.getElementById('latitude').value;
-        const lng = document.getElementById('longitude').value;
-        if (!lat || !lng) {
-            alert('위도와 경도를 먼저 입력해주세요.');
-            return;
-        }
-        window.open(`https://map.kakao.com/link/map/교회위치,${lat},${lng}`, '_blank');
+    var coordMap = null;
+    var coordMarker = null;
+
+    /* 주소 검색 → 좌표 변환 */
+    function searchCoord() {
+        var query = document.getElementById('addrSearch').value.trim();
+        if (!query) { alert('검색할 주소를 입력해주세요.'); return; }
+
+        var resultBox = document.getElementById('searchResult');
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = '<span style="color:#7A96B8;">검색 중...</span>';
+
+        var geocoder = new kakao.maps.services.Geocoder();
+        geocoder.addressSearch(query, function(results, status) {
+            if (status !== kakao.maps.services.Status.OK || results.length === 0) {
+                resultBox.innerHTML = '<span style="color:#A32D2D;">검색 결과가 없습니다. 주소를 더 자세히 입력해보세요.</span>';
+                return;
+            }
+
+            if (results.length === 1) {
+                /* 결과 1건이면 바로 선택 */
+                selectCoord(results[0]);
+                resultBox.innerHTML =
+                    '<span style="color:#3B6D11;">✓ <strong>' + results[0].address_name + '</strong> 선택됨</span>';
+            } else {
+                /* 복수 결과 → 목록 표시 */
+                var html = '<div style="font-size:12px;color:#7A96B8;margin-bottom:8px;">검색 결과 ' + results.length + '건 — 항목을 클릭해 선택하세요</div>';
+                results.forEach(function(r, i) {
+                    html += '<div class="coord-result-item" onclick="selectCoordFromResult(' + i + ')">'
+                          + '<strong>' + r.address_name + '</strong>';
+                    if (r.road_address) {
+                        html += '<br><span style="font-size:11px;color:#7A96B8;">' + r.road_address.address_name + '</span>';
+                    }
+                    html += '</div>';
+                });
+                resultBox.innerHTML = html;
+                window._searchResults = results;
+            }
+        });
     }
 
+    function selectCoordFromResult(index) {
+        var r = window._searchResults[index];
+        selectCoord(r);
+        var resultBox = document.getElementById('searchResult');
+        resultBox.innerHTML = '<span style="color:#3B6D11;">✓ <strong>' + r.address_name + '</strong> 선택됨</span>';
+    }
+
+    function selectCoord(result) {
+        var lat = parseFloat(result.y);
+        var lng = parseFloat(result.x);
+
+        /* 숨겨진 필드에 값 저장 */
+        document.getElementById('latitude').value  = lat;
+        document.getElementById('longitude').value = lng;
+
+        /* 현재 좌표 표시 업데이트 */
+        document.getElementById('currentCoord').innerHTML =
+            '선택된 좌표: <strong>' + lat.toFixed(6) + '</strong>, <strong>' + lng.toFixed(6) + '</strong>';
+
+        /* 지도 미리보기 렌더링 */
+        showMapPreview(lat, lng);
+    }
+
+    function showMapPreview(lat, lng) {
+        var mapEl = document.getElementById('coordMapPreview');
+        mapEl.style.display = 'block';
+
+        var coords = new kakao.maps.LatLng(lat, lng);
+
+        if (!coordMap) {
+            coordMap = new kakao.maps.Map(mapEl, { center: coords, level: 3 });
+            coordMarker = new kakao.maps.Marker({ position: coords, map: coordMap });
+        } else {
+            coordMap.setCenter(coords);
+            coordMarker.setPosition(coords);
+        }
+    }
+
+    /* 기존 저장 좌표가 있으면 페이지 로드 시 미리보기 표시 */
+    document.addEventListener('DOMContentLoaded', function() {
+        var lat = parseFloat(document.getElementById('latitude').value);
+        var lng = parseFloat(document.getElementById('longitude').value);
+        if (lat && lng) {
+            showMapPreview(lat, lng);
+        }
+    });
+
+    /* 교통 안내 미리보기 */
     function togglePreview() {
-        const panel = document.getElementById('previewPanel');
-        const isVisible = panel.classList.toggle('visible');
+        var panel = document.getElementById('previewPanel');
+        var isVisible = panel.classList.toggle('visible');
         if (isVisible) syncPreview();
     }
 
     function val(id) {
-        const el = document.getElementById(id);
+        var el = document.getElementById(id);
         return el ? el.value.trim() : '';
     }
 
     function syncPreview() {
-        const fields = [
+        var fields = [
             ['prev-churchName', 'churchName'],
             ['prev-address',    'address'],
             ['prev-phone',      'phone'],
@@ -359,9 +467,9 @@
             ['prev-car',        'carInfo'],
             ['prev-parking',    'parkingInfo'],
         ];
-        fields.forEach(([prevId, fieldId]) => {
-            const el = document.getElementById(prevId);
-            const v  = val(fieldId);
+        fields.forEach(function(pair) {
+            var el = document.getElementById(pair[0]);
+            var v  = val(pair[1]);
             if (el) {
                 el.textContent = v || '—';
                 el.className = 'preview-value' + (v ? '' : ' empty');
@@ -369,11 +477,10 @@
         });
     }
 
-    // 입력 변경 시 미리보기 패널이 열려있으면 실시간 반영
-    document.addEventListener('DOMContentLoaded', function () {
-        const inputs = document.querySelectorAll('.form-control');
-        inputs.forEach(inp => {
-            inp.addEventListener('input', function () {
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(function(inp) {
+            inp.addEventListener('input', function() {
                 if (document.getElementById('previewPanel').classList.contains('visible')) {
                     syncPreview();
                 }

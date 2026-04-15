@@ -32,8 +32,13 @@ public class LocationService {
     public Location save(Location updated) {
         Location location = locationRepository.findFirstByIsActiveTrueOrderByIdDesc()
                 .orElse(new Location());
-        location.setChurchName(updated.getChurchName());
-        location.setAddress(updated.getAddress());
+
+        // null 방어: 비어있으면 기본값 유지
+        if (updated.getChurchName() != null && !updated.getChurchName().isBlank())
+            location.setChurchName(updated.getChurchName());
+        if (updated.getAddress() != null && !updated.getAddress().isBlank())
+            location.setAddress(updated.getAddress());
+
         location.setLatitude(updated.getLatitude());
         location.setLongitude(updated.getLongitude());
         location.setPhone(updated.getPhone());
@@ -44,7 +49,8 @@ public class LocationService {
         location.setCarInfo(updated.getCarInfo());
         location.setParkingInfo(updated.getParkingInfo());
         location.setIsActive(true);
-        log.info("교회 정보 저장: {}", location.getChurchName());
+
+        log.info("[LocationService] 교회 정보 저장: {}", location.getChurchName());
         return locationRepository.save(location);
     }
 }

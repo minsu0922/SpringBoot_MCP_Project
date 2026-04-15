@@ -34,9 +34,11 @@ public class MainImage {
     private String imageUrl;
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer displayOrder = 0;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @Column(nullable = false)

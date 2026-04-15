@@ -1,0 +1,1 @@
+-- data.sql 비활성화 (DataInitializer.java 사용)
