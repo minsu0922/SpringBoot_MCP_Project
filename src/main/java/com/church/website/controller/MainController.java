@@ -1,6 +1,7 @@
 package com.church.website.controller;
 
 import com.church.website.entity.MinistryPhoto;
+import com.church.website.service.LocationService;
 import com.church.website.service.MainImageService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NoticeService;
@@ -26,6 +27,7 @@ public class MainController {
     private final MainImageService mainImageService;
     private final NoticeService noticeService;
     private final MinistryPhotoService ministryPhotoService;
+    private final LocationService locationService;
 
     /**
      * 홈 페이지
@@ -37,10 +39,13 @@ public class MainController {
         model.addAttribute("recentNotices", noticeService.getRecentNotices());
         model.addAttribute("popupNotices", noticeService.getActivePopups());
 
-        // 메인 사역소개 섹션용 — 활성화된 사진 최대 4건 (2×2 그리드)
         List<MinistryPhoto> allPhotos = ministryPhotoService.getActivePhotos();
         model.addAttribute("mainMinistryPhotos",
                 allPhotos.size() > 4 ? allPhotos.subList(0, 4) : allPhotos);
+
+        // DB 교회 정보 → 메인 오시는 길 섹션
+        locationService.getActiveLocation()
+                .ifPresent(loc -> model.addAttribute("loc", loc));
 
         return "index";
     }
@@ -126,7 +131,9 @@ public class MainController {
      * 교회 위치와 찾아오는 방법을 안내하는 페이지를 반환
      */
     @GetMapping("/location")
-    public String location() {
+    public String location(Model model) {
+        locationService.getActiveLocation()
+                .ifPresent(loc -> model.addAttribute("loc", loc));
         return "location";
     }
 }

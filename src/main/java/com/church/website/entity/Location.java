@@ -30,10 +30,10 @@ public class Location {
     @Column(nullable = false, length = 200)
     private String address;
 
-    @Column(nullable = false)
+    @Column
     private Double latitude;
 
-    @Column(nullable = false)
+    @Column
     private Double longitude;
 
     @Column(length = 20)
@@ -58,7 +58,7 @@ public class Location {
     private String parkingInfo;
 
     @Column(nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -69,9 +69,9 @@ public class Location {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (isActive == null) {
-            isActive = true;
-        }
+        if (isActive == null) isActive = true;
+        if (churchName == null) churchName = "샘물교회";
+        if (address == null) address = "서울특별시 강동구 양재대로 1371 4층 406호";
     }
 
     @PreUpdate

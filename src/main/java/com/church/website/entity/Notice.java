@@ -40,10 +40,11 @@ public class Notice {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer viewCount = 0;
 
-    // 팝업 설정
     @Column(nullable = false)
+    @Builder.Default
     private boolean popup = false;
 
     @Column
