@@ -1,6 +1,7 @@
 package com.church.website.service;
 
 import com.church.website.entity.MinistryPhoto;
+import com.church.website.exception.EntityNotFoundException;
 import com.church.website.repository.MinistryPhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +17,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * 사역 소개 사진 서비스
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,7 +28,10 @@ public class MinistryPhotoService {
     private String uploadDir;
 
     /**
-     * 파일 업로드 처리 후 저장 경로(URL) 반환
+     * 파일을 서버에 저장하고 접근 URL을 반환.
+     *
+     * 파일명은 UUID로 생성해 중복 방지 및 경로 탐색 공격(path traversal) 차단.
+     * 원본 확장자는 브라우저의 Content-Type 인식을 위해 유지.
      */
     public String saveFile(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) return null;
@@ -54,7 +55,10 @@ public class MinistryPhotoService {
     }
 
     /**
-     * 파일 삭제 (기존 파일 교체 시 사용)
+     * 서버에서 파일을 삭제.
+     *
+     * /uploads/ministry/ 경로 prefix 검증으로 다른 경로의 파일이 삭제되는 것을 방지.
+     * IO 오류는 사진 레코드 삭제를 막지 않도록 예외를 삼키고 warn 로그만 남김.
      */
     public void deleteFile(String photoUrl) {
         if (photoUrl == null || !photoUrl.startsWith("/uploads/ministry/")) return;
@@ -67,39 +71,44 @@ public class MinistryPhotoService {
         }
     }
 
-    /** 활성화된 사진 전체 조회 */
+    @Transactional(readOnly = true)
     public List<MinistryPhoto> getActivePhotos() {
         return ministryPhotoRepository.findByIsActiveTrueOrderByDisplayOrderAsc();
     }
 
-    /** 관리자용 전체 조회 */
+    @Transactional(readOnly = true)
     public List<MinistryPhoto> getAllPhotos() {
         return ministryPhotoRepository.findAllByOrderByDisplayOrderAsc();
     }
 
-    /** 단건 조회 */
+    @Transactional(readOnly = true)
     public MinistryPhoto getPhotoById(Long id) {
         return ministryPhotoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("사역 사진을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("사역 사진을 찾을 수 없습니다."));
     }
 
-    /** 등록 */
     @Transactional
     public MinistryPhoto createPhoto(MinistryPhoto photo) {
         log.info("사역 사진 등록: {}", photo.getTitle());
         return ministryPhotoRepository.save(photo);
     }
 
-    /** 수정 */
+    /**
+     * 사진 정보 수정.
+     *
+     * 새 파일이 업로드된 경우에만 기존 파일을 삭제하고 교체.
+     * 파일 삭제는 DB 저장 전에 수행되므로, DB 저장 실패 시 파일은 이미 삭제된 상태가 됨.
+     * 이는 소규모 서비스에서 허용 가능한 트레이드오프 (별도 스토리지 서비스 없이 로컬 저장).
+     */
     @Transactional
     public MinistryPhoto updatePhoto(Long id, MinistryPhoto updated, String newPhotoUrl) {
         MinistryPhoto photo = ministryPhotoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("사역 사진을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("사역 사진을 찾을 수 없습니다."));
         photo.setCategory(updated.getCategory());
         photo.setTitle(updated.getTitle());
         photo.setDescription(updated.getDescription());
         if (newPhotoUrl != null && !newPhotoUrl.isBlank()) {
-            deleteFile(photo.getPhotoUrl()); // 기존 파일 삭제
+            deleteFile(photo.getPhotoUrl());
             photo.setPhotoUrl(newPhotoUrl);
         }
         photo.setDisplayOrder(updated.getDisplayOrder());
@@ -108,11 +117,10 @@ public class MinistryPhotoService {
         return ministryPhotoRepository.save(photo);
     }
 
-    /** 삭제 */
     @Transactional
     public void deletePhoto(Long id) {
         MinistryPhoto photo = ministryPhotoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("사역 사진을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("사역 사진을 찾을 수 없습니다."));
         log.info("사역 사진 삭제: {}", photo.getTitle());
         ministryPhotoRepository.delete(photo);
     }

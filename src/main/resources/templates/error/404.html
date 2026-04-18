@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>페이지를 찾을 수 없습니다 - 샘물교회</title>
+    <style>
+        :root { --navy: #0D2B55; --gold: #C9A84C; --text-mid: #3A5278; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F4F7FB;
+            color: var(--text-mid);
+        }
+        .container {
+            text-align: center;
+            padding: 60px 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(13,43,85,0.08);
+            max-width: 480px;
+            width: 90%;
+        }
+        .code { font-size: 80px; font-weight: 700; color: var(--navy); line-height: 1; }
+        .divider { width: 48px; height: 3px; background: var(--gold); margin: 20px auto; }
+        .title { font-size: 20px; font-weight: 500; margin-bottom: 12px; }
+        .message { font-size: 14px; color: #7A96B8; margin-bottom: 32px; }
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: var(--navy);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #185FA5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="code">404</div>
+        <div class="divider"></div>
+        <div class="title">페이지를 찾을 수 없습니다</div>
+        <div class="message" th:text="${message} ?: '요청하신 리소스가 존재하지 않습니다.'"></div>
+        <a href="/" class="btn">홈으로 돌아가기</a>
+    </div>
+</body>
+</html>
