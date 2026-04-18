@@ -1,6 +1,7 @@
 package com.church.website.service;
 
 import com.church.website.entity.User;
+import com.church.website.exception.EntityNotFoundException;
 import com.church.website.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +23,23 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     /** 전체 계정 목록 조회 */
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     /** 단건 조회 */
+    @Transactional(readOnly = true)
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("계정을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("계정을 찾을 수 없습니다."));
     }
 
     /** 사용자명으로 조회 */
+    @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("계정을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("계정을 찾을 수 없습니다."));
     }
 
     /**
@@ -46,6 +50,9 @@ public class UserService {
      */
     @Transactional
     public void changePassword(String username, String currentPw, String newPw) {
+        if (newPw.length() < 8) {
+            throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
+        }
         User user = getUserByUsername(username);
         if (!passwordEncoder.matches(currentPw, user.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
@@ -60,6 +67,9 @@ public class UserService {
      */
     @Transactional
     public void createUser(String username, String password) {
+        if (password.length() < 8) {
+            throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
+        }
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 사용자명입니다.");
         }

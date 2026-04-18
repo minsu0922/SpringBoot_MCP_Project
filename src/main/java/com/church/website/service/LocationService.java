@@ -9,9 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-/**
- * 교회 기본 정보(위치) 서비스
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -19,21 +16,23 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
 
-    /** 활성화된 교회 정보 조회 */
+    @Transactional(readOnly = true)
     public Optional<Location> getActiveLocation() {
         return locationRepository.findFirstByIsActiveTrueOrderByIdDesc();
     }
 
     /**
-     * 교회 정보 저장 (단일 레코드 upsert)
-     * 기존 레코드가 있으면 업데이트, 없으면 신규 생성
+     * 교회 기본 정보 저장 (upsert 방식).
+     *
+     * 교회 정보는 단일 레코드로 관리: 기존 활성 레코드가 있으면 업데이트, 없으면 신규 생성.
+     * churchName, address는 빈 값으로 덮어쓰지 않도록 null/blank 방어 처리.
+     * (폼에서 해당 필드를 비워서 전송했을 때 기존 값이 유지되어야 하는 요구사항 반영)
      */
     @Transactional
     public Location save(Location updated) {
         Location location = locationRepository.findFirstByIsActiveTrueOrderByIdDesc()
                 .orElse(new Location());
 
-        // null 방어: 비어있으면 기본값 유지
         if (updated.getChurchName() != null && !updated.getChurchName().isBlank())
             location.setChurchName(updated.getChurchName());
         if (updated.getAddress() != null && !updated.getAddress().isBlank())

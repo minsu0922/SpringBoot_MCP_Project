@@ -1,11 +1,56 @@
-HELP.md
+# ===== Gradle =====
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+# ===== Compiled & Packaged =====
+*.class
+*.ctxt
+.mtj.tmp/
+# *.jar는 gradle-wrapper.jar 예외 처리 이후에 위치해야 함
+# (git은 마지막 매칭 규칙을 적용하므로 순서가 중요)
+!gradle/wrapper/gradle-wrapper.jar
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# ===== Environment & Secrets =====
+.env
+.env.local
+# application-prod.properties는 민감 정보를 환경변수로만 참조하므로 제외하지 않음
+
+# ===== Uploaded Files =====
+# 실제 업로드된 파일은 git에서 제외 (바이너리 파일은 git에 부적합)
+# 폴더 구조 유지가 필요하면 해당 폴더에 .gitkeep 파일을 추가할 것
+src/main/resources/static/uploads/**
+!src/main/resources/static/uploads/.gitkeep
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===== IDE: IntelliJ IDEA =====
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# ===== IDE: STS / Eclipse =====
 .apt_generated
 .classpath
 .factorypath
@@ -17,43 +62,15 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
+# ===== IDE: NetBeans =====
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# ===== IDE: VS Code =====
 .vscode/
 
-### Node Files ###
+# ===== Node =====
 *.node
-
-### Environment Variables ###
-.env
-.env.local
-
-### Java ###
-*.class
-*.log
-*.ctxt
-.mtj.tmp/
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-hs_err_pid*
-replay_pid*
