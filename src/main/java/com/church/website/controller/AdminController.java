@@ -4,11 +4,13 @@ import com.church.website.entity.Location;
 import com.church.website.entity.MinistryPhoto;
 import com.church.website.entity.NewFamily;
 import com.church.website.entity.Notice;
+import com.church.website.entity.Sermon;
 import com.church.website.entity.User;
 import com.church.website.service.LocationService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NewFamilyService;
 import com.church.website.service.NoticeService;
+import com.church.website.service.SermonService;
 import com.church.website.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +39,7 @@ public class AdminController extends BaseController {
     private final MinistryPhotoService ministryPhotoService;
     private final UserService userService;
     private final LocationService locationService;
+    private final SermonService sermonService;
 
     // ====== 공통: 사이드바 뱃지용 미확인 건수 ======
 
@@ -284,6 +288,65 @@ public class AdminController extends BaseController {
             redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
             return "redirect:/admin/new-family?keyword=" + keyword + "&status=" + status + "&page=" + page;
         }, "/admin/new-family", "새가족 삭제 실패", redirectAttributes);
+    }
+
+    // ====== 설교 관리 ======
+
+    @GetMapping("/sermon")
+    public String sermonList(Model model) {
+        model.addAttribute("sermons", sermonService.getAll());
+        return "admin/sermon/list";
+    }
+
+    @GetMapping("/sermon/new")
+    public String sermonForm(Model model) {
+        model.addAttribute("sermon", new Sermon());
+        return "admin/sermon/form";
+    }
+
+    @GetMapping("/sermon/edit/{id}")
+    public String sermonEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("sermon", sermonService.getById(id));
+        return "admin/sermon/form";
+    }
+
+    @PostMapping("/sermon/save")
+    public String sermonSave(
+            @ModelAttribute Sermon sermon,
+            @RequestParam(value = "sermonDateStr", required = false) String sermonDateStr,
+            @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+            @RequestParam(value = "thumbnailFile", required = false) MultipartFile thumbnailFile,
+            RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            if (sermonDateStr != null && !sermonDateStr.isBlank()) {
+                sermon.setSermonDate(LocalDate.parse(sermonDateStr));
+            }
+            String newVideoUrl     = (videoFile     != null && !videoFile.isEmpty())     ? sermonService.saveFile(videoFile,     "video") : null;
+            String newThumbnailUrl = (thumbnailFile != null && !thumbnailFile.isEmpty()) ? sermonService.saveFile(thumbnailFile, "thumb") : null;
+            if (sermon.getId() == null) {
+                if (newVideoUrl == null) {
+                    redirectAttributes.addFlashAttribute("error", "동영상 파일을 선택해주세요.");
+                    return "redirect:/admin/sermon/new";
+                }
+                sermon.setVideoUrl(newVideoUrl);
+                sermon.setThumbnailUrl(newThumbnailUrl);
+                sermonService.create(sermon);
+                redirectAttributes.addFlashAttribute("message", "설교가 등록되었습니다.");
+            } else {
+                sermonService.update(sermon.getId(), sermon, newVideoUrl, newThumbnailUrl);
+                redirectAttributes.addFlashAttribute("message", "설교가 수정되었습니다.");
+            }
+            return "redirect:/admin/sermon";
+        }, "/admin/sermon", "설교 저장 실패", redirectAttributes);
+    }
+
+    @PostMapping("/sermon/delete/{id}")
+    public String sermonDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            sermonService.delete(id);
+            redirectAttributes.addFlashAttribute("message", "설교가 삭제되었습니다.");
+            return "redirect:/admin/sermon";
+        }, "/admin/sermon", "설교 삭제 실패", redirectAttributes);
     }
 
     // ====== 계정 관리 ======

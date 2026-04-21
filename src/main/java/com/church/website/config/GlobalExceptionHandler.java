@@ -2,6 +2,7 @@ package com.church.website.config;
 
 import com.church.website.exception.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,6 +23,12 @@ public class GlobalExceptionHandler {
     public String handleEntityNotFound(EntityNotFoundException ex, Model model) {
         model.addAttribute("message", ex.getMessage());
         return "error/404";
+    }
+
+    // 동영상 스트리밍 중 클라이언트가 연결을 끊은 경우 — 정상 현상, 무시
+    @ExceptionHandler(ClientAbortException.class)
+    public void handleClientAbort(ClientAbortException ex) {
+        log.debug("클라이언트 연결 끊김 (정상): {}", ex.getMessage());
     }
 
     // 예상치 못한 모든 예외의 최후 방어선

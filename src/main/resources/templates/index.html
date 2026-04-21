@@ -282,6 +282,52 @@
         .main-news-body h3 { font-family: 'Noto Serif KR', serif; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--text-dark); margin-bottom: 8px; }
         .main-news-body p { font-size: 12px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
 
+        /* SERMON LIST */
+        .main-sermon { background: #D9E9F7; border-top: 1px solid rgba(24,95,165,0.12); border-bottom: 1px solid rgba(24,95,165,0.12); padding: 60px 80px; display: flex; align-items: center; height: calc(100vh - 72px); box-sizing: border-box; }
+        .main-sermon-inner { max-width: 1100px; margin: 0 auto; width: 100%; }
+        .main-sermon-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; }
+        .main-sermon-list { display: flex; flex-direction: column; gap: 0; }
+        .main-sermon-item {
+            display: flex; align-items: center; gap: 20px;
+            padding: 16px 0; border-bottom: 1px solid rgba(24,95,165,0.08);
+            text-decoration: none; transition: padding-left 0.2s;
+        }
+        .main-sermon-item:last-child { border-bottom: none; }
+        .main-sermon-item:hover { padding-left: 8px; }
+        .main-sermon-thumb {
+            width: 100px; height: 58px; border-radius: 4px; flex-shrink: 0;
+            background: linear-gradient(135deg, #0D2B55, #185FA5);
+            overflow: hidden;
+        }
+        .main-sermon-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .main-sermon-thumb-play {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+        }
+        .main-sermon-thumb-play::after {
+            content: '';
+            width: 0; height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 14px solid rgba(201,168,76,0.85);
+            margin-left: 3px;
+        }
+        .main-sermon-info { flex: 1; min-width: 0; }
+        .main-sermon-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+        .main-sermon-bible {
+            font-size: 10px; font-weight: 500; letter-spacing: 0.06em;
+            color: var(--navy-mid); border: 1px solid rgba(24,95,165,0.22);
+            background: rgba(24,95,165,0.07);
+            padding: 2px 8px; border-radius: 10px;
+        }
+        .main-sermon-date { font-size: 11px; color: var(--text-muted); }
+        .main-sermon-title {
+            font-size: 14px; font-weight: 400; color: var(--text-dark);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            transition: color 0.2s;
+        }
+        .main-sermon-item:hover .main-sermon-title { color: var(--navy-mid); }
+        .main-sermon-preacher { font-size: 12px; font-weight: 300; color: var(--text-muted); margin-top: 2px; }
+
         /* LOCATION */
         .main-location { background: var(--white); padding: 60px 80px; display: flex; align-items: center; height: calc(100vh - 72px); box-sizing: border-box; }
         .main-location-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: center; width: 100%; }
@@ -367,7 +413,7 @@
             .main-nav { padding: 0 24px; }
             .main-nav-links { display: none; }
             .main-hero-content { padding: 0 32px; }
-            .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-location, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
+            .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-sermon, .main-location, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
             .main-worship-inner { grid-template-columns: 1fr; gap: 40px; }
             .main-ministry-wrap { padding: 24px; height: auto; min-height: calc(100vh - 72px); }
             .main-ministry-inner { height: auto; padding: 0; }
@@ -405,6 +451,7 @@
                 <li><a href="/worship/department">부서별 안내</a></li>
             </ul>
         </li>
+        <li><a href="/sermon">설교 동영상</a></li>
         <li><a href="/notice/list">공지사항</a></li>
         <li><a href="/location">오시는 길</a></li>
     </ul>
@@ -424,6 +471,7 @@
         <li><a href="/worship/schedule">예배안내</a></li>
         <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
         <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
+        <li><a href="/sermon">설교 동영상</a></li>
         <li><a href="/notice/list">공지사항</a></li>
         <li><a href="/location">오시는 길</a></li>
         <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
@@ -514,8 +562,8 @@
 
 <!-- VERSE -->
 <section class="main-verse" data-section="2">
-    <p class="main-verse-text">"내가 곧 길이요 진리요 생명이니<br>나로 말미암지 않고는 아버지께로 올 자가 없느니라"</p>
-    <p class="main-verse-ref">요한복음 14:6</p>
+    <p class="main-verse-text" th:text="${verseText}"></p>
+    <p class="main-verse-ref" th:text="${verseRef}"></p>
 </section>
 
 <!-- MINISTRIES -->
@@ -626,8 +674,46 @@
     </div>
 </section>
 
+<!-- SERMON LIST -->
+<section class="main-sermon" data-section="5">
+    <div class="main-sermon-inner">
+        <div class="main-sermon-header">
+            <div>
+                <div class="main-section-label">설교 동영상</div>
+                <h2 class="main-section-title">최근 설교</h2>
+            </div>
+            <a href="/sermon" class="main-btn-ghost-dark">
+                전체 보기
+                <span class="main-arrow" style="background: var(--navy-mid);"></span>
+            </a>
+        </div>
+        <div th:if="${not #lists.isEmpty(recentSermons)}" class="main-sermon-list">
+            <a class="main-sermon-item"
+               th:each="sermon : ${recentSermons}"
+               th:href="@{/sermon/{id}(id=${sermon.id})}">
+                <div class="main-sermon-thumb">
+                    <img th:if="${sermon.thumbnailUrl != null}" th:src="${sermon.thumbnailUrl}" alt="">
+                    <div th:if="${sermon.thumbnailUrl == null}" class="main-sermon-thumb-play"></div>
+                </div>
+                <div class="main-sermon-info">
+                    <div class="main-sermon-meta">
+                        <span class="main-sermon-bible" th:text="${sermon.biblePassage}">성경본문</span>
+                        <span class="main-sermon-date" th:text="${#temporals.format(sermon.sermonDate, 'yyyy.MM.dd')}">날짜</span>
+                    </div>
+                    <div class="main-sermon-title" th:text="${sermon.title}">설교 제목</div>
+                    <div class="main-sermon-preacher" th:text="${sermon.preacher}">설교자</div>
+                </div>
+            </a>
+        </div>
+        <p th:if="${#lists.isEmpty(recentSermons)}"
+           style="font-size:14px; color:var(--text-muted); font-weight:300;">
+            등록된 설교 동영상이 없습니다.
+        </p>
+    </div>
+</section>
+
 <!-- LOCATION -->
-<section class="main-location" data-section="5">
+<section class="main-location" data-section="6">
     <div class="main-location-inner">
         <div>
             <div class="main-section-label">오시는 길</div>
@@ -720,15 +806,20 @@
     <!-- 다중 팝업: 각 공지를 슬라이드로 표시 -->
     <div class="popup-container" id="popupContainer">
         <div class="popup-header">
-            <h3>교회 공지사항</h3>
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div class="popup-header-left">
+                <div class="popup-header-icon"></div>
+                <div class="popup-header-texts">
+                    <h3>교회 공지사항</h3>
+                    <span class="popup-header-sub">CHURCH NOTICE</span>
+                </div>
+            </div>
+            <div class="popup-header-right">
                 <!-- 팝업이 2개 이상일 때 페이지 표시 -->
                 <span class="popup-pager" id="popupPager"
-                      th:if="${#lists.size(popupNotices) > 1}"
-                      style="font-size:11px; color:rgba(181,212,244,0.6); letter-spacing:0.05em;">
+                      th:if="${#lists.size(popupNotices) > 1}">
                     1 / <span th:text="${#lists.size(popupNotices)}">1</span>
                 </span>
-                <button class="popup-close" id="popupClose">&times;</button>
+                <button class="popup-close" id="popupClose" aria-label="닫기">&times;</button>
             </div>
         </div>
 
@@ -751,7 +842,7 @@
                 <input type="checkbox" id="hideForDay">
                 <label for="hideForDay">하루 동안 보지 않기</label>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div class="popup-footer-actions">
                 <!-- 이전/다음 버튼 (2개 이상일 때만 의미있음) -->
                 <button class="popup-nav-btn" id="popupPrev"
                         th:if="${#lists.size(popupNotices) > 1}">&#8249;</button>
@@ -802,8 +893,8 @@
             .sort((a, b) => +a.dataset.section - +b.dataset.section);
         if (!indicator || sections.length === 0) return;
 
-        // 밝은 배경 섹션 인덱스 (예배안내=1, 공지사항=4, 오시는길=5)
-        const lightSections = new Set([1, 4, 5]);
+        // 밝은 배경 섹션 인덱스 (예배안내=1, 공지사항=4, 설교=5, 오시는길=6)
+        const lightSections = new Set([1, 4, 5, 6]);
 
         // 점 생성
         sections.forEach(function (sec, i) {

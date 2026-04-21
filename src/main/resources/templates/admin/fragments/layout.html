@@ -293,6 +293,14 @@
                 사역소개 관리
             </a>
 
+            <a th:href="@{/admin/sermon}" class="sb-item" th:classappend="${activeMenu == 'sermon'} ? 'active'">
+                <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="8" r="6.5"/>
+                    <polygon points="6.5,5.5 11.5,8 6.5,10.5" fill="currentColor" stroke="none"/>
+                </svg>
+                설교 동영상 관리
+            </a>
+
             <div class="sb-divider"></div>
 
             <!-- 교인 그룹 -->

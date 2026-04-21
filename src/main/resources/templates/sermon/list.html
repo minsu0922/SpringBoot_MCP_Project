@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설교 동영상 - 샘물교회</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <style>
+        .sermon-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .sermon-filter-input {
+            flex: 1;
+            min-width: 200px;
+            max-width: 340px;
+            padding: 10px 16px;
+            border: 1px solid rgba(24,95,165,0.2);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #0A1F3D;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .sermon-filter-input:focus { border-color: #185FA5; }
+        .sermon-filter-btn {
+            padding: 10px 22px;
+            background: #0D2B55;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Noto Sans KR', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sermon-filter-btn:hover { background: #185FA5; }
+        .sermon-filter-reset {
+            font-size: 13px;
+            color: #7A96B8;
+            text-decoration: none;
+            padding: 10px 14px;
+            border: 1px solid rgba(24,95,165,0.15);
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+        .sermon-filter-reset:hover { border-color: #7A96B8; color: #3A5278; }
+
+        .sermon-list { display: flex; flex-direction: column; gap: 0; }
+        .sermon-item {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(24,95,165,0.09);
+            text-decoration: none;
+            transition: background 0.15s;
+            border-radius: 4px;
+        }
+        .sermon-item:last-child { border-bottom: none; }
+        .sermon-item:hover { background: rgba(24,95,165,0.03); padding-left: 8px; padding-right: 8px; margin: 0 -8px; }
+
+        .sermon-thumb {
+            width: 160px;
+            height: 90px;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #0D2B55, #185FA5);
+            position: relative;
+        }
+        .sermon-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sermon-thumb-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sermon-thumb-play {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(201,168,76,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sermon-thumb-play::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-left: 12px solid #0D2B55;
+            margin-left: 3px;
+        }
+
+        .sermon-info { flex: 1; min-width: 0; }
+        .sermon-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .sermon-bible {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #E6F1FB;
+            color: #185FA5;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            border-radius: 20px;
+            border: 1px solid rgba(24,95,165,0.2);
+        }
+        .sermon-date {
+            font-size: 12px;
+            color: #7A96B8;
+        }
+        .sermon-title {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 16px;
+            font-weight: 400;
+            color: #0A1F3D;
+            line-height: 1.4;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sermon-item:hover .sermon-title { color: #185FA5; }
+        .sermon-preacher {
+            font-size: 13px;
+            font-weight: 300;
+            color: #3A5278;
+        }
+
+        .sermon-arrow {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(24,95,165,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #185FA5;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .sermon-item:hover .sermon-arrow {
+            background: #0D2B55;
+            border-color: #0D2B55;
+            color: #fff;
+        }
+
+        .result-info {
+            font-size: 13px;
+            color: #7A96B8;
+            margin-bottom: 16px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7A96B8;
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        @media (max-width: 600px) {
+            .sermon-thumb { width: 100px; height: 60px; }
+            .sermon-title { font-size: 14px; }
+            .sermon-arrow { display: none; }
+        }
+    </style>
+</head>
+<body>
+<nav class="site-nav">
+    <a href="/" class="site-nav-logo">
+        <div class="site-cross"></div>
+        <span>샘물교회</span>
+    </a>
+    <ul class="site-nav-links">
+        <li><a href="/">홈</a></li>
+        <li class="has-dropdown">
+            <a href="/about/church">교회소개</a>
+            <ul class="dropdown">
+                <li><a href="/about/church">교회소개</a></li>
+                <li><a href="/about/pastor">담임목사</a></li>
+                <li><a href="/about/staff">교역자 소개</a></li>
+            </ul>
+        </li>
+        <li><a href="/ministry">사역소개</a></li>
+        <li class="has-dropdown">
+            <a href="/worship/schedule">예배안내</a>
+            <ul class="dropdown">
+                <li><a href="/worship/schedule">예배 시간표</a></li>
+                <li><a href="/worship/department">부서별 안내</a></li>
+            </ul>
+        </li>
+        <li><a href="/sermon" class="active">설교 동영상</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+    </ul>
+    <a href="/new-family" class="site-nav-cta">새가족 안내</a>
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/about/church">교회소개</a></li>
+        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
+        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
+        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
+        <li><a href="/ministry">사역소개</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
+        <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
+        <li><a href="/sermon">설교 동영상</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
+    </ul>
+</div>
+
+<div class="page-hero">
+    <div class="page-hero-inner">
+        <div class="page-hero-label">SERMON</div>
+        <h1>설교 동영상</h1>
+        <p class="page-hero-sub">Sermon Messages</p>
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <div class="breadcrumb-inner">
+        <a href="/">홈</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>설교 동영상</span>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="content-section">
+
+        <!-- 검색 필터 -->
+        <form th:action="@{/sermon}" method="get">
+            <div class="sermon-filter-bar">
+                <input type="text" name="biblePassage" class="sermon-filter-input"
+                       th:value="${biblePassage}"
+                       placeholder="성경 본문으로 검색 (예: 요한복음, 시편 23편)">
+                <button type="submit" class="sermon-filter-btn">검색</button>
+                <a th:if="${!biblePassage.isEmpty()}" href="/sermon" class="sermon-filter-reset">초기화</a>
+            </div>
+        </form>
+
+        <!-- 결과 수 -->
+        <div class="result-info" th:if="${sermons.totalElements > 0}">
+            총 <strong th:text="${sermons.totalElements}">0</strong>편의 설교
+            <span th:if="${!biblePassage.isEmpty()}">
+                — "<strong th:text="${biblePassage}"></strong>" 검색 결과
+            </span>
+        </div>
+
+        <!-- 설교 목록 -->
+        <div th:if="${sermons.totalElements == 0}" class="empty-state">
+            <p th:if="${!biblePassage.isEmpty()}">
+                "<span th:text="${biblePassage}"></span>" 에 해당하는 설교가 없습니다.
+            </p>
+            <p th:if="${biblePassage.isEmpty()}">등록된 설교 동영상이 없습니다.</p>
+        </div>
+
+        <div class="sermon-list" th:if="${sermons.totalElements > 0}">
+            <a class="sermon-item"
+               th:each="sermon : ${sermons.content}"
+               th:href="@{/sermon/{id}(id=${sermon.id})}">
+                <div class="sermon-thumb">
+                    <img th:if="${sermon.thumbnailUrl != null}" th:src="${sermon.thumbnailUrl}" alt="">
+                    <div class="sermon-thumb-placeholder" th:if="${sermon.thumbnailUrl == null}">
+                        <div class="sermon-thumb-play"></div>
+                    </div>
+                </div>
+                <div class="sermon-info">
+                    <div class="sermon-meta">
+                        <span class="sermon-bible" th:text="${sermon.biblePassage}">성경본문</span>
+                        <span class="sermon-date" th:text="${#temporals.format(sermon.sermonDate, 'yyyy.MM.dd')}">날짜</span>
+                    </div>
+                    <div class="sermon-title" th:text="${sermon.title}">설교 제목</div>
+                    <div class="sermon-preacher" th:text="${sermon.preacher}">설교자</div>
+                </div>
+                <div class="sermon-arrow">›</div>
+            </a>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="site-pagination" th:if="${sermons.totalPages > 1}">
+            <a th:if="${!sermons.first}"
+               th:href="@{/sermon(page=${sermons.number - 1}, biblePassage=${biblePassage})}"
+               class="page-btn">이전</a>
+            <span th:each="i : ${#numbers.sequence(0, sermons.totalPages - 1)}">
+                <a th:href="@{/sermon(page=${i}, biblePassage=${biblePassage})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == sermons.number} ? 'page-btn active' : 'page-btn'"></a>
+            </span>
+            <a th:if="${!sermons.last}"
+               th:href="@{/sermon(page=${sermons.number + 1}, biblePassage=${biblePassage})}"
+               class="page-btn">다음</a>
+        </div>
+
+    </div>
+</div>
+
+<footer class="site-footer">
+    <div class="site-footer-inner">
+        <div class="site-footer-brand">
+            <div class="site-cross" style="width:18px;height:18px;"></div>
+            <span>샘물교회</span>
+        </div>
+        <p>서울특별시 강동구 양재대로 1371 4층 406호 · 0507-1377-3927</p>
+        <p style="margin-top:6px;">&copy; 2026 샘물교회. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="/js/nav.js"></script>
+</body>
+</html>
