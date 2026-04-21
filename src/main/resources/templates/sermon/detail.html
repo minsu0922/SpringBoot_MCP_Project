@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${sermon.title} + ' - 샘물교회'">설교 - 샘물교회</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <style>
+        .sermon-detail-wrap {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+        .sermon-detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .sermon-bible-tag {
+            display: inline-block;
+            padding: 4px 14px;
+            background: #E6F1FB;
+            color: #185FA5;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            border-radius: 20px;
+            border: 1px solid rgba(24,95,165,0.2);
+        }
+        .sermon-detail-date { font-size: 13px; color: #7A96B8; }
+        .sermon-detail-title {
+            font-family: 'Noto Serif KR', serif;
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 400;
+            color: #0A1F3D;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .sermon-detail-preacher {
+            font-size: 14px;
+            color: #3A5278;
+            font-weight: 300;
+            margin-bottom: 28px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(24,95,165,0.1);
+        }
+
+        .sermon-video-wrap {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+        .sermon-video-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .sermon-detail-desc {
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.9;
+            color: #3A5278;
+            white-space: pre-line;
+            margin-bottom: 36px;
+        }
+
+        .sermon-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #185FA5;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 300;
+            border: 1px solid rgba(24,95,165,0.25);
+            padding: 9px 20px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .sermon-back-btn:hover {
+            background: #0D2B55;
+            color: #fff;
+            border-color: #0D2B55;
+        }
+    </style>
+</head>
+<body>
+<nav class="site-nav">
+    <a href="/" class="site-nav-logo">
+        <div class="site-cross"></div>
+        <span>샘물교회</span>
+    </a>
+    <ul class="site-nav-links">
+        <li><a href="/">홈</a></li>
+        <li class="has-dropdown">
+            <a href="/about/church">교회소개</a>
+            <ul class="dropdown">
+                <li><a href="/about/church">교회소개</a></li>
+                <li><a href="/about/pastor">담임목사</a></li>
+                <li><a href="/about/staff">교역자 소개</a></li>
+            </ul>
+        </li>
+        <li><a href="/ministry">사역소개</a></li>
+        <li class="has-dropdown">
+            <a href="/worship/schedule">예배안내</a>
+            <ul class="dropdown">
+                <li><a href="/worship/schedule">예배 시간표</a></li>
+                <li><a href="/worship/department">부서별 안내</a></li>
+            </ul>
+        </li>
+        <li><a href="/sermon" class="active">설교 동영상</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+    </ul>
+    <a href="/new-family" class="site-nav-cta">새가족 안내</a>
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/about/church">교회소개</a></li>
+        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
+        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
+        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
+        <li><a href="/ministry">사역소개</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
+        <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
+        <li><a href="/sermon">설교 동영상</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
+    </ul>
+</div>
+
+<div class="page-hero" style="padding: 52px 40px 44px;">
+    <div class="page-hero-inner">
+        <div class="page-hero-label">SERMON</div>
+        <h1>설교 동영상</h1>
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <div class="breadcrumb-inner">
+        <a href="/">홈</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="/sermon">설교 동영상</a>
+        <span class="breadcrumb-sep">›</span>
+        <span th:text="${sermon.title}">제목</span>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="sermon-detail-wrap">
+
+        <div class="sermon-detail-meta">
+            <span class="sermon-bible-tag" th:text="${sermon.biblePassage}">성경본문</span>
+            <span class="sermon-detail-date" th:text="${#temporals.format(sermon.sermonDate, 'yyyy년 M월 d일')}">날짜</span>
+        </div>
+
+        <h2 class="sermon-detail-title" th:text="${sermon.title}">설교 제목</h2>
+        <p class="sermon-detail-preacher" th:text="${sermon.preacher}">설교자</p>
+
+        <!-- 동영상 플레이어 -->
+        <div class="sermon-video-wrap" th:if="${sermon.videoUrl != null}">
+            <video controls preload="metadata" th:src="${sermon.videoUrl}">
+                이 브라우저는 동영상 재생을 지원하지 않습니다.
+            </video>
+        </div>
+
+        <!-- 설교 설명 -->
+        <div class="sermon-detail-desc"
+             th:if="${sermon.description != null and !sermon.description.isEmpty()}"
+             th:text="${sermon.description}"></div>
+
+        <a href="/sermon" class="sermon-back-btn">← 목록으로 돌아가기</a>
+    </div>
+</div>
+
+<footer class="site-footer">
+    <div class="site-footer-inner">
+        <div class="site-footer-brand">
+            <div class="site-cross" style="width:18px;height:18px;"></div>
+            <span>샘물교회</span>
+        </div>
+        <p>서울특별시 강동구 양재대로 1371 4층 406호 · 0507-1377-3927</p>
+        <p style="margin-top:6px;">&copy; 2026 샘물교회. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="/js/nav.js"></script>
+</body>
+</html>
