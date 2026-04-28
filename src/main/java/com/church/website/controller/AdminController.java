@@ -15,6 +15,8 @@ import com.church.website.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,10 +25,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -52,16 +55,11 @@ public class AdminController extends BaseController {
 
     @GetMapping("")
     public String adminMain(Model model) {
-        List<Notice> all = noticeService.getAllNotices();
-        model.addAttribute("noticeCount",    all.size());
-        model.addAttribute("ministryCount",  ministryPhotoService.getAllPhotos().size());
-        model.addAttribute("newFamilyTotal", newFamilyService.getAll().size());
-        model.addAttribute("recentNotices",  all.stream().limit(5).collect(Collectors.toList()));
-        model.addAttribute("recentNewFamilies",
-            newFamilyService.getAll().stream()
-                .filter(nf -> !nf.isChecked())
-                .limit(5)
-                .collect(Collectors.toList()));
+        model.addAttribute("noticeCount",       noticeService.getTotalCount());
+        model.addAttribute("ministryCount",     ministryPhotoService.getTotalCount());
+        model.addAttribute("newFamilyTotal",    newFamilyService.getTotalCount());
+        model.addAttribute("recentNotices",     noticeService.getTop5RecentNotices());
+        model.addAttribute("recentNewFamilies", newFamilyService.getTop5UncheckedForDashboard());
         return "admin/index";
     }
 
@@ -72,23 +70,10 @@ public class AdminController extends BaseController {
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String popupStatus,
             Model model) {
-        List<Notice> all = noticeService.getAllNotices();
-        int totalCount = all.size();
-        List<Notice> notices = all;
-        if (!keyword.isEmpty()) {
-            notices = notices.stream()
-                .filter(n -> n.getTitle().contains(keyword))
-                .collect(Collectors.toList());
-        }
-        if ("on".equals(popupStatus)) {
-            notices = notices.stream().filter(Notice::isPopup).collect(Collectors.toList());
-        } else if ("off".equals(popupStatus)) {
-            notices = notices.stream().filter(n -> !n.isPopup()).collect(Collectors.toList());
-        }
-        model.addAttribute("notices",     notices);
+        model.addAttribute("notices",     noticeService.searchNotices(keyword, popupStatus));
         model.addAttribute("keyword",     keyword);
         model.addAttribute("popupStatus", popupStatus);
-        model.addAttribute("totalCount",  totalCount);
+        model.addAttribute("totalCount",  noticeService.getTotalCount());
         return "admin/notice/list";
     }
 
@@ -184,25 +169,13 @@ public class AdminController extends BaseController {
         }, "/admin/ministry", "사역사진 저장 실패", redirectAttributes);
     }
 
-    @PostMapping("/ministry/order/{id}")
-    public String ministryOrder(@PathVariable Long id,
-                                @RequestParam int displayOrder,
-                                RedirectAttributes redirectAttributes) {
-        return run(() -> {
-            MinistryPhoto photo = ministryPhotoService.getPhotoById(id);
-            photo.setDisplayOrder(displayOrder);
-            ministryPhotoService.updatePhoto(id, photo, null);
-            redirectAttributes.addFlashAttribute("message", "표시 순서가 변경되었습니다.");
-            return "redirect:/admin/ministry";
-        }, "/admin/ministry", "사역사진 순서 변경 실패", redirectAttributes);
-    }
-
     @PostMapping("/ministry/delete/{id}")
     public String ministryDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         return run(() -> {
             MinistryPhoto photo = ministryPhotoService.getPhotoById(id);
-            ministryPhotoService.deleteFile(photo.getPhotoUrl());
-            ministryPhotoService.deletePhoto(id);
+            String photoUrl = photo.getPhotoUrl();
+            ministryPhotoService.deletePhoto(id);         // DB 먼저
+            ministryPhotoService.deleteFile(photoUrl);    // 성공 후 파일 삭제
             redirectAttributes.addFlashAttribute("message", "사역사진이 삭제되었습니다.");
             return "redirect:/admin/ministry";
         }, "/admin/ministry", "사역사진 삭제 실패", redirectAttributes);
@@ -246,7 +219,7 @@ public class AdminController extends BaseController {
             redirectAttributes.addFlashAttribute("message", "확인 처리되었습니다.");
             return "detail".equals(from)
                     ? "redirect:/admin/new-family/" + id
-                    : "redirect:/admin/new-family?keyword=" + keyword + "&status=" + status + "&page=" + page;
+                    : newFamilyListUrl(keyword, status, page);
         }, "/admin/new-family", "새가족 확인 처리 실패", redirectAttributes);
     }
 
@@ -262,7 +235,7 @@ public class AdminController extends BaseController {
             redirectAttributes.addFlashAttribute("message", "확인이 취소되었습니다.");
             return "detail".equals(from)
                     ? "redirect:/admin/new-family/" + id
-                    : "redirect:/admin/new-family?keyword=" + keyword + "&status=" + status + "&page=" + page;
+                    : newFamilyListUrl(keyword, status, page);
         }, "/admin/new-family", "새가족 확인 취소 실패", redirectAttributes);
     }
 
@@ -286,15 +259,30 @@ public class AdminController extends BaseController {
         return run(() -> {
             newFamilyService.delete(id);
             redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
-            return "redirect:/admin/new-family?keyword=" + keyword + "&status=" + status + "&page=" + page;
+            return newFamilyListUrl(keyword, status, page);
         }, "/admin/new-family", "새가족 삭제 실패", redirectAttributes);
+    }
+
+    private String newFamilyListUrl(String keyword, String status, int page) {
+        String enc = URLEncoder.encode(keyword == null ? "" : keyword, StandardCharsets.UTF_8);
+        return "redirect:/admin/new-family?keyword=" + enc + "&status=" + status + "&page=" + page;
     }
 
     // ====== 설교 관리 ======
 
     @GetMapping("/sermon")
-    public String sermonList(Model model) {
-        model.addAttribute("sermons", sermonService.getAll());
+    public String sermonList(
+            @RequestParam(defaultValue = "") String biblePassage,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+        int size = 10;
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("sermonDate").descending());
+        Page<Sermon> result = sermonService.getSermons(biblePassage, pageable);
+        model.addAttribute("sermons",       result.getContent());
+        model.addAttribute("currentPage",   result.getNumber());
+        model.addAttribute("totalPages",    result.getTotalPages());
+        model.addAttribute("totalElements", result.getTotalElements());
+        model.addAttribute("biblePassage",  biblePassage);
         return "admin/sermon/list";
     }
 

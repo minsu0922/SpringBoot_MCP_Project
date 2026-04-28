@@ -1,0 +1,8 @@
+# ===== 로컬 개발 환경 설정 템플릿 =====
+# 이 파일을 복사해서 application-local.properties 로 이름을 변경한 뒤
+# 실제 값을 채워 넣으세요.
+# IntelliJ 실행 설정에서 Active Profiles 를 "local" 로 지정해야 합니다.
+
+DB_USERNAME=여기에_DB_유저명
+DB_PASSWORD=여기에_DB_비밀번호
+KAKAO_MAP_API_KEY=여기에_카카오맵_API키

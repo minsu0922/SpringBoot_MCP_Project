@@ -43,6 +43,18 @@ public class NewFamilyService {
                 .orElseThrow(() -> new EntityNotFoundException("새가족 정보를 찾을 수 없습니다."));
     }
 
+    /** 전체 건수 */
+    @Transactional(readOnly = true)
+    public long getTotalCount() {
+        return newFamilyRepository.count();
+    }
+
+    /** 대시보드용 미확인 최신 5건 */
+    @Transactional(readOnly = true)
+    public List<NewFamily> getTop5UncheckedForDashboard() {
+        return newFamilyRepository.findTop5ByCheckedFalseOrderByCreatedAtDesc();
+    }
+
     /** 미확인 건수 */
     @Transactional(readOnly = true)
     public long getUncheckedCount() {

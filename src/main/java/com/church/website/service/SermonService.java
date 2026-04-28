@@ -17,12 +17,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SermonService {
+
+    private static final Set<String> ALLOWED_VIDEO_EXT  = Set.of(".mp4", ".webm", ".mov", ".avi", ".mkv");
+    private static final Set<String> ALLOWED_VIDEO_MIME = Set.of(
+            "video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/x-matroska");
+    private static final Set<String> ALLOWED_THUMB_EXT  = Set.of(".jpg", ".jpeg", ".png", ".gif", ".webp");
+    private static final Set<String> ALLOWED_THUMB_MIME = Set.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp");
 
     private final SermonRepository sermonRepository;
 
@@ -32,17 +40,27 @@ public class SermonService {
     public String saveFile(MultipartFile file, String prefix) throws IOException {
         if (file == null || file.isEmpty()) return null;
 
+        String contentType = file.getContentType() != null ? file.getContentType().toLowerCase() : "";
+        String originalName = file.getOriginalFilename();
+        String ext = (originalName != null && originalName.contains("."))
+                ? originalName.substring(originalName.lastIndexOf(".")).toLowerCase()
+                : "";
+
+        boolean isThumb = "thumb".equals(prefix);
+        Set<String> allowedExt  = isThumb ? ALLOWED_THUMB_EXT  : ALLOWED_VIDEO_EXT;
+        Set<String> allowedMime = isThumb ? ALLOWED_THUMB_MIME : ALLOWED_VIDEO_MIME;
+        String typeLabel = isThumb ? "이미지(jpg·png·gif·webp)" : "동영상(mp4·webm·mov·avi·mkv)";
+
+        if (!allowedExt.contains(ext) || !allowedMime.contains(contentType)) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다. 허용: " + typeLabel);
+        }
+
         Path dir = Paths.get(sermonUploadDir);
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
 
-        String originalName = file.getOriginalFilename();
-        String ext = (originalName != null && originalName.contains("."))
-                ? originalName.substring(originalName.lastIndexOf(".")).toLowerCase()
-                : "";
         String savedName = prefix + "-" + UUID.randomUUID().toString().replace("-", "") + ext;
-
         Path dest = dir.resolve(savedName);
         file.transferTo(dest.toFile());
 
@@ -63,10 +81,7 @@ public class SermonService {
 
     @Transactional(readOnly = true)
     public Page<Sermon> getSermons(String biblePassage, Pageable pageable) {
-        if (biblePassage != null && !biblePassage.isBlank()) {
-            return sermonRepository.findByBiblePassageContainingIgnoreCase(biblePassage, pageable);
-        }
-        return sermonRepository.findAll(pageable);
+        return sermonRepository.searchSermons(biblePassage, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -99,24 +114,33 @@ public class SermonService {
         sermon.setSermonDate(updated.getSermonDate());
         sermon.setBiblePassage(updated.getBiblePassage());
         sermon.setDescription(updated.getDescription());
+
+        String oldVideoUrl = null;
+        String oldThumbnailUrl = null;
         if (newVideoUrl != null && !newVideoUrl.isBlank()) {
-            deleteFile(sermon.getVideoUrl());
+            oldVideoUrl = sermon.getVideoUrl();
             sermon.setVideoUrl(newVideoUrl);
         }
         if (newThumbnailUrl != null && !newThumbnailUrl.isBlank()) {
-            deleteFile(sermon.getThumbnailUrl());
+            oldThumbnailUrl = sermon.getThumbnailUrl();
             sermon.setThumbnailUrl(newThumbnailUrl);
         }
         log.info("설교 수정: {}", sermon.getTitle());
-        return sermonRepository.save(sermon);
+        Sermon saved = sermonRepository.save(sermon);
+        // DB 저장 성공 후 이전 파일 삭제 — 순서가 반대면 저장 실패 시 파일만 사라짐
+        deleteFile(oldVideoUrl);
+        deleteFile(oldThumbnailUrl);
+        return saved;
     }
 
     @Transactional
     public void delete(Long id) {
         Sermon sermon = getById(id);
-        deleteFile(sermon.getVideoUrl());
-        deleteFile(sermon.getThumbnailUrl());
+        String videoUrl     = sermon.getVideoUrl();
+        String thumbnailUrl = sermon.getThumbnailUrl();
         log.info("설교 삭제: {}", sermon.getTitle());
-        sermonRepository.delete(sermon);
+        sermonRepository.delete(sermon);   // DB 먼저 — 실패 시 파일 보존
+        deleteFile(videoUrl);
+        deleteFile(thumbnailUrl);
     }
 }

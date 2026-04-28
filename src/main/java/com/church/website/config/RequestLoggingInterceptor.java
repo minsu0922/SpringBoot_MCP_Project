@@ -30,7 +30,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
             log.error("[{}] {} {} → {} ({}ms)", ip, request.getMethod(), request.getRequestURI(),
                     response.getStatus(), duration);
         } else {
-            log.debug("[{}] {} {} → {} ({}ms)", ip, request.getMethod(), request.getRequestURI(),
+            log.info("[{}] {} {} → {} ({}ms)", ip, request.getMethod(), request.getRequestURI(),
                     response.getStatus(), duration);
         }
     }

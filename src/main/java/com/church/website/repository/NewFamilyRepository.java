@@ -1,37 +1,21 @@
 package com.church.website.repository;
 
 import com.church.website.entity.NewFamily;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-/**
- * 새가족 등록 레포지토리
- */
-public interface NewFamilyRepository extends JpaRepository<NewFamily, Long> {
+public interface NewFamilyRepository extends JpaRepository<NewFamily, Long>, NewFamilyRepositoryCustom {
 
-    /** 전체 목록 (최신순) */
+    // 전체 목록 (최신순) — 관리자 대시보드용
     List<NewFamily> findAllByOrderByCreatedAtDesc();
 
-    /** 미확인 건수 */
+    // 대시보드 미확인 최신 5건
+    List<NewFamily> findTop5ByCheckedFalseOrderByCreatedAtDesc();
+
+    // 미확인 건수 — 사이드바 뱃지용
     long countByCheckedFalse();
 
-    /** 이름 검색 + 상태 필터 (페이지네이션) */
-    @Query("SELECT n FROM NewFamily n WHERE " +
-           "(:keyword IS NULL OR :keyword = '' OR n.name LIKE %:keyword%) AND " +
-           "(:status IS NULL OR :status = '' OR " +
-           "  (:status = 'unchecked' AND n.checked = false) OR " +
-           "  (:status = 'checked'   AND n.checked = true)) " +
-           "ORDER BY n.createdAt DESC")
-    Page<NewFamily> searchByKeywordAndStatus(
-            @Param("keyword") String keyword,
-            @Param("status")  String status,
-            Pageable pageable);
-
-    /** 전체 카운트 (상태 필터) */
+    // 확인 건수
     long countByChecked(boolean checked);
 }
