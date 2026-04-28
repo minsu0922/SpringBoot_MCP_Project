@@ -163,8 +163,12 @@
                     <div class="form-group">
                         <label class="form-label" for="newPassword">새 비밀번호</label>
                         <input type="password" id="newPassword" name="newPassword"
-                               class="form-control" required placeholder="8자 이상"
-                               minlength="8" oninput="checkMatch()">
+                               class="form-control" required placeholder="8자 이상, 대·소문자·숫자 포함"
+                               minlength="8"
+                               pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}"
+                               title="8자 이상, 대문자·소문자·숫자를 각 1개 이상 포함해야 합니다."
+                               oninput="checkMatch()">
+                        <div class="form-hint">대문자·소문자·숫자 각 1개 이상 포함, 8자 이상</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="confirmPassword">새 비밀번호 확인</label>
@@ -201,8 +205,11 @@
                     <div class="form-group">
                         <label class="form-label" for="newPw">비밀번호</label>
                         <input type="password" id="newPw" name="password"
-                               class="form-control" required placeholder="8자 이상"
-                               minlength="8" oninput="checkNewMatch()">
+                               class="form-control" required placeholder="8자 이상, 대·소문자·숫자 포함"
+                               minlength="8"
+                               pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}"
+                               title="8자 이상, 대문자·소문자·숫자를 각 1개 이상 포함해야 합니다."
+                               oninput="checkNewMatch()">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="newPwConfirm">비밀번호 확인</label>

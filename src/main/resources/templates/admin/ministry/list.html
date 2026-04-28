@@ -46,9 +46,9 @@
         border: 1px solid #DDE4EF;
         border-radius: 10px;
         overflow: hidden;
-        transition: border-color 0.15s;
+        transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .photo-card:hover { border-color: #185FA5; }
+    .photo-card:hover { border-color: #185FA5; box-shadow: 0 2px 8px rgba(13,43,85,0.07); }
     .photo-card-img {
         width: 100%;
         height: 170px;
@@ -64,7 +64,6 @@
         align-items: center;
         justify-content: center;
         color: #7A96B8;
-        font-size: 28px;
     }
     .photo-card-body { padding: 14px 16px; }
     .photo-card-meta {
@@ -101,7 +100,22 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-    .photo-card-order { font-size: 11px; color: #B5D4F4; margin-bottom: 12px; }
+
+    /* 순서 표시 칩 (읽기 전용) */
+    .order-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: #7A96B8;
+        background: #F4F7FC;
+        border: 1px solid #EEF2F8;
+        border-radius: 12px;
+        padding: 3px 9px;
+        margin-bottom: 10px;
+    }
+    .order-chip strong { color: #3A5278; }
+
     .photo-card-actions { display: flex; gap: 8px; }
     .btn-sm {
         font-size: 12px;
@@ -117,33 +131,8 @@
     .btn-edit   { background: #E6F1FB; color: #185FA5; }
     .btn-delete { background: #FCEBEB; color: #A32D2D; }
 
-    /* 인라인 순서 변경 */
-    .order-form { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
-    .order-input {
-        width: 54px; padding: 4px 7px;
-        border: 1px solid #DDE4EF; border-radius: 5px;
-        font-size: 12px; color: #0A1F3D; text-align: center; outline: none;
-    }
-    .order-input:focus { border-color: #185FA5; }
-    .btn-order { font-size: 11px; padding: 4px 9px; background: #EEF2F8; color: #3A5278; border: none; border-radius: 5px; cursor: pointer; }
-    .btn-order:hover { background: #DDE4EF; }
-        background: #fff;
-        border: 1px solid #DDE4EF;
-        border-radius: 10px;
-        padding: 60px 20px;
-        text-align: center;
-        color: #7A96B8;
-        font-size: 14px;
-    }
-    .empty-state .btn-primary { margin-top: 16px; }
-
     /* 카테고리 탭 */
-    .cat-tabs {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-    }
+    .cat-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
     .cat-tab {
         padding: 6px 16px;
         border: 1px solid #DDE4EF;
@@ -158,6 +147,17 @@
     }
     .cat-tab:hover { border-color: #185FA5; color: #185FA5; }
     .cat-tab.active { background: #0D2B55; color: #fff; border-color: #0D2B55; }
+
+    .empty-state {
+        background: #fff;
+        border: 1px solid #DDE4EF;
+        border-radius: 10px;
+        padding: 60px 20px;
+        text-align: center;
+        color: #7A96B8;
+        font-size: 14px;
+    }
+    .empty-state .btn-primary { margin-top: 16px; }
 </style>
 
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
@@ -210,13 +210,13 @@
             <div class="photo-card-desc"
                  th:if="${photo.description != null and !photo.description.isEmpty()}"
                  th:text="${photo.description}">설명</div>
-            <div class="order-form">
-                <form th:action="@{/admin/ministry/order/{id}(id=${photo.id})}" method="post" style="display:flex; align-items:center; gap:5px;">
-                    <span style="font-size:11px; color:#7A96B8;">순서</span>
-                    <input type="number" name="displayOrder" class="order-input"
-                           th:value="${photo.displayOrder}" min="0" max="999">
-                    <button type="submit" class="btn-order">변경</button>
-                </form>
+            <div class="order-chip">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="2" y1="3" x2="9" y2="3"/>
+                    <line x1="2" y1="5.5" x2="9" y2="5.5"/>
+                    <line x1="2" y1="8" x2="6" y2="8"/>
+                </svg>
+                순서 <strong th:text="${photo.displayOrder}">0</strong>
             </div>
             <div class="photo-card-actions">
                 <a th:href="@{/admin/ministry/edit/{id}(id=${photo.id})}" class="btn-sm btn-edit">수정</a>
@@ -235,10 +235,10 @@
 </div>
 
 <script>
-    const tabs     = document.querySelectorAll('.cat-tab');
-    const cards    = document.querySelectorAll('#photoGrid .photo-card');
-    const countEl  = document.querySelector('.page-toolbar strong');
-    const totalCount = cards.length;   // 전체 건수 고정
+    const tabs      = document.querySelectorAll('.cat-tab');
+    const cards     = document.querySelectorAll('#photoGrid .photo-card');
+    const countEl   = document.querySelector('.page-toolbar strong');
+    const totalCount = cards.length;
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -253,9 +253,7 @@
                 if (show) visible++;
             });
             if (countEl) {
-                countEl.textContent = cat === 'ALL'
-                    ? totalCount
-                    : visible + ' / ' + totalCount;
+                countEl.textContent = cat === 'ALL' ? totalCount : visible + ' / ' + totalCount;
             }
         });
     });

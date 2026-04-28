@@ -26,6 +26,17 @@ public class NoticeService {
         return noticeRepository.findAllByOrderByCreatedAtDesc();
     }
 
+    /** 관리자 검색 — 키워드/팝업 상태 조건을 QueryDSL로 조합해 DB에서 바로 필터링 */
+    @Transactional(readOnly = true)
+    public List<Notice> searchNotices(String keyword, String popupStatus) {
+        return noticeRepository.searchNotices(keyword, popupStatus);
+    }
+
+    @Transactional(readOnly = true)
+    public long getTotalCount() {
+        return noticeRepository.count();
+    }
+
     @Transactional(readOnly = true)
     public Page<Notice> getNoticesPaged(Pageable pageable) {
         return noticeRepository.findAll(pageable);
@@ -33,6 +44,11 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public List<Notice> getRecentNotices() {
+        return noticeRepository.findTop3ByOrderByCreatedAtDesc();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Notice> getTop5RecentNotices() {
         return noticeRepository.findTop5ByOrderByCreatedAtDesc();
     }
 
@@ -47,14 +63,13 @@ public class NoticeService {
 
     /**
      * 공지사항 상세 조회 (일반 사용자용).
-     * 조회할 때마다 viewCount를 1 증가시키므로 readOnly 없이 트랜잭션 처리.
+     * @Modifying UPDATE 한 번으로 조회수 증가 — SELECT+UPDATE 두 번 대신 UPDATE+SELECT 로 처리.
      */
     @Transactional
     public Notice getNoticeById(Long id) {
-        Notice notice = noticeRepository.findById(id)
+        noticeRepository.incrementViewCount(id);
+        return noticeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("공지사항을 찾을 수 없습니다."));
-        notice.setViewCount(notice.getViewCount() + 1);
-        return noticeRepository.save(notice);
     }
 
     /** 공지사항 조회 (관리자용) - 조회수 증가 없음 */

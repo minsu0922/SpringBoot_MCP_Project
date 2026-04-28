@@ -42,17 +42,18 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("계정을 찾을 수 없습니다."));
     }
 
-    /**
-     * 비밀번호 변경
-     * @param username      현재 로그인된 사용자명
-     * @param currentPw     현재 비밀번호 (검증용)
-     * @param newPw         새 비밀번호
-     */
-    @Transactional
-    public void changePassword(String username, String currentPw, String newPw) {
-        if (newPw.length() < 8) {
+    private void validatePassword(String password) {
+        if (password.length() < 8) {
             throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
         }
+        if (!password.matches(".*[A-Z].*") || !password.matches(".*[a-z].*") || !password.matches(".*[0-9].*")) {
+            throw new IllegalArgumentException("비밀번호는 대문자, 소문자, 숫자를 각각 하나 이상 포함해야 합니다.");
+        }
+    }
+
+    @Transactional
+    public void changePassword(String username, String currentPw, String newPw) {
+        validatePassword(newPw);
         User user = getUserByUsername(username);
         if (!passwordEncoder.matches(currentPw, user.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
@@ -67,9 +68,7 @@ public class UserService {
      */
     @Transactional
     public void createUser(String username, String password) {
-        if (password.length() < 8) {
-            throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
-        }
+        validatePassword(password);
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 사용자명입니다.");
         }

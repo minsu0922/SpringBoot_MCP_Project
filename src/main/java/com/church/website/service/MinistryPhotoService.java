@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -22,31 +23,36 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MinistryPhotoService {
 
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".gif", ".webp");
+    private static final Set<String> ALLOWED_MIME_TYPES  = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+
     private final MinistryPhotoRepository ministryPhotoRepository;
 
     @Value("${file.upload.dir}")
     private String uploadDir;
 
-    /**
-     * 파일을 서버에 저장하고 접근 URL을 반환.
-     *
-     * 파일명은 UUID로 생성해 중복 방지 및 경로 탐색 공격(path traversal) 차단.
-     * 원본 확장자는 브라우저의 Content-Type 인식을 위해 유지.
-     */
     public String saveFile(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) return null;
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다. (허용: jpg, jpeg, png, gif, webp)");
+        }
+
+        String originalName = file.getOriginalFilename();
+        String ext = (originalName != null && originalName.contains("."))
+                ? originalName.substring(originalName.lastIndexOf(".")).toLowerCase()
+                : "";
+        if (!ALLOWED_EXTENSIONS.contains(ext)) {
+            throw new IllegalArgumentException("허용되지 않는 파일 확장자입니다.");
+        }
 
         Path dir = Paths.get(uploadDir);
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
 
-        String originalName = file.getOriginalFilename();
-        String ext = (originalName != null && originalName.contains("."))
-                ? originalName.substring(originalName.lastIndexOf("."))
-                : "";
         String savedName = UUID.randomUUID().toString().replace("-", "") + ext;
-
         Path dest = dir.resolve(savedName);
         file.transferTo(dest.toFile());
 
@@ -93,13 +99,7 @@ public class MinistryPhotoService {
         return ministryPhotoRepository.save(photo);
     }
 
-    /**
-     * 사진 정보 수정.
-     *
-     * 새 파일이 업로드된 경우에만 기존 파일을 삭제하고 교체.
-     * 파일 삭제는 DB 저장 전에 수행되므로, DB 저장 실패 시 파일은 이미 삭제된 상태가 됨.
-     * 이는 소규모 서비스에서 허용 가능한 트레이드오프 (별도 스토리지 서비스 없이 로컬 저장).
-     */
+    /** 새 파일이 업로드된 경우에만 기존 파일을 삭제하고 교체. DB 저장 성공 후 파일 삭제. */
     @Transactional
     public MinistryPhoto updatePhoto(Long id, MinistryPhoto updated, String newPhotoUrl) {
         MinistryPhoto photo = ministryPhotoRepository.findById(id)
@@ -107,14 +107,17 @@ public class MinistryPhotoService {
         photo.setCategory(updated.getCategory());
         photo.setTitle(updated.getTitle());
         photo.setDescription(updated.getDescription());
+        String oldPhotoUrl = null;
         if (newPhotoUrl != null && !newPhotoUrl.isBlank()) {
-            deleteFile(photo.getPhotoUrl());
+            oldPhotoUrl = photo.getPhotoUrl();
             photo.setPhotoUrl(newPhotoUrl);
         }
         photo.setDisplayOrder(updated.getDisplayOrder());
         photo.setIsActive(updated.getIsActive());
         log.info("사역 사진 수정: {}", photo.getTitle());
-        return ministryPhotoRepository.save(photo);
+        MinistryPhoto saved = ministryPhotoRepository.save(photo);  // DB 먼저
+        deleteFile(oldPhotoUrl);  // 저장 성공 후 구 파일 삭제
+        return saved;
     }
 
     @Transactional
@@ -123,5 +126,10 @@ public class MinistryPhotoService {
                 .orElseThrow(() -> new EntityNotFoundException("사역 사진을 찾을 수 없습니다."));
         log.info("사역 사진 삭제: {}", photo.getTitle());
         ministryPhotoRepository.delete(photo);
+    }
+
+    @Transactional(readOnly = true)
+    public long getTotalCount() {
+        return ministryPhotoRepository.count();
     }
 }

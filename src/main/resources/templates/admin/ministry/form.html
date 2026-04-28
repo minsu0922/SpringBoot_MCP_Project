@@ -123,6 +123,56 @@
         font-weight: bold;
     }
 
+    /* 표시 순서 스테퍼 */
+    .order-stepper {
+        display: flex;
+        align-items: stretch;
+        width: 160px;
+        height: 44px;
+        border: 1px solid #DDE4EF;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .stepper-btn {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        background: #F4F7FC;
+        border: none;
+        font-size: 22px;
+        font-weight: 400;
+        line-height: 44px;
+        color: #3A5278;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        text-align: center;
+        user-select: none;
+        padding: 0;
+    }
+    .stepper-btn:hover  { background: #DDE4EF; color: #0A1F3D; }
+    .stepper-btn:active { background: #C8D6E8; }
+    .stepper-input {
+        flex: 1;
+        width: 0;           /* flex가 너비를 결정하도록 */
+        height: 44px;
+        border: none;
+        border-left: 1px solid #DDE4EF;
+        border-right: 1px solid #DDE4EF;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 700;
+        color: #0A1F3D;
+        background: #fff;
+        outline: none;
+        padding: 0;
+        box-sizing: border-box;
+        -moz-appearance: textfield;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+    .stepper-input::-webkit-outer-spin-button,
+    .stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
     /* 토글 */
     .toggle-row {
         display: flex;
@@ -203,11 +253,15 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="displayOrder">표시 순서</label>
-                    <input type="number" id="displayOrder" name="displayOrder" class="form-control"
-                           th:value="${photo.displayOrder != null ? photo.displayOrder : 0}"
-                           min="0" max="999">
-                    <div class="form-hint">숫자가 작을수록 앞에 표시됩니다.</div>
+                    <label class="form-label">표시 순서</label>
+                    <div class="order-stepper">
+                        <button type="button" class="stepper-btn" onclick="adjustOrder(-1)">−</button>
+                        <input type="number" id="displayOrder" name="displayOrder" class="stepper-input"
+                               th:value="${photo.displayOrder != null ? photo.displayOrder : 0}"
+                               min="0" max="999">
+                        <button type="button" class="stepper-btn" onclick="adjustOrder(1)">+</button>
+                    </div>
+                    <div class="form-hint" style="margin-top:7px;">숫자가 작을수록 앞에 표시됩니다.</div>
                 </div>
             </div>
 
@@ -289,6 +343,12 @@
 </div>
 
 <script>
+    function adjustOrder(delta) {
+        const input = document.getElementById('displayOrder');
+        const val = parseInt(input.value) || 0;
+        input.value = Math.max(0, Math.min(999, val + delta));
+    }
+
     const uploadZone = document.getElementById('uploadZone');
 
     // 드래그&드롭

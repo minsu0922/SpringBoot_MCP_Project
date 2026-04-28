@@ -24,6 +24,8 @@ replay_pid*
 # ===== Environment & Secrets =====
 .env
 .env.local
+# 로컬 개발 환경 민감 정보 (DB 비밀번호, API 키 등) — 절대 커밋 금지
+application-local.properties
 # application-prod.properties는 민감 정보를 환경변수로만 참조하므로 제외하지 않음
 
 # ===== Uploaded Files =====

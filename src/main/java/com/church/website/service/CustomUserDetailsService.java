@@ -31,8 +31,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
-                    log.warn("로그인 실패 - 존재하지 않는 사용자: {}", username);
-                    return new UsernameNotFoundException("User not found: " + username);
+                    log.warn("로그인 시도 - 존재하지 않는 계정");
+                    return new UsernameNotFoundException("User not found");
                 });
 
         log.debug("사용자 인증 처리: username={}, enabled={}", user.getUsername(), user.isEnabled());
