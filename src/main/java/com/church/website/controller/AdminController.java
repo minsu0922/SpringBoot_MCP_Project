@@ -302,26 +302,20 @@ public class AdminController extends BaseController {
     public String sermonSave(
             @ModelAttribute Sermon sermon,
             @RequestParam(value = "sermonDateStr", required = false) String sermonDateStr,
-            @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
-            @RequestParam(value = "thumbnailFile", required = false) MultipartFile thumbnailFile,
             RedirectAttributes redirectAttributes) {
         return run(() -> {
             if (sermonDateStr != null && !sermonDateStr.isBlank()) {
                 sermon.setSermonDate(LocalDate.parse(sermonDateStr));
             }
-            String newVideoUrl     = (videoFile     != null && !videoFile.isEmpty())     ? sermonService.saveFile(videoFile,     "video") : null;
-            String newThumbnailUrl = (thumbnailFile != null && !thumbnailFile.isEmpty()) ? sermonService.saveFile(thumbnailFile, "thumb") : null;
             if (sermon.getId() == null) {
-                if (newVideoUrl == null) {
-                    redirectAttributes.addFlashAttribute("error", "동영상 파일을 선택해주세요.");
+                if (sermon.getVideoUrl() == null || sermon.getVideoUrl().isBlank()) {
+                    redirectAttributes.addFlashAttribute("error", "YouTube URL을 입력해주세요.");
                     return "redirect:/admin/sermon/new";
                 }
-                sermon.setVideoUrl(newVideoUrl);
-                sermon.setThumbnailUrl(newThumbnailUrl);
                 sermonService.create(sermon);
                 redirectAttributes.addFlashAttribute("message", "설교가 등록되었습니다.");
             } else {
-                sermonService.update(sermon.getId(), sermon, newVideoUrl, newThumbnailUrl);
+                sermonService.update(sermon.getId(), sermon);
                 redirectAttributes.addFlashAttribute("message", "설교가 수정되었습니다.");
             }
             return "redirect:/admin/sermon";

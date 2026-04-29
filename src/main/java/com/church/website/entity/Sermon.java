@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "sermon")
@@ -48,5 +50,14 @@ public class Sermon {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+
+    public String getYoutubeVideoId() {
+        if (videoUrl == null) return null;
+        Pattern pattern = Pattern.compile(
+            "(?:youtube\\.com/(?:watch\\?v=|embed/)|youtu\\.be/)([a-zA-Z0-9_-]{11})"
+        );
+        Matcher matcher = pattern.matcher(videoUrl);
+        return matcher.find() ? matcher.group(1) : null;
     }
 }

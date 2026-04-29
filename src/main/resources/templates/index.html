@@ -694,7 +694,9 @@
                th:href="@{/sermon/{id}(id=${sermon.id})}">
                 <div class="main-sermon-thumb">
                     <img th:if="${sermon.thumbnailUrl != null}" th:src="${sermon.thumbnailUrl}" alt="">
-                    <div th:if="${sermon.thumbnailUrl == null}" class="main-sermon-thumb-play"></div>
+                    <img th:if="${sermon.thumbnailUrl == null and sermon.youtubeVideoId != null}"
+                         th:src="'https://img.youtube.com/vi/' + ${sermon.youtubeVideoId} + '/hqdefault.jpg'" alt="">
+                    <div th:if="${sermon.thumbnailUrl == null and sermon.youtubeVideoId == null}" class="main-sermon-thumb-play"></div>
                 </div>
                 <div class="main-sermon-info">
                     <div class="main-sermon-meta">

@@ -56,10 +56,10 @@
             overflow: hidden;
             margin-bottom: 28px;
         }
-        .sermon-video-wrap video {
+        .sermon-video-wrap iframe {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            border: none;
         }
 
         .sermon-detail-desc {
@@ -170,11 +170,11 @@
         <h2 class="sermon-detail-title" th:text="${sermon.title}">설교 제목</h2>
         <p class="sermon-detail-preacher" th:text="${sermon.preacher}">설교자</p>
 
-        <!-- 동영상 플레이어 -->
-        <div class="sermon-video-wrap" th:if="${sermon.videoUrl != null}">
-            <video controls preload="metadata" th:src="${sermon.videoUrl}">
-                이 브라우저는 동영상 재생을 지원하지 않습니다.
-            </video>
+        <!-- YouTube 플레이어 -->
+        <div class="sermon-video-wrap" th:if="${sermon.youtubeVideoId != null}">
+            <iframe th:src="'https://www.youtube.com/embed/' + ${sermon.youtubeVideoId}"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
         </div>
 
         <!-- 설교 설명 -->
