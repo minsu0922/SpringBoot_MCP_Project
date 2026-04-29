@@ -4,7 +4,9 @@
       "Bash(./gradlew compileJava)",
       "Bash(git rm *)",
       "Bash(./gradlew test *)",
-      "Bash(./gradlew build *)"
+      "Bash(./gradlew build *)",
+      "Bash(./gradlew compileJava --rerun-tasks)",
+      "Bash(git -C \"C:\\\\Users\\\\박민수\\\\IdeaProjects\\\\SpringBoot_MCP_Project\" log --all --oneline --follow -- \"src/main/resources/application-local.properties\")"
     ]
   }
 }
