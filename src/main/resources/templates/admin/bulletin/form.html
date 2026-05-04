@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'bulletin')}">
+
+<title th:text="${bulletin.id == null} ? '주보 작성' : '주보 수정'">주보 작성</title>
+
+<main>
+<style>
+/* ── 기본 ── */
+.form-card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--sky-pale);display:flex;align-items:center;gap:8px}
+.card-title svg{flex-shrink:0}
+.form-group{margin-bottom:14px}
+.form-group label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:5px}
+.auto-badge{font-size:10px;font-weight:500;color:#1d7a3e;background:#d4f5e3;border-radius:3px;padding:1px 5px;line-height:1.4}
+.form-group input,.form-group textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text-dark);transition:border-color .15s;background:#fff}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(39,120,196,.1)}
+.form-group input.auto-filled{background:#f0fdf4;border-color:#86efac}
+.form-group textarea{resize:vertical;line-height:1.7}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.praise-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0}
+.hint{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;text-decoration:none;transition:all .15s}
+.btn-primary{background:var(--navy-mid);color:#fff}.btn-primary:hover{background:var(--navy)}
+.btn-outline{background:#fff;color:var(--text-mid);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--navy-mid)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:4px}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.page-title{font-size:20px;font-weight:600;color:var(--text-dark)}
+.back-link{font-size:13px;color:var(--text-muted);text-decoration:none}.back-link:hover{color:var(--navy-mid)}
+.section-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px}
+.tag-front{background:#EEF3FB;color:var(--navy-mid)}
+.tag-back{background:#FFF3E0;color:#e65100}
+
+/* ── 2-컬럼 레이아웃 ── */
+.fp-wrapper{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+.preview-col{position:sticky;top:24px}
+@media(max-width:960px){.fp-wrapper{grid-template-columns:1fr}.preview-col{position:static}}
+
+/* ── 미리보기 카드 ── */
+.pv-card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;border:1px solid var(--border)}
+.pv-header{display:flex;align-items:center;gap:8px;padding:11px 16px;background:var(--sky-pale);border-bottom:1px solid var(--border)}
+.pv-header-title{font-size:13px;font-weight:600;color:var(--navy-mid)}
+.pv-live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pv-tabs{display:flex;border-bottom:2px solid var(--border)}
+.pv-tab{flex:1;padding:9px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-muted);background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.pv-tab.active{color:var(--navy-mid);border-bottom-color:var(--navy-mid)}
+.pv-body{padding:14px;min-height:420px;font-size:12px;overflow-y:auto;max-height:72vh}
+
+/* ── 주보 미리보기 콘텐츠 ── */
+.bul-church{text-align:center;padding:6px 0 10px;margin-bottom:10px;border-bottom:2px solid var(--navy)}
+.bul-church-name{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:2px}
+.bul-date-str{font-size:11px;color:var(--text-muted);margin-top:3px}
+.bul-emcee{font-size:10px;color:var(--text-muted);margin-top:2px}
+.bul-sec{font-size:10px;font-weight:700;color:var(--navy);letter-spacing:.8px;text-transform:uppercase;margin:10px 0 5px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+.bul-praise-list{list-style:none;padding:0;margin:0}
+.bul-praise-list li{padding:2px 0;color:var(--text-mid);font-size:11px}
+.bul-praise-list li.empty-item{color:var(--text-muted);font-style:italic}
+.bul-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.bul-tbl td{padding:2.5px 3px;color:var(--text-mid);vertical-align:top}
+.bul-tbl td:first-child{color:var(--text-muted);width:38%;white-space:nowrap;font-size:10.5px}
+.bul-tbl .highlight-row td{color:var(--navy);font-weight:600}
+.bul-next{background:var(--sky-pale);border-radius:6px;padding:7px 10px;margin-top:10px;font-size:11px;color:var(--text-mid)}
+.bul-next-title{font-size:10px;font-weight:700;color:var(--navy-mid);margin-bottom:4px}
+.bul-empty-msg{text-align:center;color:var(--text-muted);font-style:italic;font-size:11px;padding:12px 0}
+
+/* ── 설교노트 미리보기 ── */
+.note-header{text-align:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.note-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;line-height:1.4}
+.note-passage{font-size:11px;color:var(--text-muted)}
+.note-sec{margin-bottom:10px}
+.note-sec-title{font-size:11px;font-weight:700;color:var(--navy-mid);margin-bottom:4px}
+.note-content{font-size:11px;color:var(--text-mid);white-space:pre-wrap;line-height:1.8}
+.note-blank{border-bottom:1px dotted var(--border);height:20px;margin-bottom:4px}
+</style>
+
+<div class="page-header">
+    <div>
+        <a th:href="@{/admin/bulletin}" class="back-link">← 목록으로</a>
+        <div class="page-title" style="margin-top:4px"
+             th:text="${bulletin.id == null} ? '새 주보 작성' : '주보 수정'">주보 작성</div>
+    </div>
+</div>
+
+<div class="fp-wrapper">
+<!-- ══════════════ 폼 영역 ══════════════ -->
+<div class="form-col">
+<form th:action="@{/admin/bulletin/save}" method="post" th:object="${bulletin}" id="bulletinForm">
+    <input type="hidden" th:field="*{id}"/>
+
+    <!-- 앞면: 예배 기본 정보 -->
+    <div class="form-card">
+        <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="var(--navy-mid)" stroke-width="1.5"><rect x="1" y="2" width="14" height="12" rx="1.5"/><line x1="1" y1="6" x2="15" y2="6"/><line x1="5" y1="1" x2="5" y2="3"/><line x1="11" y1="1" x2="11" y2="3"/></svg>
+            <span class="section-tag tag-front">앞면</span> 예배 기본 정보
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>
+                    예배 날짜 *
+                    <span class="auto-badge" th:if="${bulletin.id == null}">자동입력</span>
+                </label>
+                <input type="date" th:field="*{worshipDate}" id="worshipDate" required/>
+            </div>
+            <div class="form-group">
+                <label>성경 범위 표시</label>
+                <input type="text" th:field="*{scriptureRange}" id="scriptureRange" placeholder="예: 12-15"/>
+                <div class="hint">헤더 우측에 표시됩니다 (예: 2026.04.12 [12-15])</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 앞면: 찬양 -->
+    <div class="form-card">
+        <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="var(--navy-mid)" stroke-width="1.5"><path d="M10 2v8"/><circle cx="8" cy="12" r="2"/><path d="M10 5l4-1v3l-4 1"/></svg>
+            <span class="section-tag tag-front">앞면</span> 찬양 곡목
+        </div>
+        <div class="praise-row">
+            <div class="form-group" style="margin-bottom:10px">
+                <label>1번 찬양</label>
+                <input type="text" th:field="*{praise1}" id="praise1" placeholder="예: 주만 바라볼찌라"/>
+            </div>
+            <div class="form-group" style="margin-bottom:10px">
+                <label>2번 찬양</label>
+                <input type="text" th:field="*{praise2}" id="praise2" placeholder="예: 기뻐하며 왕께"/>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>3번 찬양</label>
+                <input type="text" th:field="*{praise3}" id="praise3" placeholder="예: 이 시간 너의 맘 속에"/>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>4번 찬양</label>
+                <input type="text" th:field="*{praise4}" id="praise4" placeholder="예: 주 은혜임을"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- 앞면: 식순 -->
+    <div class="form-card">
+        <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="var(--navy-mid)" stroke-width="1.5"><line x1="3" y1="4" x2="13" y2="4"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="12" x2="10" y2="12"/></svg>
+            <span class="section-tag tag-front">앞면</span> 식순
+            <span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:auto">묵도 · 찬송 · 신앙고백 · 성시교독 · 찬송 · 기도 · 성경봉독 · 설교 · 찬송 · 축도 · 광고</span>
+        </div>
+
+        <div class="form-row-3">
+            <div class="form-group">
+                <label>찬송 ①번 (묵도 후)</label>
+                <input type="text" th:field="*{hymn1}" id="hymn1" placeholder="예: 19"/>
+            </div>
+            <div class="form-group">
+                <label>찬송 ②번 (교독문 후)</label>
+                <input type="text" th:field="*{hymn2}" id="hymn2" placeholder="예: 364"/>
+            </div>
+            <div class="form-group">
+                <label>찬송 ③번 (설교 후)</label>
+                <input type="text" th:field="*{hymn3}" id="hymn3" placeholder="예: 382"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>성시교독 (교독문)</label>
+            <textarea th:field="*{responsiveNo}" id="responsiveNo" rows="3"
+                      placeholder="예: 교독문 60번 — 복 있는 사람&#10;또는 전체 교독 내용을 입력하세요"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>기도자</label>
+                <input type="text" th:field="*{intercessor}" id="intercessor" placeholder="예: 초민영집사"/>
+            </div>
+            <div class="form-group">
+                <label>신약 페이지</label>
+                <input type="text" th:field="*{bibleNtPage}" id="bibleNtPage" placeholder="예: 280"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>성경봉독 본문</label>
+            <input type="text" th:field="*{biblePassage}" id="biblePassage" placeholder="예: 고전 14:12 - 19"/>
+        </div>
+
+        <div class="form-group">
+            <label>설교 제목</label>
+            <input type="text" th:field="*{sermonTitle}" id="sermonTitle" placeholder="예: 성령의 은혜를 따라 삶 속에서 깊어가는 기도"/>
+        </div>
+
+        <div class="form-group">
+            <label>다음 주일 기도자</label>
+            <input type="text" th:field="*{nextIntercessor}" id="nextIntercessor" placeholder="예: 박에은집사"/>
+        </div>
+    </div>
+
+    <!-- 뒷면: 설교 노트 -->
+    <div class="form-card">
+        <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#e65100" stroke-width="1.5"><path d="M3 2h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="9" y2="9"/></svg>
+            <span class="section-tag tag-back">뒷면</span> 설교 노트
+        </div>
+        <div class="hint" style="margin-bottom:14px">※ 줄바꿈이 그대로 반영됩니다.</div>
+
+        <div class="form-group">
+            <label>
+                설교 본문
+                <span class="auto-badge" id="passageAutoLabel" style="display:none">성경봉독에서 자동입력</span>
+            </label>
+            <input type="text" th:field="*{sermonPassage}" id="sermonPassage" placeholder="예: 고전 14:12 – 19"/>
+            <div class="hint">뒷면 상단에 표시됩니다.</div>
+        </div>
+
+        <div class="form-group">
+            <label>1. 들어가며</label>
+            <textarea th:field="*{introContent}" id="introContent" rows="3"
+                      placeholder="예: 1. 가장 최근에 응답받은 기도"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>2. 본론</label>
+            <textarea th:field="*{bodyContent}" id="bodyContent" rows="8"
+                      placeholder="예:&#10;2-1. 바울은 방언으로 오래토록 뜨겁게 기도했다(19절)&#10;바울이 한결같이 폭넓고 많은 열매를 맺은 사역의 원천은 기도였다"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>3. 결론</label>
+            <textarea th:field="*{conclusionContent}" id="conclusionContent" rows="4"
+                      placeholder="예:&#10;바울의 귀한 기도의 가르침대로&#10;우리도 때로는 마음으로 기도하기도 하고..."></textarea>
+        </div>
+    </div>
+
+    <!-- 저장 버튼 -->
+    <div class="form-actions">
+        <a th:href="@{/admin/bulletin}" class="btn btn-outline">취소</a>
+        <button type="submit" class="btn btn-primary">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7l3.5 3.5L12 3"/></svg>
+            저장
+        </button>
+    </div>
+</form>
+</div>
+
+<!-- ══════════════ 미리보기 영역 ══════════════ -->
+<div class="preview-col">
+    <div class="pv-card">
+        <div class="pv-header">
+            <div class="pv-live-dot"></div>
+            <span class="pv-header-title">실시간 미리보기</span>
+        </div>
+        <div class="pv-tabs">
+            <button class="pv-tab active" id="tab-front" onclick="switchTab('front')">앞면</button>
+            <button class="pv-tab" id="tab-back" onclick="switchTab('back')">뒷면 (설교노트)</button>
+        </div>
+
+        <!-- 앞면 미리보기 -->
+        <div id="pv-front" class="pv-body">
+            <div class="bul-church">
+                <div class="bul-church-name">샘물교회</div>
+                <div class="bul-date-str" id="pv-date-str">—</div>
+                <div class="bul-emcee" id="pv-emcee"></div>
+            </div>
+
+            <div class="bul-sec">찬양</div>
+            <ul class="bul-praise-list" id="pv-praise"></ul>
+
+            <div class="bul-sec">식순</div>
+            <table class="bul-tbl" id="pv-order"></table>
+
+            <div id="pv-next"></div>
+        </div>
+
+        <!-- 뒷면 미리보기 -->
+        <div id="pv-back" class="pv-body" style="display:none">
+            <div class="note-header">
+                <div class="note-title" id="pv-note-title">설교 제목</div>
+                <div class="note-passage" id="pv-note-passage"></div>
+            </div>
+            <div class="note-sec">
+                <div class="note-sec-title">1. 들어가며</div>
+                <div class="note-content" id="pv-intro"></div>
+            </div>
+            <div class="note-sec">
+                <div class="note-sec-title">2. 본론</div>
+                <div class="note-content" id="pv-body"></div>
+            </div>
+            <div class="note-sec">
+                <div class="note-sec-title">3. 결론</div>
+                <div class="note-content" id="pv-conclusion"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div><!-- /.fp-wrapper -->
+
+<script>
+(function () {
+    /* ── 유틸 ── */
+    const $ = id => document.getElementById(id);
+    const val = id => ($( id) ? $(id).value.trim() : '');
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    /* ── 탭 전환 ── */
+    window.switchTab = function(tab) {
+        $('pv-front').style.display  = tab === 'front' ? '' : 'none';
+        $('pv-back').style.display   = tab === 'back'  ? '' : 'none';
+        $('tab-front').classList.toggle('active', tab === 'front');
+        $('tab-back').classList.toggle('active',  tab === 'back');
+    };
+
+    /* ── 날짜 포맷 (YYYY.MM.DD) ── */
+    function fmtDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dy = String(d.getDate()).padStart(2, '0');
+        return y + '.' + m + '.' + dy;
+    }
+
+    /* ── 앞면 미리보기 갱신 ── */
+    function updateFront() {
+        // 날짜 / 범위
+        const dateStr  = val('worshipDate');
+        const range    = val('scriptureRange');
+        const dateFmt  = fmtDate(dateStr);
+        $('pv-date-str').textContent = dateFmt
+            ? (range ? dateFmt + ' [' + range + ']' : dateFmt)
+            : '예배 날짜 미입력';
+
+        $('pv-emcee').textContent = '';
+
+        // 찬양
+        const praises = ['praise1','praise2','praise3','praise4']
+            .map(id => val(id)).filter(Boolean);
+        $('pv-praise').innerHTML = praises.length
+            ? praises.map((p, i) => '<li>' + (i+1) + '. ' + esc(p) + '</li>').join('')
+            : '<li class="empty-item">찬양 곡목 미입력</li>';
+
+        // 식순
+        const hymn1  = val('hymn1');
+        const hymn2  = val('hymn2');
+        const hymn3  = val('hymn3');
+        const resp   = val('responsiveNo');
+        const inter  = val('intercessor');
+        const bible  = val('biblePassage');
+        const ntPage = val('bibleNtPage');
+        const sermon = val('sermonTitle');
+
+        function row(label, content) {
+            if (!content) return '';
+            return '<tr><td>' + esc(label) + '</td><td>' + esc(content) + '</td></tr>';
+        }
+        function fixedRow(label) {
+            return '<tr style="color:var(--text-muted)"><td>' + esc(label) + '</td><td></td></tr>';
+        }
+
+        // 교독문은 첫 줄만 미리보기에 표시
+        const respLine = resp ? resp.split('\n')[0] + (resp.includes('\n') ? ' …' : '') : '';
+
+        const bibleCell = bible
+            ? esc(bible) + (ntPage ? ' <span style="color:var(--text-muted)">(신약 ' + esc(ntPage) + 'p)</span>' : '')
+            : '';
+
+        $('pv-order').innerHTML =
+            fixedRow('묵도') +
+            row('찬송', hymn1 ? hymn1 + '장' : '') +
+            fixedRow('신앙고백 (사도신경)') +
+            (resp ? '<tr><td>성시교독</td><td style="font-size:10px;color:var(--text-mid)">' + esc(respLine) + '</td></tr>' : fixedRow('성시교독')) +
+            row('찬송', hymn2 ? hymn2 + '장' : '') +
+            row('기도', inter) +
+            (bible ? '<tr><td>성경봉독</td><td>' + bibleCell + '</td></tr>' : fixedRow('성경봉독')) +
+            (sermon ? '<tr class="highlight-row"><td>설교</td><td><span style="font-weight:normal;font-size:10.5px">' + esc(sermon) + '</span></td></tr>' : fixedRow('설교')) +
+            row('찬송', hymn3 ? hymn3 + '장' : '') +
+            fixedRow('축도') +
+            fixedRow('광고');
+
+        // 다음 주일 기도자
+        const nextInter = val('nextIntercessor');
+        if (nextInter) {
+            $('pv-next').innerHTML =
+                '<div class="bul-next"><div class="bul-next-title">다음 주일 안내</div>' +
+                '기도: ' + esc(nextInter) +
+                '</div>';
+        } else {
+            $('pv-next').innerHTML = '';
+        }
+    }
+
+    /* ── 뒷면 미리보기 갱신 ── */
+    function updateBack() {
+        const title      = val('sermonTitle');
+        const passage    = val('sermonPassage');
+        const intro      = val('introContent');
+        const body       = val('bodyContent');
+        const conclusion = val('conclusionContent');
+
+        $('pv-note-title').textContent   = title   || '설교 제목 미입력';
+        $('pv-note-passage').textContent = passage || '';
+
+        function noteContent(el, text) {
+            if (text) {
+                $(el).textContent = text;
+                $(el).style.display = '';
+            } else {
+                $(el).innerHTML = Array(4).fill('<div class="note-blank"></div>').join('');
+                $(el).style.display = '';
+            }
+        }
+        noteContent('pv-intro', intro);
+        noteContent('pv-body', body);
+        noteContent('pv-conclusion', conclusion);
+    }
+
+    function updatePreview() {
+        updateFront();
+        updateBack();
+    }
+
+    $('worshipDate').addEventListener('change', updatePreview);
+
+    /* ── 성경봉독 → 설교 본문 자동 동기화 ── */
+    $('biblePassage').addEventListener('input', function () {
+        const sp = $('sermonPassage');
+        if (!sp.value) {
+            sp.value = this.value;
+            $('passageAutoLabel').style.display = '';
+        }
+        updatePreview();
+    });
+
+    $('sermonPassage').addEventListener('input', function () {
+        $('passageAutoLabel').style.display = this.value ? 'none' : '';
+    });
+
+    /* ── 폼 전체 실시간 갱신 ── */
+    $('bulletinForm').addEventListener('input', updatePreview);
+
+    /* ── 초기화 ── */
+    updatePreview();
+
+    // auto-filled 필드 시각적 표시 (예배 날짜)
+    const wdEl = $('worshipDate');
+    if (wdEl && wdEl.value) wdEl.classList.add('auto-filled');
+    wdEl && wdEl.addEventListener('input', function() { this.classList.remove('auto-filled'); });
+})();
+</script>
+</main>
+</th:block>
+</html>

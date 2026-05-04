@@ -1,11 +1,13 @@
 package com.church.website.controller;
 
+import com.church.website.entity.Bulletin;
 import com.church.website.entity.Location;
 import com.church.website.entity.MinistryPhoto;
 import com.church.website.entity.NewFamily;
 import com.church.website.entity.Notice;
 import com.church.website.entity.Sermon;
 import com.church.website.entity.User;
+import com.church.website.service.BulletinService;
 import com.church.website.service.LocationService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NewFamilyService;
@@ -14,6 +16,8 @@ import com.church.website.service.SermonService;
 import com.church.website.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,8 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,6 +45,7 @@ public class AdminController extends BaseController {
     private final UserService userService;
     private final LocationService locationService;
     private final SermonService sermonService;
+    private final BulletinService bulletinService;
 
     // ====== 공통: 사이드바 뱃지용 미확인 건수 ======
 
@@ -416,4 +419,76 @@ public class AdminController extends BaseController {
             return "redirect:/admin/settings";
         }, "/admin/settings", "설정 저장 실패", redirectAttributes);
     }
+
+    // ====== 주보 관리 ======
+
+    @GetMapping("/bulletin")
+    public String bulletinList(
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+        Page<Bulletin> result = bulletinService.getAll(PageRequest.of(page, 10));
+        model.addAttribute("bulletins",     result.getContent());
+        model.addAttribute("currentPage",   result.getNumber());
+        model.addAttribute("totalPages",    result.getTotalPages());
+        model.addAttribute("totalElements", result.getTotalElements());
+        return "admin/bulletin/list";
+    }
+
+    @GetMapping("/bulletin/new")
+    public String bulletinForm(Model model) {
+        Bulletin bulletin = new Bulletin();
+
+        // 다음 주일 자동 계산
+        LocalDate today = LocalDate.now();
+        int dow = today.getDayOfWeek().getValue(); // 1=Mon … 7=Sun
+        int daysUntil = dow == 7 ? 7 : 7 - dow;
+        LocalDate nextSunday = today.plusDays(daysUntil);
+        bulletin.setWorshipDate(nextSunday);
+
+        // 직전 주보에서 반복 값 인계
+        bulletinService.getLatest().ifPresent(last -> {
+            if (last.getEmcee()          != null) bulletin.setEmcee(last.getEmcee());
+            if (last.getHymn1()          != null) bulletin.setHymn1(last.getHymn1());
+            if (last.getHymn2()          != null) bulletin.setHymn2(last.getHymn2());
+            if (last.getHymn3()          != null) bulletin.setHymn3(last.getHymn3());
+            if (last.getResponsiveNo()   != null) bulletin.setResponsiveNo(last.getResponsiveNo());
+            if (last.getScriptureRange() != null) bulletin.setScriptureRange(last.getScriptureRange());
+        });
+
+        model.addAttribute("bulletin", bulletin);
+        return "admin/bulletin/form";
+    }
+
+    @GetMapping("/bulletin/edit/{id}")
+    public String bulletinEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("bulletin", bulletinService.getById(id));
+        return "admin/bulletin/form";
+    }
+
+    @GetMapping("/bulletin/{id}/print")
+    public String bulletinPrint(@PathVariable Long id, Model model) {
+        model.addAttribute("bulletin", bulletinService.getById(id));
+        return "admin/bulletin/print";
+    }
+
+    @PostMapping("/bulletin/save")
+    public String bulletinSave(
+            @ModelAttribute Bulletin bulletin,
+            RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            bulletinService.save(bulletin);
+            redirectAttributes.addFlashAttribute("message", "주보가 저장되었습니다.");
+            return "redirect:/admin/bulletin";
+        }, "/admin/bulletin", "주보 저장 실패", redirectAttributes);
+    }
+
+    @PostMapping("/bulletin/delete/{id}")
+    public String bulletinDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            bulletinService.delete(id);
+            redirectAttributes.addFlashAttribute("message", "주보가 삭제되었습니다.");
+            return "redirect:/admin/bulletin";
+        }, "/admin/bulletin", "주보 삭제 실패", redirectAttributes);
+    }
+
 }

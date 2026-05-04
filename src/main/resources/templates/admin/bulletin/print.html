@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'주보 ' + ${#temporals.format(bulletin.worshipDate, 'yyyy.MM.dd')}">주보</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy:     #0D2B55;
+            --navy-mid: #185FA5;
+            --sky-pale: #EBF3FB;
+            --text-dark:#1A1A2E;
+            --text-mid: #3A4A6B;
+            --text-dim: #6A7A96;
+            --border:   #D0DAEA;
+            --line:     #D8E3F0;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #EDF0F5;
+            color: var(--text-dark);
+        }
+
+        /* ── 툴바 ── */
+        .toolbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: #fff; border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.08);
+        }
+        .toolbar-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-right: auto; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; border-radius: 6px; font-size: 13px;
+            font-weight: 500; cursor: pointer; border: none;
+            text-decoration: none; font-family: inherit; transition: all .15s;
+        }
+        .btn-navy { background: var(--navy); color: #fff; }
+        .btn-navy:hover { background: #0a1f3d; }
+        .btn-outline { background: #fff; color: var(--text-mid); border: 1px solid var(--border); }
+        .btn-outline:hover { border-color: var(--navy-mid); color: var(--navy-mid); }
+        .btn-back { color: var(--text-dim); font-size: 13px; text-decoration: none; }
+        .btn-back:hover { color: var(--navy-mid); }
+
+        /* ── 페이지 래퍼 ── */
+        .page-wrapper {
+            padding: 76px 24px 40px;
+            display: flex; justify-content: center;
+        }
+
+        /* ── 주보 단일 페이지 (A4 가로) ── */
+        .bulletin {
+            width: 297mm;
+            background: #fff;
+            padding: 13mm 16mm 12mm;
+            box-shadow: 0 4px 24px rgba(0,0,0,.14);
+        }
+
+        /* ── 헤더 ── */
+        .bul-header {
+            display: flex; align-items: baseline;
+            justify-content: space-between;
+            padding-bottom: 9px;
+            margin-bottom: 11px;
+            border-bottom: 2.5px solid var(--navy);
+        }
+        .bul-church {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 19px; font-weight: 700;
+            color: var(--navy); letter-spacing: 5px;
+        }
+        .bul-subtitle {
+            font-size: 10px; color: var(--text-dim);
+            letter-spacing: 2px; margin-left: 10px;
+        }
+        .bul-date {
+            font-size: 12px; font-weight: 600; color: var(--text-mid);
+            letter-spacing: 0.5px;
+        }
+
+        /* ── 2단 컬럼 ── */
+        .bul-body {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr;
+            gap: 0 15px;
+        }
+        .col-divider {
+            background: var(--line);
+            align-self: stretch;
+        }
+
+        /* ── 공통 섹션 제목 ── */
+        .sec-title {
+            font-size: 9.5px; font-weight: 700;
+            color: var(--navy-mid); letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex; align-items: center; gap: 6px;
+            margin: 10px 0 6px;
+        }
+        .sec-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+        .sec-title:first-child { margin-top: 0; }
+
+        /* ── 왼쪽: 찬양 ── */
+        .praise-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px;
+        }
+        .praise-item {
+            font-size: 10.5px; color: var(--text-mid);
+            padding: 2.5px 0; display: flex; align-items: baseline; gap: 5px;
+        }
+        .praise-num { font-size: 9.5px; color: var(--text-dim); flex-shrink: 0; width: 12px; }
+
+        /* ── 왼쪽: 식순 ── */
+        .order-tbl { width: 100%; border-collapse: collapse; }
+        .order-tbl tr { border-bottom: 1px dotted var(--line); }
+        .order-tbl tr:last-child { border-bottom: none; }
+        .order-tbl td { padding: 3.5px 4px; font-size: 11px; vertical-align: top; }
+        .order-tbl .lbl {
+            width: 60px; white-space: nowrap;
+            color: var(--text-dim); font-size: 10px; padding-top: 4.5px;
+        }
+        .order-tbl .val { color: var(--text-dark); }
+        .order-tbl .fixed .lbl,
+        .order-tbl .fixed .val { color: var(--text-mid); }
+        .order-tbl .hi .val { font-weight: 600; color: var(--navy); }
+        .order-tbl .sermon-sub {
+            font-size: 10px; font-weight: 400; color: var(--text-mid);
+            margin-top: 1px; line-height: 1.4;
+        }
+        .responsive-cell {
+            font-size: 10px; color: var(--text-mid);
+            white-space: pre-wrap; line-height: 1.55;
+        }
+        .bible-note { font-size: 9.5px; color: var(--text-dim); margin-left: 3px; }
+
+        /* 다음 주일 */
+        .next-box {
+            margin-top: 9px; padding: 6px 9px;
+            background: var(--sky-pale);
+            border-left: 3px solid var(--navy-mid);
+            border-radius: 0 3px 3px 0;
+            font-size: 10.5px; color: var(--text-mid);
+        }
+
+        /* ── 오른쪽: 설교 노트 ── */
+        .note-head {
+            padding-bottom: 8px; margin-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+        .note-label {
+            font-size: 9px; letter-spacing: 3px;
+            color: var(--text-dim); margin-bottom: 5px;
+        }
+        .note-title {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 13.5px; font-weight: 700;
+            color: var(--navy); line-height: 1.5;
+        }
+        .note-passage {
+            font-size: 10px; color: var(--text-dim); margin-top: 3px;
+        }
+        .note-sec { margin-bottom: 9px; }
+        .note-sec-title {
+            font-size: 10px; font-weight: 700;
+            color: var(--navy-mid); margin-bottom: 4px;
+        }
+        .note-text {
+            font-size: 10.5px; color: var(--text-mid);
+            line-height: 2.0; white-space: pre-wrap;
+        }
+        .blank-line {
+            border-bottom: 1px solid var(--line);
+            height: 22px; margin-bottom: 1px;
+        }
+
+        /* ── 인쇄 ── */
+        @media print {
+            body { background: white; }
+            .toolbar { display: none !important; }
+            .page-wrapper { padding: 0; display: block; }
+            .bulletin { width: 100%; padding: 0; box-shadow: none; }
+        }
+        @page { size: A4 landscape; margin: 13mm 16mm; }
+
+        @media (max-width: 900px) {
+            .bulletin { width: 100%; }
+            .bul-body { grid-template-columns: 1fr; }
+            .col-divider { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 툴바 -->
+<div class="toolbar">
+    <a th:href="@{/admin/bulletin}" class="btn-back">← 목록</a>
+    <span class="toolbar-title"
+          th:text="'주보 · ' + ${#temporals.format(bulletin.worshipDate,'yyyy년 MM월 dd일')}"></span>
+    <button class="btn btn-outline" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="7" rx="1"/>
+            <path d="M4 10h8M4 13h5" stroke-width="1.2"/>
+        </svg>
+        인쇄
+    </button>
+    <button class="btn btn-navy" id="btn-download">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M8 2v9M5 8l3 3 3-3"/><path d="M2 13h12"/>
+        </svg>
+        PDF 저장
+    </button>
+</div>
+
+<!-- 주보 본문 -->
+<div class="page-wrapper">
+<div class="bulletin" id="bulletin-content">
+
+    <!-- 헤더 -->
+    <div class="bul-header">
+        <div>
+            <span class="bul-church">샘물교회</span>
+            <span class="bul-subtitle">주일예배 순서지</span>
+        </div>
+        <div class="bul-date">
+            <span th:text="${#temporals.format(bulletin.worshipDate, 'yyyy. MM. dd')}"></span>
+            <span th:if="${bulletin.scriptureRange != null and !#strings.isEmpty(bulletin.scriptureRange)}"
+                  th:text="' [' + ${bulletin.scriptureRange} + ']'"
+                  style="color:var(--text-dim);font-weight:400"></span>
+        </div>
+    </div>
+
+    <!-- 2단 본문 -->
+    <div class="bul-body">
+
+        <!-- ── 왼쪽: 찬양 + 식순 ── -->
+        <div class="bul-left">
+
+            <!-- 찬양 -->
+            <div class="sec-title">찬 양</div>
+            <div class="praise-grid">
+                <div class="praise-item" th:if="${bulletin.praise1 != null and !#strings.isEmpty(bulletin.praise1)}">
+                    <span class="praise-num">①</span><span th:text="${bulletin.praise1}"></span>
+                </div>
+                <div class="praise-item" th:if="${bulletin.praise2 != null and !#strings.isEmpty(bulletin.praise2)}">
+                    <span class="praise-num">②</span><span th:text="${bulletin.praise2}"></span>
+                </div>
+                <div class="praise-item" th:if="${bulletin.praise3 != null and !#strings.isEmpty(bulletin.praise3)}">
+                    <span class="praise-num">③</span><span th:text="${bulletin.praise3}"></span>
+                </div>
+                <div class="praise-item" th:if="${bulletin.praise4 != null and !#strings.isEmpty(bulletin.praise4)}">
+                    <span class="praise-num">④</span><span th:text="${bulletin.praise4}"></span>
+                </div>
+            </div>
+
+            <!-- 식순 -->
+            <div class="sec-title">예 배 순 서</div>
+            <table class="order-tbl">
+                <tr class="fixed">
+                    <td class="lbl">묵  도</td><td class="val"></td>
+                </tr>
+                <tr th:class="${bulletin.hymn1 != null and !#strings.isEmpty(bulletin.hymn1)} ? '' : 'fixed'">
+                    <td class="lbl">찬  송</td>
+                    <td class="val" th:text="${bulletin.hymn1 != null and !#strings.isEmpty(bulletin.hymn1)} ? (bulletin.hymn1 + '장') : ''"></td>
+                </tr>
+                <tr class="fixed">
+                    <td class="lbl">신앙고백</td><td class="val">사도신경</td>
+                </tr>
+                <tr>
+                    <td class="lbl" style="padding-top:5px">성시교독</td>
+                    <td class="val">
+                        <span class="responsive-cell"
+                              th:if="${bulletin.responsiveNo != null and !#strings.isEmpty(bulletin.responsiveNo)}"
+                              th:text="${bulletin.responsiveNo}"></span>
+                    </td>
+                </tr>
+                <tr th:class="${bulletin.hymn2 != null and !#strings.isEmpty(bulletin.hymn2)} ? '' : 'fixed'">
+                    <td class="lbl">찬  송</td>
+                    <td class="val" th:text="${bulletin.hymn2 != null and !#strings.isEmpty(bulletin.hymn2)} ? (bulletin.hymn2 + '장') : ''"></td>
+                </tr>
+                <tr th:class="${bulletin.intercessor != null and !#strings.isEmpty(bulletin.intercessor)} ? '' : 'fixed'">
+                    <td class="lbl">기  도</td>
+                    <td class="val" th:text="${bulletin.intercessor}"></td>
+                </tr>
+                <tr th:class="${bulletin.biblePassage != null and !#strings.isEmpty(bulletin.biblePassage)} ? '' : 'fixed'">
+                    <td class="lbl">성경봉독</td>
+                    <td class="val">
+                        <span th:text="${bulletin.biblePassage}"></span>
+                        <span class="bible-note"
+                              th:if="${bulletin.bibleNtPage != null and !#strings.isEmpty(bulletin.bibleNtPage)}"
+                              th:text="'(신약 ' + ${bulletin.bibleNtPage} + 'p)'"></span>
+                    </td>
+                </tr>
+                <tr th:class="${bulletin.sermonTitle != null and !#strings.isEmpty(bulletin.sermonTitle)} ? 'hi' : 'fixed'">
+                    <td class="lbl">설  교</td>
+                    <td class="val">
+                        <div class="sermon-sub" th:text="${bulletin.sermonTitle}"></div>
+                    </td>
+                </tr>
+                <tr th:class="${bulletin.hymn3 != null and !#strings.isEmpty(bulletin.hymn3)} ? '' : 'fixed'">
+                    <td class="lbl">찬  송</td>
+                    <td class="val" th:text="${bulletin.hymn3 != null and !#strings.isEmpty(bulletin.hymn3)} ? (bulletin.hymn3 + '장') : ''"></td>
+                </tr>
+                <tr class="fixed"><td class="lbl">축  도</td><td class="val"></td></tr>
+                <tr class="fixed"><td class="lbl">광  고</td><td class="val"></td></tr>
+            </table>
+
+            <!-- 다음 주일 -->
+            <div class="next-box"
+                 th:if="${bulletin.nextIntercessor != null and !#strings.isEmpty(bulletin.nextIntercessor)}">
+                다음 주일 기도 : <strong th:text="${bulletin.nextIntercessor}"></strong>
+            </div>
+
+        </div><!-- /.bul-left -->
+
+        <!-- 구분선 -->
+        <div class="col-divider"></div>
+
+        <!-- ── 오른쪽: 설교 노트 ── -->
+        <div class="bul-right">
+
+            <div class="note-head">
+                <div class="note-label">설 교 노 트</div>
+                <div class="note-title"
+                     th:text="${bulletin.sermonTitle != null and !#strings.isEmpty(bulletin.sermonTitle)} ? bulletin.sermonTitle : '—'"></div>
+                <div class="note-passage"
+                     th:if="${bulletin.sermonPassage != null and !#strings.isEmpty(bulletin.sermonPassage)}"
+                     th:text="${bulletin.sermonPassage}"></div>
+            </div>
+
+            <!-- 1. 들어가며 -->
+            <div class="note-sec">
+                <div class="note-sec-title">1. 들어가며</div>
+                <div th:if="${bulletin.introContent != null and !#strings.isEmpty(bulletin.introContent)}"
+                     class="note-text" th:text="${bulletin.introContent}"></div>
+                <div th:if="${bulletin.introContent == null or #strings.isEmpty(bulletin.introContent)}">
+                    <div class="blank-line" th:each="i : ${#numbers.sequence(1,4)}"></div>
+                </div>
+            </div>
+
+            <!-- 2. 본론 -->
+            <div class="note-sec">
+                <div class="note-sec-title">2. 본론</div>
+                <div th:if="${bulletin.bodyContent != null and !#strings.isEmpty(bulletin.bodyContent)}"
+                     class="note-text" th:text="${bulletin.bodyContent}"></div>
+                <div th:if="${bulletin.bodyContent == null or #strings.isEmpty(bulletin.bodyContent)}">
+                    <div class="blank-line" th:each="i : ${#numbers.sequence(1,9)}"></div>
+                </div>
+            </div>
+
+            <!-- 3. 결론 -->
+            <div class="note-sec">
+                <div class="note-sec-title">3. 결론</div>
+                <div th:if="${bulletin.conclusionContent != null and !#strings.isEmpty(bulletin.conclusionContent)}"
+                     class="note-text" th:text="${bulletin.conclusionContent}"></div>
+                <div th:if="${bulletin.conclusionContent == null or #strings.isEmpty(bulletin.conclusionContent)}">
+                    <div class="blank-line" th:each="i : ${#numbers.sequence(1,5)}"></div>
+                </div>
+            </div>
+
+        </div><!-- /.bul-right -->
+    </div><!-- /.bul-body -->
+
+</div><!-- /#bulletin-content -->
+</div><!-- /.page-wrapper -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+        crossorigin="anonymous"></script>
+<script th:inline="javascript">
+(function () {
+    const dateStr  = /*[[${#temporals.format(bulletin.worshipDate, 'yyyy.MM.dd')}]]*/ '주보';
+    const filename = '샘물교회_주보_' + dateStr + '.pdf';
+
+    document.getElementById('btn-download').addEventListener('click', function () {
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = '생성 중…';
+
+        const content = document.getElementById('bulletin-content');
+        const opt = {
+            margin:      [13, 16],
+            filename:    filename,
+            image:       { type: 'jpeg', quality: 0.97 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        html2pdf().set(opt).from(content).save().then(function () {
+            btn.disabled = false;
+            btn.innerHTML =
+                '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">' +
+                '<path d="M8 2v9M5 8l3 3 3-3"/><path d="M2 13h12"/></svg> PDF 저장';
+        });
+    });
+})();
+</script>
+</body>
+</html>

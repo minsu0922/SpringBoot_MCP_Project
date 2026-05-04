@@ -39,7 +39,13 @@ public class DataInitializer implements ApplicationRunner {
             jdbcTemplate.execute("ALTER TABLE location MODIFY COLUMN longitude DOUBLE NULL");
             log.info("[DataInitializer] latitude/longitude 컬럼 NULL 허용으로 변경 완료");
         } catch (Exception e) {
-            log.info("[DataInitializer] 컬럼 변경 불필요 또는 이미 적용됨: {}", e.getMessage());
+            log.info("[DataInitializer] location 컬럼 변경 불필요 또는 이미 적용됨: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE bulletin MODIFY COLUMN responsive_no TEXT NULL");
+            log.info("[DataInitializer] bulletin.responsive_no 컬럼 TEXT로 변경 완료");
+        } catch (Exception e) {
+            log.info("[DataInitializer] bulletin 컬럼 변경 불필요 또는 이미 적용됨: {}", e.getMessage());
         }
     }
 

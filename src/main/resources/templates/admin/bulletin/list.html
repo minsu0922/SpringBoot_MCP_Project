@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'bulletin')}">
+
+<title>주보 관리</title>
+
+<main>
+<style>
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.page-title{font-size:20px;font-weight:600;color:var(--text-dark)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;text-decoration:none;transition:all .15s}
+.btn-primary{background:var(--navy-mid);color:#fff}.btn-primary:hover{background:var(--navy)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:4px}
+.btn-outline{background:#fff;color:var(--text-mid);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--navy-mid);color:var(--navy-mid)}
+.btn-danger{background:#dc3545;color:#fff}.btn-danger:hover{background:#bb2d3b}
+.card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--sky-pale);padding:11px 16px;font-size:12px;font-weight:600;color:var(--text-mid);text-align:left;border-bottom:1px solid var(--border)}
+.table td{padding:12px 16px;font-size:13px;color:var(--text-dark);border-bottom:1px solid var(--border);vertical-align:middle}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:var(--sky-pale)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.badge-blue{background:#EEF3FB;color:var(--navy-mid)}
+.action-btns{display:flex;gap:6px}
+.empty-state{text-align:center;padding:60px 0;color:var(--text-muted)}
+.alert{padding:12px 16px;border-radius:6px;margin-bottom:16px;font-size:13px}
+.alert-success{background:#d1e7dd;color:#0f5132}
+.alert-danger{background:#f8d7da;color:#842029}
+.pagination{display:flex;justify-content:center;gap:4px;margin-top:20px}
+.page-btn{padding:6px 12px;border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--text-mid);background:#fff;text-decoration:none}
+.page-btn.active{background:var(--navy-mid);color:#fff;border-color:var(--navy-mid)}
+</style>
+
+<div class="page-header">
+    <div class="page-title">주보 관리</div>
+    <a th:href="@{/admin/bulletin/new}" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/>
+        </svg>
+        새 주보 작성
+    </a>
+</div>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="card">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>예배 날짜</th>
+            <th>설교 제목</th>
+            <th>성경 본문</th>
+            <th>작성일</th>
+            <th style="width:220px">관리</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(bulletins)}">
+            <td colspan="5" class="empty-state">등록된 주보가 없습니다.</td>
+        </tr>
+        <tr th:each="b : ${bulletins}">
+            <td>
+                <span class="badge badge-blue"
+                      th:text="${#temporals.format(b.worshipDate,'yyyy.MM.dd')}"></span>
+            </td>
+            <td th:text="${b.sermonTitle}"></td>
+            <td th:text="${b.biblePassage}"></td>
+            <td th:text="${#temporals.format(b.createdAt,'MM/dd HH:mm')}"></td>
+            <td>
+                <div class="action-btns">
+                    <a th:href="@{/admin/bulletin/{id}/print(id=${b.id})}"
+                       target="_blank" class="btn btn-sm btn-outline"
+                       style="color:#185FA5;border-color:#185FA5">
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="7" rx="1"/>
+                            <path d="M4 10h8" stroke-width="1.2"/>
+                        </svg>
+                        출력
+                    </a>
+                    <a th:href="@{/admin/bulletin/edit/{id}(id=${b.id})}"
+                       class="btn btn-sm btn-outline">수정</a>
+                    <form th:action="@{/admin/bulletin/delete/{id}(id=${b.id})}" method="post"
+                          onsubmit="return confirm('삭제하시겠습니까?')">
+                        <button type="submit" class="btn btn-sm btn-danger">삭제</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 페이지네이션 -->
+<div class="pagination" th:if="${totalPages > 1}">
+    <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+       th:href="@{/admin/bulletin(page=${i})}"
+       th:text="${i + 1}"
+       th:classappend="${i == currentPage} ? 'active'"
+       class="page-btn"></a>
+</div>
+</main>
+</th:block>
+</html>
