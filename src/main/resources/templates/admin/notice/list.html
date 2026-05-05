@@ -119,6 +119,29 @@
         margin-top: 3px;
         line-height: 1.4;
     }
+
+    /* 페이지네이션 */
+    .pagination-wrap { display: flex; justify-content: center; margin-top: 24px; }
+    .pagination { display: flex; gap: 4px; align-items: center; }
+    .page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 10px;
+        border: 1px solid #DDE4EF;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #3A5278;
+        text-decoration: none;
+        background: #fff;
+        transition: all 0.15s;
+        cursor: pointer;
+    }
+    .page-btn:hover { border-color: #185FA5; color: #185FA5; }
+    .page-btn.active { background: #185FA5; color: #fff; border-color: #185FA5; font-weight: 600; pointer-events: none; }
+    .page-btn.disabled { opacity: 0.35; pointer-events: none; cursor: default; }
 </style>
 
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
@@ -149,7 +172,8 @@
 
 <div class="result-info">
     전체 <strong th:text="${totalCount}">0</strong>건 중
-    <strong th:text="${#lists.size(notices)}">0</strong>건 표시
+    <strong th:text="${notices.totalElements}">0</strong>건 검색,
+    <strong th:text="${notices.numberOfElements}">0</strong>건 표시
 </div>
 
 <div class="data-table">
@@ -166,10 +190,10 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:if="${#lists.isEmpty(notices)}" class="empty-row">
+            <tr th:if="${notices.empty}" class="empty-row">
                 <td colspan="7">등록된 공지사항이 없습니다.</td>
             </tr>
-            <tr th:each="notice, stat : ${notices}">
+            <tr th:each="notice, stat : ${notices.content}">
                 <td class="num-cell" th:text="${stat.count}"></td>
                 <td class="title-cell">
                     <a th:href="@{/admin/notices/edit/{id}(id=${notice.id})}"
@@ -237,6 +261,29 @@
             </tr>
         </tbody>
     </table>
+</div>
+
+<!-- 페이지네이션 -->
+<div class="pagination-wrap" th:if="${notices.totalPages > 1}">
+    <nav class="pagination">
+        <a th:href="@{/admin/notices(keyword=${keyword},popupStatus=${popupStatus},page=${notices.number - 1})}"
+           th:if="${!notices.first}" class="page-btn">이전</a>
+        <span th:if="${notices.first}" class="page-btn disabled">이전</span>
+
+        <th:block th:each="i : ${#numbers.sequence(0, notices.totalPages - 1)}">
+            <a th:href="@{/admin/notices(keyword=${keyword},popupStatus=${popupStatus},page=${i})}"
+               th:text="${i + 1}"
+               th:if="${i != notices.number}"
+               class="page-btn"></a>
+            <span th:text="${i + 1}"
+                  th:if="${i == notices.number}"
+                  class="page-btn active"></span>
+        </th:block>
+
+        <a th:href="@{/admin/notices(keyword=${keyword},popupStatus=${popupStatus},page=${notices.number + 1})}"
+           th:if="${!notices.last}" class="page-btn">다음</a>
+        <span th:if="${notices.last}" class="page-btn disabled">다음</span>
+    </nav>
 </div>
 
 </main>

@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 @Slf4j
 @Configuration
@@ -33,7 +34,20 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers
-                .cacheControl(cache -> {})
+                .frameOptions(fo -> fo.deny())
+                .contentTypeOptions(cto -> {})
+                .referrerPolicy(rp -> rp
+                    .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                .contentSecurityPolicy(csp -> csp
+                    .policyDirectives(
+                        "default-src 'self'; " +
+                        "script-src 'self' 'unsafe-inline' dapi.kakao.com; " +
+                        "style-src 'self' 'unsafe-inline'; " +
+                        "img-src 'self' data: blob: *; " +
+                        "frame-src 'self' www.youtube.com youtube.com; " +
+                        "connect-src 'self'"
+                    )
+                )
             )
             .formLogin(form -> form
                 .loginPage("/login")

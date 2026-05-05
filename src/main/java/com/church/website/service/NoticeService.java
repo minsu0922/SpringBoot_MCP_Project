@@ -32,6 +32,12 @@ public class NoticeService {
         return noticeRepository.searchNotices(keyword, popupStatus);
     }
 
+    /** 관리자 검색 (페이지네이션) */
+    @Transactional(readOnly = true)
+    public Page<Notice> searchNoticesPaged(String keyword, String popupStatus, Pageable pageable) {
+        return noticeRepository.searchNotices(keyword, popupStatus, pageable);
+    }
+
     @Transactional(readOnly = true)
     public long getTotalCount() {
         return noticeRepository.count();

@@ -72,8 +72,12 @@ public class AdminController extends BaseController {
     public String noticeList(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String popupStatus,
+            @RequestParam(defaultValue = "0") int page,
             Model model) {
-        model.addAttribute("notices",     noticeService.searchNotices(keyword, popupStatus));
+        Page<Notice> noticePage = noticeService.searchNoticesPaged(
+                keyword, popupStatus,
+                PageRequest.of(page, 20, Sort.by("createdAt").descending()));
+        model.addAttribute("notices",     noticePage);
         model.addAttribute("keyword",     keyword);
         model.addAttribute("popupStatus", popupStatus);
         model.addAttribute("totalCount",  noticeService.getTotalCount());
