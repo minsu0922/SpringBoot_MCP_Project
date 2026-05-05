@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 관리자 계정 서비스
@@ -18,6 +19,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private static final Pattern PASSWORD_PATTERN =
+        Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$");
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -43,11 +47,8 @@ public class UserService {
     }
 
     private void validatePassword(String password) {
-        if (password.length() < 8) {
-            throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
-        }
-        if (!password.matches(".*[A-Z].*") || !password.matches(".*[a-z].*") || !password.matches(".*[0-9].*")) {
-            throw new IllegalArgumentException("비밀번호는 대문자, 소문자, 숫자를 각각 하나 이상 포함해야 합니다.");
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            throw new IllegalArgumentException("비밀번호는 8자 이상이며, 대문자·소문자·숫자를 각각 하나 이상 포함해야 합니다.");
         }
     }
 

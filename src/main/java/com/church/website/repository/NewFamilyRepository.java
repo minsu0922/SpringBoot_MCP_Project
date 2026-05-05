@@ -2,6 +2,9 @@ package com.church.website.repository;
 
 import com.church.website.entity.NewFamily;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -18,4 +21,8 @@ public interface NewFamilyRepository extends JpaRepository<NewFamily, Long>, New
 
     // 확인 건수
     long countByChecked(boolean checked);
+
+    @Modifying
+    @Query("UPDATE NewFamily nf SET nf.adminMemo = :memo WHERE nf.id = :id")
+    void updateAdminMemo(@Param("id") Long id, @Param("memo") String memo);
 }

@@ -1,6 +1,7 @@
 package com.church.website.service;
 
 import com.church.website.entity.Bulletin;
+import com.church.website.exception.EntityNotFoundException;
 import com.church.website.repository.BulletinRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ public class BulletinService {
 
     public Bulletin getById(Long id) {
         return bulletinRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("주보를 찾을 수 없습니다: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("주보를 찾을 수 없습니다."));
     }
 
     public Optional<Bulletin> getLatest() {

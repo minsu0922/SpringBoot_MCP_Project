@@ -97,11 +97,11 @@ public class NewFamilyService {
     /** 관리자 메모 저장 */
     @Transactional
     public void saveAdminMemo(Long id, String adminMemo) {
-        NewFamily nf = newFamilyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("새가족 정보를 찾을 수 없습니다."));
-        nf.setAdminMemo(adminMemo);
-        newFamilyRepository.save(nf);
-        log.info("새가족 관리자 메모 저장: {}", nf.getName());
+        if (!newFamilyRepository.existsById(id)) {
+            throw new EntityNotFoundException("새가족 정보를 찾을 수 없습니다.");
+        }
+        newFamilyRepository.updateAdminMemo(id, adminMemo);
+        log.info("새가족 관리자 메모 저장: id={}", id);
     }
 
     /** 삭제 */

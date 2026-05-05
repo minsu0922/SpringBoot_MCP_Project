@@ -234,14 +234,57 @@
             padding: 24px 28px;
         }
 
-        /* ── SVG Icons (inline) ── */
-        .icon-dashboard { /* grid */ }
-        .icon-notice    { /* bell */ }
-        .icon-ministry  { /* image */ }
-        .icon-photo     { /* camera */ }
-        .icon-family    { /* users */ }
-        .icon-account   { /* user */ }
-        .icon-settings  { /* gear */ }
+        /* ══════════════════════════════
+           MOBILE RESPONSIVE
+        ══════════════════════════════ */
+        .admin-hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 36px; height: 36px;
+            background: none; border: none;
+            cursor: pointer; padding: 4px;
+            flex-shrink: 0;
+        }
+        .admin-hamburger span {
+            display: block; width: 20px; height: 2px;
+            background: var(--text-mid); border-radius: 2px;
+            transition: all 0.3s ease; transform-origin: center;
+        }
+        .admin-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .admin-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .admin-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .sb-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 99;
+        }
+        .sb-overlay.open { display: block; }
+
+        @media (max-width: 768px) {
+            .admin-hamburger { display: flex; }
+
+            .admin-sidebar {
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+            }
+            .admin-sidebar.open {
+                transform: translateX(0);
+            }
+
+            .admin-main { width: 100%; }
+
+            .admin-topbar { padding: 0 16px; }
+            .admin-content { padding: 16px; }
+            .topbar-breadcrumb { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -366,9 +409,14 @@
 
         <!-- Top Bar -->
         <div class="admin-topbar">
-            <div>
-                <div class="topbar-title" th:replace="${pageTitle}">관리자</div>
-                <div class="topbar-breadcrumb">샘물교회 &rsaquo; <span th:replace="${pageTitle}">페이지</span></div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="admin-hamburger" id="adminHamburger" aria-label="메뉴 열기">
+                    <span></span><span></span><span></span>
+                </button>
+                <div>
+                    <div class="topbar-title" th:replace="${pageTitle}">관리자</div>
+                    <div class="topbar-breadcrumb">샘물교회 &rsaquo; <span th:replace="${pageTitle}">페이지</span></div>
+                </div>
             </div>
             <div class="topbar-right">
                 <a href="/" class="topbar-site-link" target="_blank">← 사이트 보기</a>
@@ -383,6 +431,59 @@
     </div><!-- /admin-main -->
 
 </div><!-- /admin-shell -->
+
+<div class="sb-overlay" id="sbOverlay"></div>
+
+<script>
+    /* 폼 저장 버튼 중복 제출 방지 (삭제/검색 버튼 제외) */
+    (function () {
+        document.addEventListener('submit', function (e) {
+            var form = e.target;
+            var btn = form.querySelector('button[type="submit"].btn-save, button[type="submit"].btn-submit, button[type="submit"].btn.btn-primary');
+            if (!btn) return;
+            btn.disabled = true;
+            var original = btn.textContent.trim();
+            btn.textContent = '저장 중...';
+            // 서버 오류로 페이지 복귀 시 버튼 복구
+            window.addEventListener('pageshow', function () {
+                btn.disabled = false;
+                btn.textContent = original;
+            }, { once: true });
+        });
+    })();
+
+    (function () {
+        var hamburger = document.getElementById('adminHamburger');
+        var sidebar   = document.querySelector('.admin-sidebar');
+        var overlay   = document.getElementById('sbOverlay');
+        if (!hamburger || !sidebar || !overlay) return;
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('open');
+            hamburger.classList.add('open');
+            hamburger.setAttribute('aria-label', '메뉴 닫기');
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+            hamburger.classList.remove('open');
+            hamburger.setAttribute('aria-label', '메뉴 열기');
+        }
+
+        hamburger.addEventListener('click', function () {
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+        overlay.addEventListener('click', closeSidebar);
+
+        // 메뉴 클릭 시 모바일에서 사이드바 자동 닫기
+        sidebar.querySelectorAll('.sb-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                if (window.innerWidth <= 768) closeSidebar();
+            });
+        });
+    })();
+</script>
 </body>
 </html>
 </th:block>

@@ -60,18 +60,19 @@ public class MinistryPhotoService {
         return "/uploads/ministry/" + savedName;
     }
 
-    /**
-     * 서버에서 파일을 삭제.
-     *
-     * /uploads/ministry/ 경로 prefix 검증으로 다른 경로의 파일이 삭제되는 것을 방지.
-     * IO 오류는 사진 레코드 삭제를 막지 않도록 예외를 삼키고 warn 로그만 남김.
-     */
     public void deleteFile(String photoUrl) {
         if (photoUrl == null || !photoUrl.startsWith("/uploads/ministry/")) return;
         try {
-            Path file = Paths.get(uploadDir).resolve(photoUrl.replace("/uploads/ministry/", ""));
-            Files.deleteIfExists(file);
-            log.info("파일 삭제 완료: {}", file);
+            String filename = photoUrl.replace("/uploads/ministry/", "");
+            Path uploadRoot = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path target    = uploadRoot.resolve(filename).normalize();
+            // Path Traversal 방지: 정규화 후 업로드 디렉토리 내부인지 확인
+            if (!target.startsWith(uploadRoot)) {
+                log.warn("허용되지 않는 파일 경로 접근 차단: {}", photoUrl);
+                return;
+            }
+            Files.deleteIfExists(target);
+            log.info("파일 삭제 완료: {}", target);
         } catch (IOException e) {
             log.warn("파일 삭제 실패: {}", photoUrl, e);
         }

@@ -210,7 +210,10 @@
         </div>
         <div class="login-card-body">
 
-            <div th:if="${param.error}" class="login-alert login-alert-error">
+            <div th:if="${param.blocked}" class="login-alert login-alert-error">
+                로그인 시도가 너무 많습니다. 15분 후 다시 시도해주세요.
+            </div>
+            <div th:if="${param.error != null and param.blocked == null}" class="login-alert login-alert-error">
                 아이디 또는 비밀번호가 올바르지 않습니다.
             </div>
             <div th:if="${param.logout}" class="login-alert login-alert-success">

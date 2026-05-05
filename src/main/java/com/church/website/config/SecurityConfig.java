@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final LoginAttemptService loginAttemptService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,12 +39,22 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .permitAll()
                 .successHandler((request, response, authentication) -> {
-                    log.info("로그인 성공: {}", authentication.getName());
+                    String username = authentication.getName();
+                    loginAttemptService.loginSucceeded(username);
+                    log.info("로그인 성공: {}", username);
                     response.sendRedirect("/admin");
                 })
                 .failureHandler((request, response, exception) -> {
-                    log.warn("로그인 실패 시도 감지");
-                    response.sendRedirect("/login?error=true");
+                    String username = request.getParameter("username");
+                    if (username != null) {
+                        loginAttemptService.loginFailed(username);
+                    }
+                    log.warn("로그인 실패 시도 감지: {}", username);
+                    if (username != null && loginAttemptService.isBlocked(username)) {
+                        response.sendRedirect("/login?blocked=true");
+                    } else {
+                        response.sendRedirect("/login?error=true");
+                    }
                 })
             )
             .logout(logout -> logout

@@ -22,6 +22,7 @@ public class DataInitializer implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         alterLocationColumns();
+        createIndexesIfAbsent();
         insertDefaultLocationIfEmpty();
     }
 
@@ -46,6 +47,28 @@ public class DataInitializer implements ApplicationRunner {
             log.info("[DataInitializer] bulletin.responsive_no 컬럼 TEXT로 변경 완료");
         } catch (Exception e) {
             log.info("[DataInitializer] bulletin 컬럼 변경 불필요 또는 이미 적용됨: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 자주 사용되는 조회 컬럼에 인덱스 추가.
+     * MySQL은 이미 존재하는 인덱스에 CREATE INDEX를 실행하면 오류를 반환하므로 예외 무시.
+     */
+    private void createIndexesIfAbsent() {
+        String[][] indexes = {
+            { "idx_notice_created_at",    "CREATE INDEX idx_notice_created_at    ON notice(created_at DESC)" },
+            { "idx_notice_popup",         "CREATE INDEX idx_notice_popup         ON notice(popup, popup_start_date, popup_end_date)" },
+            { "idx_new_family_created_at","CREATE INDEX idx_new_family_created_at ON new_family(created_at DESC)" },
+            { "idx_new_family_checked",   "CREATE INDEX idx_new_family_checked   ON new_family(checked)" },
+            { "idx_sermon_date",          "CREATE INDEX idx_sermon_date          ON sermon(sermon_date DESC)" },
+        };
+        for (String[] idx : indexes) {
+            try {
+                jdbcTemplate.execute(idx[1]);
+                log.info("[DataInitializer] 인덱스 생성: {}", idx[0]);
+            } catch (Exception e) {
+                log.debug("[DataInitializer] 인덱스 이미 존재 또는 생성 불필요: {}", idx[0]);
+            }
         }
     }
 

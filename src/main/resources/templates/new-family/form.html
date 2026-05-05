@@ -65,7 +65,8 @@
         .nf-error-msg::before { content: '⚠'; font-size: 11px; }
 
         .nf-submit { width: 100%; padding: 15px; background: var(--navy); color: var(--white); border: none; border-radius: 4px; font-family: 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 400; letter-spacing: 0.06em; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
-        .nf-submit:hover { background: var(--navy-mid); }
+        .nf-submit:hover:not(:disabled) { background: var(--navy-mid); }
+        .nf-submit:disabled { background: var(--text-muted); cursor: not-allowed; opacity: 0.7; }
 
         .nf-global-error { background: var(--error-bg); border: 1px solid var(--error-border); border-radius: 4px; padding: 12px 16px; font-size: 13px; color: var(--error); margin-bottom: 20px; }
 
@@ -153,12 +154,23 @@
                           placeholder="궁금한 점이나 전달하고 싶은 내용을 자유롭게 작성해 주세요. (선택사항)"></textarea>
             </div>
 
-            <button type="submit" class="nf-submit">등록하기</button>
+            <button type="submit" class="nf-submit" id="submitBtn">등록하기</button>
         </form>
     </div>
 </div>
 
 <script>
+    /* 폼 제출 중 버튼 비활성화 (중복 제출 방지) */
+    (function () {
+        var form = document.querySelector('form');
+        var btn  = document.getElementById('submitBtn');
+        if (!form || !btn) return;
+        form.addEventListener('submit', function () {
+            btn.disabled = true;
+            btn.textContent = '등록 중...';
+        });
+    })();
+
     /* 연락처 자동 하이픈 */
     const phoneInput = document.getElementById('phoneInput');
     if (phoneInput) {
