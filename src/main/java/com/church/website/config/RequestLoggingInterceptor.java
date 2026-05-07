@@ -6,19 +6,32 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * 모든 HTTP 요청의 처리 시간과 결과를 로깅하는 인터셉터.
+ *
+ * WebMvcConfig에서 정적 리소스(/css, /js, /images, /uploads)를 제외한
+ * 모든 경로에 적용된다.
+ *
+ * 로그 형식: [클라이언트IP] HTTP메서드 URI → 상태코드 (처리시간ms)
+ * 예시: [192.168.0.1] GET /admin/notices → 200 (34ms)
+ *
+ * 정상 요청은 INFO, 예외 발생 요청은 ERROR 레벨로 출력해
+ * 운영 중 문제 요청을 빠르게 식별할 수 있다.
+ */
 @Slf4j
 @Component
 public class RequestLoggingInterceptor implements HandlerInterceptor {
 
     private static final String ATTR_START_TIME = "requestStartTime";
 
+    // 요청 시작 시각을 request 속성에 저장해두고 afterCompletion에서 처리시간 계산에 사용
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        // 요청 시작 시각을 request 속성에 저장해두고 afterCompletion에서 처리시간 계산에 사용
         request.setAttribute(ATTR_START_TIME, System.currentTimeMillis());
         return true;
     }
 
+    // 컨트롤러와 뷰 렌더링이 모두 완료된 뒤 호출 — 실제 총 처리 시간을 측정할 수 있는 시점
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
                                 Object handler, Exception ex) {
