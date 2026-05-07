@@ -1,0 +1,63 @@
+[Unit]
+Description=Saemmul Church Website (Spring Boot)
+# MySQL이 완전히 뜬 뒤에 이 서비스를 시작한다
+After=network.target mysqld.service
+Requires=mysqld.service
+
+[Service]
+# ── 실행 계정 ──────────────────────────────────────────────
+# root로 실행하지 않는다. 사전에 아래 명령으로 전용 계정을 만들어두어야 한다.
+# sudo useradd -r -s /sbin/nologin church
+User=church
+Group=church
+
+# ── 환경변수 ───────────────────────────────────────────────
+# DB 비밀번호·API 키 등 민감 정보는 별도 파일로 분리한다.
+# 파일 위치: /etc/church-website/env  (chmod 600, chown church:church)
+EnvironmentFile=/etc/church-website/env
+
+# ── 실행 명령 ──────────────────────────────────────────────
+WorkingDirectory=/opt/church-website
+ExecStart=/usr/bin/java \
+    -Xms256m \
+    -Xmx512m \
+    -Djava.security.egd=file:/dev/./urandom \
+    -jar /opt/church-website/app.jar \
+    --spring.profiles.active=prod
+
+# ── 재시작 정책 ────────────────────────────────────────────
+# 예외 종료(OOM, 미처리 예외 등) 시 10초 후 자동 재시작
+Restart=on-failure
+RestartSec=10
+# 5분 안에 5번 이상 재시작 실패하면 포기 (무한 재시작 루프 방지)
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# ── 종료 ───────────────────────────────────────────────────
+# Spring Boot의 graceful shutdown을 위해 충분한 시간 부여 (기본 20초)
+TimeoutStopSec=30
+
+# ── 로그 ───────────────────────────────────────────────────
+# systemd journal에도 기록 → journalctl -u church-website -f 로 실시간 확인 가능
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=church-website
+
+# ── 보안 강화 ──────────────────────────────────────────────
+# 새로운 권한 취득 차단
+NoNewPrivileges=yes
+# /usr, /boot, /etc 를 읽기 전용으로 마운트 (시스템 파일 보호)
+ProtectSystem=strict
+# /home, /root 접근 차단
+ProtectHome=yes
+# 쓰기가 필요한 경로만 명시적으로 허용
+ReadWritePaths=/opt/church-website
+ReadWritePaths=/var/church/uploads
+ReadWritePaths=/var/log/church
+# 임시 디렉토리 격리 (다른 서비스의 /tmp 와 분리)
+PrivateTmp=yes
+
+[Install]
+# multi-user.target = 일반적인 서버 부팅 완료 단계
+# 이 설정으로 서버 재부팅 시 자동 시작된다
+WantedBy=multi-user.target
