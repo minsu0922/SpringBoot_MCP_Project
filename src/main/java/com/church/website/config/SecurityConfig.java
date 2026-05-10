@@ -74,11 +74,12 @@ public class SecurityConfig {
                 .contentSecurityPolicy(csp -> csp
                     .policyDirectives(
                         "default-src 'self'; " +
-                        "script-src 'self' 'unsafe-inline' dapi.kakao.com; " +
-                        "style-src 'self' 'unsafe-inline'; " +
+                        "script-src 'self' 'unsafe-inline' dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net; " +
+                        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                        "font-src 'self' https://fonts.gstatic.com; " +
                         "img-src 'self' data: blob: *; " +
                         "frame-src 'self' www.youtube.com youtube.com; " +
-                        "connect-src 'self'"
+                        "connect-src 'self' https://dapi.kakao.com https://t1.daumcdn.net"
                     )
                 )
             )

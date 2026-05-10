@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/theme.css">
     <script type="text/javascript" th:src="@{'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'}"></script>
+    <style>
+        .location-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 8px;
+        }
+        @media (max-width: 768px) {
+            .location-info-grid { grid-template-columns: 1fr; }
+            #map { height: 240px !important; }
+        }
+    </style>
 </head>
 <body>
 <nav class="site-nav">
@@ -78,7 +90,7 @@
     <div class="content-section">
         <div class="section-eyebrow">ADDRESS</div>
         <h2>교회 주소</h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:8px;">
+        <div class="location-info-grid">
             <div>
                 <div style="display:flex;flex-direction:column;gap:0;">
                     <div class="worship-row" style="padding:16px 0;">

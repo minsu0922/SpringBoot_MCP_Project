@@ -414,16 +414,39 @@
             .main-nav-links { display: none; }
             .main-hero-content { padding: 0 32px; }
             .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-sermon, .main-location, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
-            .main-news { height: auto; min-height: calc(100vh - 72px); }
+            .main-hero-actions { flex-wrap: wrap; gap: 14px; }
+            .main-worship { height: auto; min-height: calc(100vh - 72px); }
             .main-worship-inner { grid-template-columns: 1fr; gap: 40px; }
+            .main-verse { height: auto; min-height: unset; padding: 60px 24px; }
             .main-ministry-wrap { padding: 24px; height: auto; min-height: calc(100vh - 72px); }
             .main-ministry-inner { height: auto; padding: 0; }
             .main-ministry-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; gap: 8px; flex: none; height: auto; }
             .main-ministry-item { height: 26vh; }
+            .main-news { height: auto; min-height: calc(100vh - 72px); }
             .main-news-grid { grid-template-columns: 1fr; }
+            .main-news-header { flex-wrap: wrap; gap: 12px; }
+            .main-sermon { height: auto; min-height: unset; }
+            .main-sermon-header { flex-wrap: wrap; gap: 12px; }
+            .main-location { height: auto; min-height: unset; }
             .main-location-inner { grid-template-columns: 1fr; }
             .main-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
             .main-cta { flex-direction: column; text-align: center; }
+        }
+        @media (max-width: 480px) {
+            .main-hero-content { padding: 0 20px; }
+            .main-hero-sub { font-size: 17px; }
+            .main-hero-desc { font-size: 13px; }
+            .main-btn-primary { width: 100%; text-align: center; padding: 13px 20px; }
+            .main-ministry-item { height: 22vh; }
+            .main-ministry-content h3 { font-size: 15px; }
+            .main-worship-card { gap: 12px; padding: 16px 18px; }
+            .main-worship-time { margin-left: 0; font-size: 17px; }
+            .main-sermon-thumb { width: 80px; height: 48px; }
+            .main-footer-top { grid-template-columns: 1fr; gap: 24px; }
+            .main-footer-bottom { flex-direction: column; gap: 10px; }
+            .main-cta { padding: 48px 20px; }
+            .main-cta-title { font-size: 22px; }
+            .main-footer { padding: 40px 20px 28px; }
         }
     </style>
 </head>
