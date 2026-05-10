@@ -52,3 +52,7 @@ tasks.named('test') {
     systemProperty 'file.encoding', 'UTF-8'
     jvmArgs '-Xmx512m'
 }
+
+bootJar {
+    exclude('**/application-local.properties')
+}
