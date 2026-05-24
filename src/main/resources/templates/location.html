@@ -11,12 +11,20 @@
         .location-info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 24px;
             margin-top: 8px;
+            align-items: start;
         }
-        @media (max-width: 768px) {
+        #map {
+            width: 100%;
+            overflow: hidden;
+        }
+        @media (max-width: 960px) {
             .location-info-grid { grid-template-columns: 1fr; }
-            #map { height: 240px !important; }
+            #map { height: 260px !important; }
+        }
+        @media (max-width: 480px) {
+            #map { height: 220px !important; }
         }
     </style>
 </head>
@@ -116,7 +124,7 @@
                     </div>
                 </div>
             </div>
-            <div id="map" style="height:280px; border-radius:6px; border:1px solid rgba(24,95,165,0.12);"></div>
+            <div id="map" style="height:280px; width:100%; overflow:hidden; border-radius:6px; border:1px solid rgba(24,95,165,0.12);"></div>
         </div>
     </div>
 
@@ -200,6 +208,7 @@
 
 <script>
     var mapInitialized = false;
+    var kakaoMapInstance = null;
 
     function initLocationMap() {
         if (mapInitialized) return;
@@ -215,9 +224,9 @@
                 } else {
                     coords = new kakao.maps.LatLng(37.5376, 127.1457);
                 }
-                var map = new kakao.maps.Map(mapContainer, { center: coords, level: 3 });
+                kakaoMapInstance = new kakao.maps.Map(mapContainer, { center: coords, level: 3 });
                 var marker = new kakao.maps.Marker({ position: coords });
-                marker.setMap(map);
+                marker.setMap(kakaoMapInstance);
                 var infowindow = new kakao.maps.InfoWindow({
                     content: [
                         '<div style="',
@@ -244,7 +253,7 @@
                         '</div>'
                     ].join('')
                 });
-                infowindow.open(map, marker);
+                infowindow.open(kakaoMapInstance, marker);
                 kakao.maps.event.addListener(marker, 'click', function() {
                     window.open('https://map.kakao.com/link/to/샘물교회,' + coords.getLat() + ',' + coords.getLng());
                 });
@@ -255,12 +264,17 @@
         }
     }
 
-    // location.html은 지도가 처음부터 보이므로 DOM 로드 후 바로 초기화
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initLocationMap);
     } else {
         initLocationMap();
     }
+
+    window.addEventListener('resize', function() {
+        if (kakaoMapInstance) {
+            kakao.maps.event.trigger(kakaoMapInstance, 'resize');
+        }
+    });
 </script>
 </body>
 </html>

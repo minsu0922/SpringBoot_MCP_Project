@@ -90,11 +90,29 @@
     .result-info { font-size: 12px; color: #7A96B8; margin-bottom: 10px; }
 
     /* 페이지네이션 */
-    .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 20px; }
-    .page-btn { padding: 6px 12px; border: 1px solid #DDE4EF; border-radius: 5px; font-size: 12px; color: #3A5278; background: #fff; cursor: pointer; text-decoration: none; display: inline-block; }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 20px; flex-wrap: wrap; }
+    .page-btn { min-height: 36px; padding: 6px 12px; border: 1px solid #DDE4EF; border-radius: 5px; font-size: 12px; color: #3A5278; background: #fff; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
     .page-btn:hover { background: #E6F1FB; border-color: #185FA5; color: #185FA5; }
     .page-btn.active { background: #185FA5; color: #fff; border-color: #185FA5; }
     .page-btn.disabled { pointer-events: none; color: #BCC9DC; border-color: #EEF2F8; }
+
+    /* ── 반응형 ── */
+    @media (max-width: 768px) {
+        .data-table { overflow-x: auto; border-radius: 10px; }
+        /* 썸네일·등록일 컬럼 숨김 */
+        .data-table th:nth-child(1), .data-table td:nth-child(1),
+        .data-table th:nth-child(6), .data-table td:nth-child(6) { display: none; }
+        .search-input { width: 160px; }
+        .action-cell { flex-wrap: wrap; }
+    }
+    @media (max-width: 480px) {
+        /* 성경본문 컬럼 숨김 */
+        .data-table th:nth-child(4), .data-table td:nth-child(4) { display: none; }
+        .page-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+        .search-group { flex-direction: column; align-items: stretch; }
+        .search-input { width: 100%; }
+        .btn-primary { justify-content: center; }
+    }
 </style>
 
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>

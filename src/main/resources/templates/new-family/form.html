@@ -76,7 +76,15 @@
 
         @media (max-width: 600px) {
             .nf-nav { padding: 0 20px; }
+            .nf-hero { padding: 60px 24px 40px; }
+            .nf-hero-title { font-size: 26px; }
             .nf-card { padding: 28px 20px; }
+            /* iOS에서 font-size < 16px 이면 입력 포커스 시 자동 줌인 발생 */
+            .nf-input, .nf-select, .nf-textarea { font-size: 16px; }
+        }
+        @media (max-width: 380px) {
+            .nf-hero-title { font-size: 22px; }
+            .nf-card { padding: 22px 16px; }
         }
     </style>
 </head>

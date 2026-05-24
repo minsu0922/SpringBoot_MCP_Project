@@ -20,6 +20,11 @@
     .back-link:hover { color: #185FA5; }
 
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 640px) {
+        .detail-grid { grid-template-columns: 1fr; }
+        .detail-card.full { grid-column: 1; }
+        .detail-card { padding: 18px 16px; }
+    }
 
     .detail-card {
         background: #fff; border: 1px solid #DDE4EF; border-radius: 10px; padding: 24px 28px;

@@ -156,6 +156,14 @@
         color: #7A96B8;
         font-size: 13px;
     }
+
+    /* ── 반응형 ── */
+    @media (max-width: 480px) {
+        .stat-grid { grid-template-columns: 1fr 1fr; }
+        .shortcut-grid { grid-template-columns: 1fr; }
+        .recent-row { flex-wrap: wrap; gap: 6px; }
+        .recent-date { margin-left: 0; }
+    }
 </style>
 
 <!-- 통계 카드 -->

@@ -225,6 +225,18 @@
         transition: background 0.15s;
     }
     .btn-save:hover { background: #185FA5; }
+
+    /* ── 반응형 ── */
+    @media (max-width: 768px) {
+        .form-card { max-width: 100%; }
+        .form-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+        .form-card-body { padding: 16px; }
+        .form-card-header { padding: 14px 16px; }
+        .form-actions { flex-direction: column-reverse; gap: 8px; }
+        .btn-cancel, .btn-save { width: 100%; justify-content: center; text-align: center; }
+    }
 </style>
 
 <div class="form-card">

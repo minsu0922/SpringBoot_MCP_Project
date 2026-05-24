@@ -65,9 +65,20 @@
 }
 
 /* ── 슬라이더 반응형 ── */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .slider { height: 260px; }
     .slide-content h2 { font-size: 1.4rem; }
+}
+@media (max-width: 480px) {
+    .slider { height: 200px; }
+    .slide-content h2 { font-size: 1.2rem; }
+    .slide-content p { font-size: 0.9rem; }
+}
+
+/* 슬라이더 점 터치 영역 확보 */
+.slider-dot {
+    padding: 6px;
+    box-sizing: content-box;
 }
 
 /* 팝업 스타일은 theme.css에서 통합 관리 */

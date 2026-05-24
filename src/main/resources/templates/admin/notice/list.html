@@ -122,13 +122,13 @@
 
     /* 페이지네이션 */
     .pagination-wrap { display: flex; justify-content: center; margin-top: 24px; }
-    .pagination { display: flex; gap: 4px; align-items: center; }
+    .pagination { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: center; }
     .page-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         min-width: 32px;
-        height: 32px;
+        height: 36px;
         padding: 0 10px;
         border: 1px solid #DDE4EF;
         border-radius: 6px;
@@ -142,6 +142,25 @@
     .page-btn:hover { border-color: #185FA5; color: #185FA5; }
     .page-btn.active { background: #185FA5; color: #fff; border-color: #185FA5; font-weight: 600; pointer-events: none; }
     .page-btn.disabled { opacity: 0.35; pointer-events: none; cursor: default; }
+
+    /* ── 반응형 ── */
+    @media (max-width: 768px) {
+        .data-table { overflow-x: auto; border-radius: 10px; }
+        /* 번호·작성자·조회수 컬럼 숨김 */
+        .data-table th:nth-child(1), .data-table td:nth-child(1),
+        .data-table th:nth-child(3), .data-table td:nth-child(3),
+        .data-table th:nth-child(4), .data-table td:nth-child(4) { display: none; }
+        .search-input { width: 140px; }
+        .action-cell { flex-wrap: wrap; }
+    }
+    @media (max-width: 480px) {
+        /* 팝업상태 컬럼도 숨김 */
+        .data-table th:nth-child(6), .data-table td:nth-child(6) { display: none; }
+        .page-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+        .search-group { flex-direction: column; align-items: stretch; }
+        .search-input { width: 100%; }
+        .btn-primary { justify-content: center; }
+    }
 </style>
 
 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
