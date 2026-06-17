@@ -35,6 +35,7 @@ deploy/church-website.env
 # 폴더 구조 유지가 필요하면 해당 폴더에 .gitkeep 파일을 추가할 것
 src/main/resources/static/uploads/**
 !src/main/resources/static/uploads/.gitkeep
+uploads/
 
 # ===== Logs =====
 *.log
