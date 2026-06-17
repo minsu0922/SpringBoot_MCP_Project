@@ -34,7 +34,8 @@
       "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:8080\" -UseBasicParsing -TimeoutSec 10; \"Status: $\\($r.StatusCode\\)\" } catch { \"Error: $_\" })",
       "Bash(netstat -ano)",
       "Bash(findstr :8080)",
-      "Bash(Select-Object FullName)"
+      "Bash(Select-Object FullName)",
+      "Bash(Select-Object Name, Length)"
     ]
   }
 }

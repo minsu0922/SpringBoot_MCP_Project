@@ -764,6 +764,8 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
     .site-footer { padding: 40px 24px 28px; }
     .site-footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
     .site-footer-socials a { width: 40px; height: 40px; }
+    /* 예배 행 태블릿 */
+    .worship-row { gap: 16px; }
 }
 
 /* ── HAMBURGER ── */
@@ -878,4 +880,12 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
     .page-content { padding: 24px 16px 48px; }
     .content-section { padding: 22px 16px; }
     .breadcrumb { padding: 10px 16px; }
+    /* 예배 시간표 */
+    .worship-row { gap: 12px; padding: 14px 0; }
+    .worship-time-badge { font-size: 18px; }
+    /* 교역자/목사 카드 */
+    .person-card-img { height: 160px; }
+    .person-card-body h2, .person-card-body h3 { font-size: 18px; }
+    /* 카드 그리드 최소폭 */
+    .card-grid { grid-template-columns: 1fr; }
 }

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'department')}">
+
+<title th:fragment="title" th:text="${dept.id == null} ? '부서 등록' : '부서 수정'">부서 관리</title>
+
+<main th:fragment="main">
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="form-card">
+    <div class="card-header">
+        <span th:text="${dept.id == null} ? '부서 등록' : '부서 수정'">부서 관리</span>
+        <a th:href="@{/admin/department}" class="btn-back">← 목록으로</a>
+    </div>
+    <form th:action="@{/admin/department/save}" method="post" th:object="${dept}">
+        <input type="hidden" th:field="*{id}">
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label" for="name">부서명 <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="name" name="name" class="form-control"
+                       th:value="*{name}" required maxlength="50"
+                       placeholder="예) 장년부, 청년부">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="worshipTime">예배 시간</label>
+                    <input type="text" id="worshipTime" name="worshipTime" class="form-control"
+                           th:value="*{worshipTime}" maxlength="100"
+                           placeholder="예) 주일 오전 11:00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="location">장소</label>
+                    <input type="text" id="location" name="location" class="form-control"
+                           th:value="*{location}" maxlength="100"
+                           placeholder="예) 본당, 청년부실">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="staffInCharge">담당 교역자</label>
+                <input type="text" id="staffInCharge" name="staffInCharge" class="form-control"
+                       th:value="*{staffInCharge}" maxlength="50"
+                       placeholder="예) 홍길동 전도사">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="description">소개</label>
+                <textarea id="description" name="description" class="form-control"
+                          th:text="*{description}"
+                          placeholder="부서 소개를 입력하세요."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">노출 여부</label>
+                <div class="toggle-row">
+                    <input type="checkbox" id="isActive" name="isActive" value="true"
+                           th:checked="*{isActive} == null or *{isActive}">
+                    <label class="toggle-label" for="isActive">공개 페이지에 노출</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a th:href="@{/admin/department}" class="btn-cancel">취소</a>
+            <button type="submit" class="btn-save">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 7l3.5 3.5L11 3"/>
+                </svg>
+                저장
+            </button>
+        </div>
+    </form>
+</div>
+
+</main>
+
+</th:block>
+</html>

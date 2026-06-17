@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'worship')}">
+
+<title th:fragment="title" th:text="${schedule.id == null} ? '예배 등록' : '예배 수정'">예배 관리</title>
+
+<main th:fragment="main">
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="form-card">
+    <div class="card-header">
+        <span th:text="${schedule.id == null} ? '예배 등록' : '예배 수정'">예배 관리</span>
+        <a th:href="@{/admin/worship}" class="btn-back">← 목록으로</a>
+    </div>
+    <form th:action="@{/admin/worship/save}" method="post" th:object="${schedule}">
+        <input type="hidden" th:field="*{id}">
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="name">예배명 <span style="color:#dc3545;">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control"
+                           th:value="*{name}" required maxlength="50"
+                           placeholder="예) 1부 예배, 수요 예배">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="category">구분 <span style="color:#dc3545;">*</span></label>
+                    <select id="category" name="category" class="form-control">
+                        <option value="SUNDAY" th:selected="*{category} == 'SUNDAY'">주일 예배</option>
+                        <option value="WEEKDAY" th:selected="*{category} == 'WEEKDAY'">주중 예배</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="serviceTime">예배 시간</label>
+                <input type="text" id="serviceTime" name="serviceTime" class="form-control"
+                       th:value="*{serviceTime}" maxlength="20"
+                       placeholder="예) 9:00, 11:00, 19:30">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="description">설명</label>
+                <input type="text" id="description" name="description" class="form-control"
+                       th:value="*{description}" maxlength="100"
+                       placeholder="예) 주일 오전 · 본당">
+                <div class="form-hint">예배 시간표에 부제로 표시됩니다.</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">노출 여부</label>
+                <div class="toggle-row">
+                    <input type="checkbox" id="isActive" name="isActive" value="true"
+                           th:checked="*{isActive} == null or *{isActive}">
+                    <label class="toggle-label" for="isActive">공개 페이지에 노출</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a th:href="@{/admin/worship}" class="btn-cancel">취소</a>
+            <button type="submit" class="btn-save">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 7l3.5 3.5L11 3"/>
+                </svg>
+                저장
+            </button>
+        </div>
+    </form>
+</div>
+
+</main>
+
+</th:block>
+</html>

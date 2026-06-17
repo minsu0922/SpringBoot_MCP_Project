@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,53 +8,7 @@
     <link rel="stylesheet" href="/css/theme.css">
 </head>
 <body>
-<nav class="site-nav">
-    <a href="/" class="site-nav-logo">
-        <div class="site-cross"></div>
-        <span>샘물교회</span>
-    </a>
-    <ul class="site-nav-links">
-        <li><a href="/">홈</a></li>
-        <li class="has-dropdown">
-            <a href="/about/church">교회소개</a>
-            <ul class="dropdown">
-                <li><a href="/about/church">교회소개</a></li>
-                <li><a href="/about/pastor">담임목사</a></li>
-                <li><a href="/about/staff">교역자 소개</a></li>
-            </ul>
-        </li>
-        <li><a href="/ministry">사역소개</a></li>
-        <li class="has-dropdown">
-            <a href="/worship/schedule" class="active">예배안내</a>
-            <ul class="dropdown">
-                <li><a href="/worship/schedule" class="active">예배 시간표</a></li>
-                <li><a href="/worship/department">부서별 안내</a></li>
-            </ul>
-        </li>
-        <li><a href="/notice/list">공지사항</a></li>
-        <li><a href="/location">오시는 길</a></li>
-    </ul>
-    <a href="/new-family" class="site-nav-cta">새가족 안내</a>
-    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
-        <span></span><span></span><span></span>
-    </button>
-</nav>
-<div class="mobile-menu" id="mobileMenu">
-    <ul>
-        <li><a href="/">홈</a></li>
-        <li><a href="/about/church">교회소개</a></li>
-        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
-        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
-        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
-        <li><a href="/ministry">사역소개</a></li>
-        <li><a href="/worship/schedule">예배안내</a></li>
-        <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
-        <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
-        <li><a href="/notice/list">공지사항</a></li>
-        <li><a href="/location">오시는 길</a></li>
-        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
-    </ul>
-</div>
+<th:block th:replace="~{fragments/public :: siteNav('worship-schedule')}"></th:block>
 
 <div class="page-hero">
     <div class="page-hero-inner">
@@ -74,55 +28,58 @@
 
 <div class="page-content">
 
-    <div class="content-section">
-        <div class="section-eyebrow">SUNDAY</div>
-        <h2>주일 예배</h2>
-        <div class="worship-row">
-            <div class="worship-icon">🕊</div>
-            <div class="worship-row-info">
-                <h3>1부 예배</h3>
-                <p>주일 오전 · 본당</p>
+    <th:block th:if="${!#lists.isEmpty(schedules)}"
+              th:with="sunday=${schedules.?[category == 'SUNDAY']}, weekday=${schedules.?[category == 'WEEKDAY']}">
+        <!-- 주일 예배 -->
+        <div class="content-section" th:if="${!#lists.isEmpty(sunday)}">
+            <div class="section-eyebrow">SUNDAY</div>
+            <h2>주일 예배</h2>
+            <div class="worship-row" th:each="s : ${sunday}">
+                <div class="worship-row-info">
+                    <h3 th:text="${s.name}">예배명</h3>
+                    <p th:text="${s.description}"></p>
+                </div>
+                <div class="worship-time-badge" th:text="${s.serviceTime}">00:00</div>
             </div>
-            <div class="worship-time-badge">9:00</div>
         </div>
-        <div class="worship-row">
-            <div class="worship-icon">✝</div>
-            <div class="worship-row-info">
-                <h3>2부 예배</h3>
-                <p>주일 오전 · 본당</p>
-            </div>
-            <div class="worship-time-badge">11:00</div>
-        </div>
-        <div class="worship-row">
-            <div class="worship-icon">🙏</div>
-            <div class="worship-row-info">
-                <h3>주일 오후 예배</h3>
-                <p>주일 오후 · 본당</p>
-            </div>
-            <div class="worship-time-badge">14:00</div>
-        </div>
-    </div>
 
-    <div class="content-section">
-        <div class="section-eyebrow">WEEKDAY</div>
-        <h2>주중 예배</h2>
-        <div class="worship-row">
-            <div class="worship-icon">📖</div>
-            <div class="worship-row-info">
-                <h3>수요 예배</h3>
-                <p>수요일 · 본당</p>
+        <!-- 주중 예배 -->
+        <div class="content-section" th:if="${!#lists.isEmpty(weekday)}">
+            <div class="section-eyebrow">WEEKDAY</div>
+            <h2>주중 예배</h2>
+            <div class="worship-row" th:each="s : ${weekday}">
+                <div class="worship-row-info">
+                    <h3 th:text="${s.name}">예배명</h3>
+                    <p th:text="${s.description}"></p>
+                </div>
+                <div class="worship-time-badge" th:text="${s.serviceTime}">00:00</div>
             </div>
-            <div class="worship-time-badge">19:30</div>
         </div>
-        <div class="worship-row">
-            <div class="worship-icon">🌅</div>
-            <div class="worship-row-info">
-                <h3>새벽 기도회</h3>
-                <p>매일 · 본당</p>
+    </th:block>
+
+    <!-- 데이터가 없을 때 기본 안내 -->
+    <th:block th:if="${#lists.isEmpty(schedules)}">
+        <div class="content-section">
+            <div class="section-eyebrow">SUNDAY</div>
+            <h2>주일 예배</h2>
+            <div class="worship-row">
+                <div class="worship-row-info"><h3>1부 예배</h3><p>주일 오전 · 본당</p></div>
+                <div class="worship-time-badge">9:00</div>
             </div>
-            <div class="worship-time-badge">5:30</div>
+            <div class="worship-row">
+                <div class="worship-row-info"><h3>2부 예배</h3><p>주일 오전 · 본당</p></div>
+                <div class="worship-time-badge">11:00</div>
+            </div>
         </div>
-    </div>
+        <div class="content-section">
+            <div class="section-eyebrow">WEEKDAY</div>
+            <h2>주중 예배</h2>
+            <div class="worship-row">
+                <div class="worship-row-info"><h3>수요 예배</h3><p>수요일 · 본당</p></div>
+                <div class="worship-time-badge">19:30</div>
+            </div>
+        </div>
+    </th:block>
 
     <div style="text-align:center; margin-top:8px;">
         <a href="/worship/department" class="btn-navy">부서별 안내 보기</a>
@@ -130,46 +87,6 @@
 
 </div>
 
-<footer class="site-footer">
-    <div class="site-footer-top">
-        <div class="site-footer-brand">
-            <div class="site-footer-brand-logo">
-                <div class="site-cross"></div>
-                <span>샘물교회</span>
-            </div>
-            <p>말씀과 기도 위에 세워진 교회,<br>샘물교회는 모든 이를 환영합니다.</p>
-        </div>
-        <div class="site-footer-col">
-            <h4>CHURCH</h4>
-            <ul>
-                <li><a href="/about/church">교회 소개</a></li>
-                <li><a href="/about/pastor">담임목사</a></li>
-                <li><a href="/about/staff">교역자 소개</a></li>
-            </ul>
-        </div>
-        <div class="site-footer-col">
-            <h4>WORSHIP</h4>
-            <ul>
-                <li><a href="/worship/schedule">예배 시간</a></li>
-                <li><a href="/worship/department">부서별 안내</a></li>
-            </ul>
-        </div>
-        <div class="site-footer-col">
-            <h4>CONNECT</h4>
-            <ul>
-                <li><a href="/notice/list">공지사항</a></li>
-                <li><a href="/location">오시는 길</a></li>
-                <li><a href="/new-family">새가족 등록</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="site-footer-bottom">
-        <p>© 2026 샘물교회. All rights reserved.</p>
-        <div class="site-footer-socials">
-            <a href="#">Y</a><a href="#">f</a><a href="#">▶</a>
-        </div>
-    </div>
-</footer>
-<script src="/js/nav.js"></script>
+<th:block th:replace="~{fragments/public :: siteFooter}"></th:block>
 </body>
 </html>

@@ -25,9 +25,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    // application.properties의 file.upload.dir 값 — 사역 사진 업로드 경로
     @Value("${file.upload.dir}")
     private String ministryUploadDir;
+
+    @Value("${file.upload.people.dir}")
+    private String peopleUploadDir;
 
     private final RequestLoggingInterceptor requestLoggingInterceptor;
 
@@ -41,6 +43,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/ministry/**")
                 .addResourceLocations("file:" + ministryUploadDir + "/");
+        registry.addResourceHandler("/uploads/people/**")
+                .addResourceLocations("file:" + peopleUploadDir + "/");
     }
 
     /**

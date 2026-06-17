@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'worship')}">
+
+<title th:fragment="title">예배 시간표 관리</title>
+
+<main th:fragment="main">
+<style>
+    .section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #7A96B8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin: 24px 0 10px;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+    @media (max-width: 640px) {
+        .data-table th:nth-child(4),
+        .data-table td:nth-child(4) { display: none; }
+    }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="page-toolbar">
+    <div class="page-toolbar-title">예배 시간표 (<span th:text="${#lists.size(schedules)}">0</span>건)</div>
+    <a th:href="@{/admin/worship/new}" class="btn-new">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/>
+        </svg>
+        예배 추가
+    </a>
+</div>
+
+<th:block th:with="sunday=${schedules.?[category == 'SUNDAY']}, weekday=${schedules.?[category == 'WEEKDAY']}">
+
+    <!-- 주일 예배 -->
+    <div class="section-title">
+        <span class="badge badge-sunday">SUNDAY</span>&nbsp; 주일 예배
+    </div>
+    <div class="data-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width:70px;">순서</th>
+                    <th>예배명</th>
+                    <th>시간</th>
+                    <th>설명</th>
+                    <th>노출</th>
+                    <th style="text-align:right;">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(sunday)}">
+                    <td colspan="6" class="empty-state">등록된 주일 예배가 없습니다.</td>
+                </tr>
+                <tr th:each="s : ${sunday}">
+                    <td>
+                        <div style="display:flex; gap:4px;">
+                            <form th:action="@{/admin/worship/{id}/move-up(id=${s.id})}" method="post">
+                                <button type="submit" class="btn-move" title="위로">▲</button>
+                            </form>
+                            <form th:action="@{/admin/worship/{id}/move-down(id=${s.id})}" method="post">
+                                <button type="submit" class="btn-move" title="아래로">▼</button>
+                            </form>
+                        </div>
+                    </td>
+                    <td style="font-weight:500; color:#0A1F3D;" th:text="${s.name}">예배명</td>
+                    <td style="font-weight:600;" th:text="${s.serviceTime}">09:00</td>
+                    <td th:text="${s.description}">-</td>
+                    <td>
+                        <span class="badge" th:classappend="${s.isActive} ? 'badge-on' : 'badge-off'"
+                              th:text="${s.isActive} ? '노출' : '숨김'"></span>
+                    </td>
+                    <td style="text-align:right;">
+                        <a th:href="@{/admin/worship/edit/{id}(id=${s.id})}" class="btn-edit">수정</a>
+                        <form th:action="@{/admin/worship/delete/{id}(id=${s.id})}" method="post"
+                              style="display:inline;"
+                              onsubmit="return confirm('삭제하시겠습니까?')">
+                            <button type="submit" class="btn-delete">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 주중 예배 -->
+    <div class="section-title">
+        <span class="badge badge-weekday">WEEKDAY</span>&nbsp; 주중 예배
+    </div>
+    <div class="data-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width:70px;">순서</th>
+                    <th>예배명</th>
+                    <th>시간</th>
+                    <th>설명</th>
+                    <th>노출</th>
+                    <th style="text-align:right;">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(weekday)}">
+                    <td colspan="6" class="empty-state">등록된 주중 예배가 없습니다.</td>
+                </tr>
+                <tr th:each="s : ${weekday}">
+                    <td>
+                        <div style="display:flex; gap:4px;">
+                            <form th:action="@{/admin/worship/{id}/move-up(id=${s.id})}" method="post">
+                                <button type="submit" class="btn-move" title="위로">▲</button>
+                            </form>
+                            <form th:action="@{/admin/worship/{id}/move-down(id=${s.id})}" method="post">
+                                <button type="submit" class="btn-move" title="아래로">▼</button>
+                            </form>
+                        </div>
+                    </td>
+                    <td style="font-weight:500; color:#0A1F3D;" th:text="${s.name}">예배명</td>
+                    <td style="font-weight:600;" th:text="${s.serviceTime}">19:30</td>
+                    <td th:text="${s.description}">-</td>
+                    <td>
+                        <span class="badge" th:classappend="${s.isActive} ? 'badge-on' : 'badge-off'"
+                              th:text="${s.isActive} ? '노출' : '숨김'"></span>
+                    </td>
+                    <td style="text-align:right;">
+                        <a th:href="@{/admin/worship/edit/{id}(id=${s.id})}" class="btn-edit">수정</a>
+                        <form th:action="@{/admin/worship/delete/{id}(id=${s.id})}" method="post"
+                              style="display:inline;"
+                              onsubmit="return confirm('삭제하시겠습니까?')">
+                            <button type="submit" class="btn-delete">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</th:block>
+
+</main>
+
+</th:block>
+</html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,53 +8,7 @@
     <link rel="stylesheet" href="/css/theme.css">
 </head>
 <body>
-<nav class="site-nav">
-    <a href="/" class="site-nav-logo">
-        <div class="site-cross"></div>
-        <span>샘물교회</span>
-    </a>
-    <ul class="site-nav-links">
-        <li><a href="/">홈</a></li>
-        <li class="has-dropdown">
-            <a href="/about/church">교회소개</a>
-            <ul class="dropdown">
-                <li><a href="/about/church">교회소개</a></li>
-                <li><a href="/about/pastor">담임목사</a></li>
-                <li><a href="/about/staff" class="active">교역자 소개</a></li>
-            </ul>
-        </li>
-        <li><a href="/ministry">사역소개</a></li>
-        <li class="has-dropdown">
-            <a href="/worship/schedule">예배안내</a>
-            <ul class="dropdown">
-                <li><a href="/worship/schedule">예배 시간표</a></li>
-                <li><a href="/worship/department">부서별 안내</a></li>
-            </ul>
-        </li>
-        <li><a href="/notice/list">공지사항</a></li>
-        <li><a href="/location">오시는 길</a></li>
-    </ul>
-    <a href="/new-family" class="site-nav-cta">새가족 안내</a>
-    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
-        <span></span><span></span><span></span>
-    </button>
-</nav>
-<div class="mobile-menu" id="mobileMenu">
-    <ul>
-        <li><a href="/">홈</a></li>
-        <li><a href="/about/church">교회소개</a></li>
-        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
-        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
-        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
-        <li><a href="/ministry">사역소개</a></li>
-        <li><a href="/worship/schedule">예배안내</a></li>
-        <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
-        <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
-        <li><a href="/notice/list">공지사항</a></li>
-        <li><a href="/location">오시는 길</a></li>
-        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
-    </ul>
-</div>
+<th:block th:replace="~{fragments/public :: siteNav('about-staff')}"></th:block>
 
 <div class="page-hero">
     <div class="page-hero-inner">
@@ -75,71 +29,32 @@
 </div>
 
 <div class="page-content">
-    <div class="person-card">
-        <div class="person-card-img">
-            <img src="/images/staff1.jpg" alt="교역자 사진" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">
+    <th:block th:if="${!#lists.isEmpty(staffList)}">
+        <div class="person-card" th:each="s : ${staffList}">
+            <div class="person-card-img" th:if="${s.photoUrl != null}">
+                <img th:src="${s.photoUrl}" alt="교역자 사진"
+                     style="width:100%;height:100%;object-fit:cover;border-radius:4px;"
+                     onerror="this.parentElement.style.display='none'">
+            </div>
+            <div class="person-card-body">
+                <div class="role" th:text="${s.role} ?: '교역자'">교역자</div>
+                <h3 th:text="${s.name}">이름</h3>
+                <p th:if="${s.ministry != null}"><strong>담당 사역:</strong> <span th:text="${s.ministry}"></span></p>
+                <p th:if="${s.bio != null}" th:text="${s.bio}"></p>
+            </div>
         </div>
-        <div class="person-card-body">
-            <div class="role">교역자</div>
-            <h3>직분 - 이름</h3>
-            <p><strong>담당 사역:</strong> 담당 사역 내용</p>
-            <p>소개 내용을 작성해주세요.</p>
+    </th:block>
+    <th:block th:if="${#lists.isEmpty(staffList)}">
+        <div class="person-card">
+            <div class="person-card-body">
+                <div class="role">교역자</div>
+                <h3>이름</h3>
+                <p>소개 내용을 작성해주세요.</p>
+            </div>
         </div>
-    </div>
-
-    <div class="person-card">
-        <div class="person-card-img">
-            <img src="/images/staff2.jpg" alt="교역자 사진" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">
-        </div>
-        <div class="person-card-body">
-            <div class="role">교역자</div>
-            <h3>직분 - 이름</h3>
-            <p><strong>담당 사역:</strong> 담당 사역 내용</p>
-            <p>소개 내용을 작성해주세요.</p>
-        </div>
-    </div>
+    </th:block>
 </div>
 
-<footer class="site-footer">
-    <div class="site-footer-top">
-        <div class="site-footer-brand">
-            <div class="site-footer-brand-logo">
-                <div class="site-cross"></div>
-                <span>샘물교회</span>
-            </div>
-            <p>말씀과 기도 위에 세워진 교회,<br>샘물교회는 모든 이를 환영합니다.</p>
-        </div>
-        <div class="site-footer-col">
-            <h4>CHURCH</h4>
-            <ul>
-                <li><a href="/about/church">교회 소개</a></li>
-                <li><a href="/about/pastor">담임목사</a></li>
-                <li><a href="/about/staff">교역자 소개</a></li>
-            </ul>
-        </div>
-        <div class="site-footer-col">
-            <h4>WORSHIP</h4>
-            <ul>
-                <li><a href="/worship/schedule">예배 시간</a></li>
-                <li><a href="/worship/department">부서별 안내</a></li>
-            </ul>
-        </div>
-        <div class="site-footer-col">
-            <h4>CONNECT</h4>
-            <ul>
-                <li><a href="/notice/list">공지사항</a></li>
-                <li><a href="/location">오시는 길</a></li>
-                <li><a href="/new-family">새가족 등록</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="site-footer-bottom">
-        <p>© 2026 샘물교회. All rights reserved.</p>
-        <div class="site-footer-socials">
-            <a href="#">Y</a><a href="#">f</a><a href="#">▶</a>
-        </div>
-    </div>
-</footer>
-<script src="/js/nav.js"></script>
+<th:block th:replace="~{fragments/public :: siteFooter}"></th:block>
 </body>
 </html>

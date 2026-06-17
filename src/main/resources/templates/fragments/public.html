@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="siteNav(activePage)">
+<nav class="site-nav">
+    <a href="/" class="site-nav-logo">
+        <div class="site-cross"></div>
+        <span>샘물교회</span>
+    </a>
+    <ul class="site-nav-links">
+        <li><a href="/" th:class="${activePage == 'home'} ? 'active'">홈</a></li>
+        <li class="has-dropdown">
+            <a href="/about/church" th:class="${activePage != null and #strings.startsWith(activePage, 'about')} ? 'active'">교회소개</a>
+            <ul class="dropdown">
+                <li><a href="/about/church" th:class="${activePage == 'about-church'} ? 'active'">교회소개</a></li>
+                <li><a href="/about/pastor" th:class="${activePage == 'about-pastor'} ? 'active'">담임목사</a></li>
+                <li><a href="/about/staff" th:class="${activePage == 'about-staff'} ? 'active'">교역자 소개</a></li>
+            </ul>
+        </li>
+        <li><a href="/ministry" th:class="${activePage == 'ministry'} ? 'active'">사역소개</a></li>
+        <li class="has-dropdown">
+            <a href="/worship/schedule" th:class="${activePage != null and #strings.startsWith(activePage, 'worship')} ? 'active'">예배안내</a>
+            <ul class="dropdown">
+                <li><a href="/worship/schedule" th:class="${activePage == 'worship-schedule'} ? 'active'">예배 시간표</a></li>
+                <li><a href="/worship/department" th:class="${activePage == 'worship-department'} ? 'active'">부서별 안내</a></li>
+            </ul>
+        </li>
+        <li><a href="/sermon" th:class="${activePage == 'sermon'} ? 'active'">설교 동영상</a></li>
+        <li><a href="/notice/list" th:class="${activePage == 'notice'} ? 'active'">공지사항</a></li>
+        <li><a href="/location" th:class="${activePage == 'location'} ? 'active'">오시는 길</a></li>
+    </ul>
+    <a href="/new-family" class="site-nav-cta">새가족 안내</a>
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/about/church">교회소개</a></li>
+        <li><a href="/about/church" class="mobile-sub">ㄴ 교회소개</a></li>
+        <li><a href="/about/pastor" class="mobile-sub">ㄴ 담임목사</a></li>
+        <li><a href="/about/staff" class="mobile-sub">ㄴ 교역자 소개</a></li>
+        <li><a href="/ministry">사역소개</a></li>
+        <li><a href="/worship/schedule">예배안내</a></li>
+        <li><a href="/worship/schedule" class="mobile-sub">ㄴ 예배 시간표</a></li>
+        <li><a href="/worship/department" class="mobile-sub">ㄴ 부서별 안내</a></li>
+        <li><a href="/sermon">설교 동영상</a></li>
+        <li><a href="/notice/list">공지사항</a></li>
+        <li><a href="/location">오시는 길</a></li>
+        <li><a href="/new-family" class="mobile-cta">새가족 안내</a></li>
+    </ul>
+</div>
+</th:block>
+
+<th:block th:fragment="siteFooter">
+<footer class="site-footer">
+    <div class="site-footer-top">
+        <div class="site-footer-brand">
+            <div class="site-footer-brand-logo">
+                <div class="site-cross"></div>
+                <span>샘물교회</span>
+            </div>
+            <p>말씀과 기도 위에 세워진 교회,<br>샘물교회는 모든 이를 환영합니다.</p>
+        </div>
+        <div class="site-footer-col">
+            <h4>CHURCH</h4>
+            <ul>
+                <li><a href="/about/church">교회 소개</a></li>
+                <li><a href="/about/pastor">담임목사</a></li>
+                <li><a href="/about/staff">교역자 소개</a></li>
+            </ul>
+        </div>
+        <div class="site-footer-col">
+            <h4>WORSHIP</h4>
+            <ul>
+                <li><a href="/worship/schedule">예배 시간</a></li>
+                <li><a href="/worship/department">부서별 안내</a></li>
+            </ul>
+        </div>
+        <div class="site-footer-col">
+            <h4>CONNECT</h4>
+            <ul>
+                <li><a href="/notice/list">공지사항</a></li>
+                <li><a href="/location">오시는 길</a></li>
+                <li><a href="/new-family">새가족 등록</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="site-footer-bottom">
+        <p>© 2026 샘물교회. All rights reserved.</p>
+        <div class="site-footer-socials">
+            <a href="#">Y</a><a href="#">f</a><a href="#">▶</a>
+        </div>
+    </div>
+</footer>
+<script src="/js/nav.js"></script>
+</th:block>
+
+</body>
+</html>

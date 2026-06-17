@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'department')}">
+
+<title th:fragment="title">부서 안내 관리</title>
+
+<main th:fragment="main">
+<style>
+    @media (max-width: 640px) {
+        .data-table th:nth-child(4),
+        .data-table td:nth-child(4),
+        .data-table th:nth-child(5),
+        .data-table td:nth-child(5) { display: none; }
+    }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="page-toolbar">
+    <div class="page-toolbar-title">부서 목록 (<span th:text="${#lists.size(departments)}">0</span>개)</div>
+    <a th:href="@{/admin/department/new}" class="btn-new">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/>
+        </svg>
+        부서 추가
+    </a>
+</div>
+
+<div class="data-table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>순서</th>
+                <th>부서명</th>
+                <th>예배 시간</th>
+                <th>장소</th>
+                <th>담당 교역자</th>
+                <th>노출</th>
+                <th style="text-align:right;">관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${#lists.isEmpty(departments)}">
+                <td colspan="7" class="empty-state">등록된 부서가 없습니다.</td>
+            </tr>
+            <tr th:each="d : ${departments}">
+                <td style="width:70px;">
+                    <div style="display:flex; gap:4px;">
+                        <form th:action="@{/admin/department/{id}/move-up(id=${d.id})}" method="post">
+                            <button type="submit" class="btn-move" title="위로">▲</button>
+                        </form>
+                        <form th:action="@{/admin/department/{id}/move-down(id=${d.id})}" method="post">
+                            <button type="submit" class="btn-move" title="아래로">▼</button>
+                        </form>
+                    </div>
+                </td>
+                <td style="font-weight:500; color:#0A1F3D;" th:text="${d.name}">부서명</td>
+                <td th:text="${d.worshipTime}">-</td>
+                <td th:text="${d.location}">-</td>
+                <td th:text="${d.staffInCharge}">-</td>
+                <td>
+                    <span class="badge" th:classappend="${d.isActive} ? 'badge-on' : 'badge-off'"
+                          th:text="${d.isActive} ? '노출' : '숨김'"></span>
+                </td>
+                <td style="text-align:right;">
+                    <a th:href="@{/admin/department/edit/{id}(id=${d.id})}" class="btn-edit">수정</a>
+                    <form th:action="@{/admin/department/delete/{id}(id=${d.id})}" method="post"
+                          style="display:inline;"
+                          onsubmit="return confirm('삭제하시겠습니까?')">
+                        <button type="submit" class="btn-delete">삭제</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</main>
+
+</th:block>
+</html>

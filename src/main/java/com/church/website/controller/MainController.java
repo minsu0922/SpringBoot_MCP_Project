@@ -1,11 +1,16 @@
 package com.church.website.controller;
 
 import com.church.website.entity.MinistryPhoto;
+import com.church.website.service.ChurchInfoService;
+import com.church.website.service.DepartmentService;
 import com.church.website.service.LocationService;
 import com.church.website.service.MainImageService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NoticeService;
+import com.church.website.service.PastorService;
 import com.church.website.service.SermonService;
+import com.church.website.service.StaffMemberService;
+import com.church.website.service.WorshipScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -61,6 +66,11 @@ public class MainController {
     private final MinistryPhotoService ministryPhotoService;
     private final LocationService locationService;
     private final SermonService sermonService;
+    private final ChurchInfoService churchInfoService;
+    private final PastorService pastorService;
+    private final StaffMemberService staffMemberService;
+    private final WorshipScheduleService worshipScheduleService;
+    private final DepartmentService departmentService;
 
     /**
      * 메인 홈 페이지.
@@ -92,31 +102,36 @@ public class MainController {
 
     /** 교회 소개 페이지. */
     @GetMapping("/about/church")
-    public String aboutChurch() {
+    public String aboutChurch(Model model) {
+        churchInfoService.getActive().ifPresent(info -> model.addAttribute("churchInfo", info));
         return "about/church";
     }
 
     /** 담임목사 소개 페이지. */
     @GetMapping("/about/pastor")
-    public String aboutPastor() {
+    public String aboutPastor(Model model) {
+        pastorService.getActive().ifPresent(pastor -> model.addAttribute("pastor", pastor));
         return "about/pastor";
     }
 
     /** 교역자 소개 페이지. */
     @GetMapping("/about/staff")
-    public String aboutStaff() {
+    public String aboutStaff(Model model) {
+        model.addAttribute("staffList", staffMemberService.getActive());
         return "about/staff";
     }
 
     /** 예배 시간표 페이지. */
     @GetMapping("/worship/schedule")
-    public String worshipSchedule() {
+    public String worshipSchedule(Model model) {
+        model.addAttribute("schedules", worshipScheduleService.getActive());
         return "worship/schedule";
     }
 
     /** 예배 부서 소개 페이지. */
     @GetMapping("/worship/department")
-    public String worshipDepartment() {
+    public String worshipDepartment(Model model) {
+        model.addAttribute("departments", departmentService.getActive());
         return "worship/department";
     }
 

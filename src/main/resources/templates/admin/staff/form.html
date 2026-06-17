@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'staff')}">
+
+<title th:fragment="title" th:text="${staff.id == null} ? '교역자 등록' : '교역자 수정'">교역자 관리</title>
+
+<main th:fragment="main">
+<style>
+    .photo-upload-area { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+    .photo-preview-wrap {
+        flex-shrink: 0; width: 120px; height: 160px;
+        border: 2px dashed #DDE4EF; border-radius: 8px; overflow: hidden;
+        background: #F8FAFD; display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .photo-preview-wrap img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .photo-preview-wrap img.visible { display: block; }
+    .photo-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #BCC9DC; font-size: 11px; }
+    .photo-upload-controls { flex: 1; min-width: 200px; }
+    .btn-file-select {
+        display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+        border: 1px solid #DDE4EF; border-radius: 6px; background: #fff;
+        font-size: 13px; color: #3A5278; cursor: pointer; transition: border-color 0.15s;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+    .btn-file-select:hover { border-color: #185FA5; color: #185FA5; }
+    input[type="file"] { display: none; }
+    .selected-file-name { margin-top: 8px; font-size: 12px; color: #3A5278; word-break: break-all; }
+    .current-photo-url { margin-top: 10px; font-size: 11px; color: #7A96B8; }
+    .current-photo-url a { color: #185FA5; word-break: break-all; }
+    textarea.form-control { min-height: 120px; }
+    @media (max-width: 600px) {
+        .photo-preview-wrap { width: 100%; height: 200px; }
+        .card-body { padding: 18px 16px; }
+        .form-actions { padding: 14px 16px; }
+    }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="form-card">
+    <div class="card-header">
+        <span th:text="${staff.id == null} ? '교역자 등록' : '교역자 수정'">교역자 관리</span>
+        <a th:href="@{/admin/staff}" class="btn-back">← 목록으로</a>
+    </div>
+    <form th:action="@{/admin/staff/save}" method="post" enctype="multipart/form-data" th:object="${staff}">
+        <input type="hidden" th:field="*{id}">
+        <div class="card-body">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="name">이름 <span style="color:#dc3545;">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control"
+                           th:value="*{name}" required maxlength="50"
+                           placeholder="예) 홍길동">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="role">직분</label>
+                    <input type="text" id="role" name="role" class="form-control"
+                           th:value="*{role}" maxlength="50"
+                           placeholder="예) 부목사, 전도사">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ministry">담당 사역</label>
+                <input type="text" id="ministry" name="ministry" class="form-control"
+                       th:value="*{ministry}" maxlength="100"
+                       placeholder="예) 청년부, 교육부">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="bio">소개</label>
+                <textarea id="bio" name="bio" class="form-control"
+                          th:text="*{bio}"
+                          placeholder="교역자 소개를 입력하세요."></textarea>
+            </div>
+
+            <!-- 사진 업로드 -->
+            <div class="form-group">
+                <label class="form-label">사진</label>
+                <div class="photo-upload-area">
+                    <div class="photo-preview-wrap">
+                        <img id="photoPreview"
+                             th:src="*{photoUrl}"
+                             th:class="${staff.photoUrl != null} ? 'visible' : ''"
+                             alt="교역자 사진"
+                             onerror="this.classList.remove('visible')">
+                        <div class="photo-placeholder" id="photoPlaceholder"
+                             th:style="${staff.photoUrl != null} ? 'display:none' : ''">
+                            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="#BCC9DC" stroke-width="1.5">
+                                <circle cx="16" cy="12" r="5"/>
+                                <path d="M4 28c0-7 5-12 12-12s12 5 12 12"/>
+                            </svg>
+                            사진 없음
+                        </div>
+                    </div>
+                    <div class="photo-upload-controls">
+                        <input type="file" id="photoFile" name="photoFile"
+                               accept="image/jpeg,image/png,image/gif,image/webp"
+                               onchange="onFileSelected(this)">
+                        <button type="button" class="btn-file-select"
+                                onclick="document.getElementById('photoFile').click()">
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M6.5 1v8M3 5l3.5-4L10 5"/>
+                                <path d="M1 10h11v2H1z"/>
+                            </svg>
+                            사진 선택
+                        </button>
+                        <div class="selected-file-name" id="selectedFileName" style="display:none;"></div>
+                        <div class="current-photo-url" th:if="*{photoUrl != null}">
+                            현재 사진: <a th:href="*{photoUrl}" target="_blank" th:text="*{photoUrl}"></a>
+                        </div>
+                        <div class="form-hint" style="margin-top:8px;">
+                            JPG, PNG, GIF, WEBP 지원. 새 사진 선택 시 기존 사진이 교체됩니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">노출 여부</label>
+                <div class="toggle-row">
+                    <input type="checkbox" id="isActive" name="isActive" value="true"
+                           th:checked="*{isActive} == null or *{isActive}">
+                    <label class="toggle-label" for="isActive">공개 페이지에 노출</label>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-actions">
+            <a th:href="@{/admin/staff}" class="btn-cancel">취소</a>
+            <button type="submit" class="btn-save">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 7l3.5 3.5L11 3"/>
+                </svg>
+                저장
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function onFileSelected(input) {
+        var file = input.files[0];
+        if (!file) return;
+
+        var nameEl = document.getElementById('selectedFileName');
+        nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+        nameEl.style.display = 'block';
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var preview = document.getElementById('photoPreview');
+            var placeholder = document.getElementById('photoPlaceholder');
+            preview.src = e.target.result;
+            preview.classList.add('visible');
+            placeholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+
+</main>
+
+</th:block>
+</html>

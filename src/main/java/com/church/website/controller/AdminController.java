@@ -1,19 +1,29 @@
 package com.church.website.controller;
 
 import com.church.website.entity.Bulletin;
+import com.church.website.entity.ChurchInfo;
+import com.church.website.entity.Department;
 import com.church.website.entity.Location;
 import com.church.website.entity.MinistryPhoto;
 import com.church.website.entity.NewFamily;
 import com.church.website.entity.Notice;
+import com.church.website.entity.Pastor;
 import com.church.website.entity.Sermon;
+import com.church.website.entity.StaffMember;
 import com.church.website.entity.User;
+import com.church.website.entity.WorshipSchedule;
 import com.church.website.service.BulletinService;
+import com.church.website.service.ChurchInfoService;
+import com.church.website.service.DepartmentService;
 import com.church.website.service.LocationService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NewFamilyService;
 import com.church.website.service.NoticeService;
+import com.church.website.service.PastorService;
 import com.church.website.service.SermonService;
+import com.church.website.service.StaffMemberService;
 import com.church.website.service.UserService;
+import com.church.website.service.WorshipScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import java.net.URLEncoder;
@@ -67,6 +77,11 @@ public class AdminController extends BaseController {
     private final LocationService locationService;
     private final SermonService sermonService;
     private final BulletinService bulletinService;
+    private final ChurchInfoService churchInfoService;
+    private final PastorService pastorService;
+    private final StaffMemberService staffMemberService;
+    private final WorshipScheduleService worshipScheduleService;
+    private final DepartmentService departmentService;
 
     // ====== 공통: 사이드바 뱃지용 미확인 건수 ======
 
@@ -599,5 +614,237 @@ public class AdminController extends BaseController {
             redirectAttributes.addFlashAttribute("message", "주보가 삭제되었습니다.");
             return "redirect:/admin/bulletin";
         }, "/admin/bulletin", "주보 삭제 실패", redirectAttributes);
+    }
+
+    // ====== 교회소개 관리 ======
+
+    @GetMapping("/church-info")
+    public String churchInfoEdit(Model model) {
+        model.addAttribute("churchInfo", churchInfoService.getActive().orElse(new ChurchInfo()));
+        return "admin/church-info/edit";
+    }
+
+    @PostMapping("/church-info/save")
+    public String churchInfoSave(@ModelAttribute ChurchInfo churchInfo, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            churchInfoService.save(churchInfo);
+            redirectAttributes.addFlashAttribute("message", "교회소개가 저장되었습니다.");
+            return "redirect:/admin/church-info";
+        }, "/admin/church-info", "교회소개 저장 실패", redirectAttributes);
+    }
+
+    // ====== 담임목사 관리 ======
+
+    @GetMapping("/pastor")
+    public String pastorEdit(Model model) {
+        model.addAttribute("pastor", pastorService.getActive().orElse(new Pastor()));
+        return "admin/pastor/edit";
+    }
+
+    @PostMapping("/pastor/save")
+    public String pastorSave(
+            @ModelAttribute Pastor pastor,
+            @RequestParam(value = "photoFile", required = false) MultipartFile photoFile,
+            RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            String newPhotoUrl = (photoFile != null && !photoFile.isEmpty())
+                    ? pastorService.savePhoto(photoFile) : null;
+            pastorService.save(pastor, newPhotoUrl);
+            redirectAttributes.addFlashAttribute("message", "담임목사 정보가 저장되었습니다.");
+            return "redirect:/admin/pastor";
+        }, "/admin/pastor", "담임목사 저장 실패", redirectAttributes);
+    }
+
+    // ====== 교역자 관리 ======
+
+    @GetMapping("/staff")
+    public String staffList(Model model) {
+        model.addAttribute("staffList", staffMemberService.getAll());
+        return "admin/staff/list";
+    }
+
+    @GetMapping("/staff/new")
+    public String staffForm(Model model) {
+        model.addAttribute("staff", new StaffMember());
+        return "admin/staff/form";
+    }
+
+    @GetMapping("/staff/edit/{id}")
+    public String staffEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("staff", staffMemberService.getById(id));
+        return "admin/staff/form";
+    }
+
+    @PostMapping("/staff/save")
+    public String staffSave(
+            @ModelAttribute StaffMember staff,
+            @RequestParam(value = "isActive", required = false) String isActiveStr,
+            @RequestParam(value = "photoFile", required = false) MultipartFile photoFile,
+            RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            staff.setIsActive("true".equals(isActiveStr));
+            String newPhotoUrl = (photoFile != null && !photoFile.isEmpty())
+                    ? staffMemberService.savePhoto(photoFile) : null;
+            if (staff.getId() == null) {
+                if (newPhotoUrl != null) staff.setPhotoUrl(newPhotoUrl);
+                staffMemberService.create(staff);
+                redirectAttributes.addFlashAttribute("message", "교역자가 등록되었습니다.");
+            } else {
+                staffMemberService.update(staff.getId(), staff, newPhotoUrl);
+                redirectAttributes.addFlashAttribute("message", "교역자 정보가 수정되었습니다.");
+            }
+            return "redirect:/admin/staff";
+        }, "/admin/staff", "교역자 저장 실패", redirectAttributes);
+    }
+
+    @PostMapping("/staff/delete/{id}")
+    public String staffDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            staffMemberService.delete(id);
+            redirectAttributes.addFlashAttribute("message", "교역자가 삭제되었습니다.");
+            return "redirect:/admin/staff";
+        }, "/admin/staff", "교역자 삭제 실패", redirectAttributes);
+    }
+
+    @PostMapping("/staff/{id}/move-up")
+    public String staffMoveUp(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            staffMemberService.moveUp(id);
+            return "redirect:/admin/staff";
+        }, "/admin/staff", "순서 변경 실패", redirectAttributes);
+    }
+
+    @PostMapping("/staff/{id}/move-down")
+    public String staffMoveDown(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            staffMemberService.moveDown(id);
+            return "redirect:/admin/staff";
+        }, "/admin/staff", "순서 변경 실패", redirectAttributes);
+    }
+
+    // ====== 예배 시간표 관리 ======
+
+    @GetMapping("/worship")
+    public String worshipList(Model model) {
+        model.addAttribute("schedules", worshipScheduleService.getAll());
+        return "admin/worship/list";
+    }
+
+    @GetMapping("/worship/new")
+    public String worshipForm(Model model) {
+        model.addAttribute("schedule", new WorshipSchedule());
+        return "admin/worship/form";
+    }
+
+    @GetMapping("/worship/edit/{id}")
+    public String worshipEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("schedule", worshipScheduleService.getById(id));
+        return "admin/worship/form";
+    }
+
+    @PostMapping("/worship/save")
+    public String worshipSave(
+            @ModelAttribute WorshipSchedule schedule,
+            @RequestParam(value = "isActive", required = false) String isActiveStr,
+            RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            schedule.setIsActive("true".equals(isActiveStr));
+            if (schedule.getId() == null) {
+                worshipScheduleService.create(schedule);
+                redirectAttributes.addFlashAttribute("message", "예배가 등록되었습니다.");
+            } else {
+                worshipScheduleService.update(schedule.getId(), schedule);
+                redirectAttributes.addFlashAttribute("message", "예배 정보가 수정되었습니다.");
+            }
+            return "redirect:/admin/worship";
+        }, "/admin/worship", "예배 저장 실패", redirectAttributes);
+    }
+
+    @PostMapping("/worship/delete/{id}")
+    public String worshipDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            worshipScheduleService.delete(id);
+            redirectAttributes.addFlashAttribute("message", "예배가 삭제되었습니다.");
+            return "redirect:/admin/worship";
+        }, "/admin/worship", "예배 삭제 실패", redirectAttributes);
+    }
+
+    @PostMapping("/worship/{id}/move-up")
+    public String worshipMoveUp(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            worshipScheduleService.moveUp(id);
+            return "redirect:/admin/worship";
+        }, "/admin/worship", "순서 변경 실패", redirectAttributes);
+    }
+
+    @PostMapping("/worship/{id}/move-down")
+    public String worshipMoveDown(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            worshipScheduleService.moveDown(id);
+            return "redirect:/admin/worship";
+        }, "/admin/worship", "순서 변경 실패", redirectAttributes);
+    }
+
+    // ====== 부서 안내 관리 ======
+
+    @GetMapping("/department")
+    public String departmentList(Model model) {
+        model.addAttribute("departments", departmentService.getAll());
+        return "admin/department/list";
+    }
+
+    @GetMapping("/department/new")
+    public String departmentForm(Model model) {
+        model.addAttribute("dept", new Department());
+        return "admin/department/form";
+    }
+
+    @GetMapping("/department/edit/{id}")
+    public String departmentEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("dept", departmentService.getById(id));
+        return "admin/department/form";
+    }
+
+    @PostMapping("/department/save")
+    public String departmentSave(
+            @ModelAttribute Department dept,
+            @RequestParam(value = "isActive", required = false) String isActiveStr,
+            RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            dept.setIsActive("true".equals(isActiveStr));
+            if (dept.getId() == null) {
+                departmentService.create(dept);
+                redirectAttributes.addFlashAttribute("message", "부서가 등록되었습니다.");
+            } else {
+                departmentService.update(dept.getId(), dept);
+                redirectAttributes.addFlashAttribute("message", "부서 정보가 수정되었습니다.");
+            }
+            return "redirect:/admin/department";
+        }, "/admin/department", "부서 저장 실패", redirectAttributes);
+    }
+
+    @PostMapping("/department/delete/{id}")
+    public String departmentDelete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            departmentService.delete(id);
+            redirectAttributes.addFlashAttribute("message", "부서가 삭제되었습니다.");
+            return "redirect:/admin/department";
+        }, "/admin/department", "부서 삭제 실패", redirectAttributes);
+    }
+
+    @PostMapping("/department/{id}/move-up")
+    public String departmentMoveUp(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            departmentService.moveUp(id);
+            return "redirect:/admin/department";
+        }, "/admin/department", "순서 변경 실패", redirectAttributes);
+    }
+
+    @PostMapping("/department/{id}/move-down")
+    public String departmentMoveDown(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        return run(() -> {
+            departmentService.moveDown(id);
+            return "redirect:/admin/department";
+        }, "/admin/department", "순서 변경 실패", redirectAttributes);
     }
 }

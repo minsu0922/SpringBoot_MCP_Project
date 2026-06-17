@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/fragments/layout :: adminLayout(~{::title}, ~{::main}, 'staff')}">
+
+<title th:fragment="title">교역자 관리</title>
+
+<main th:fragment="main">
+<style>
+    @media (max-width: 600px) {
+        .data-table th:nth-child(4),
+        .data-table td:nth-child(4) { display: none; }
+    }
+</style>
+
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+<div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+<div class="page-toolbar">
+    <div class="page-toolbar-title">교역자 목록 (<span th:text="${#lists.size(staffList)}">0</span>명)</div>
+    <a th:href="@{/admin/staff/new}" class="btn-new">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/>
+        </svg>
+        교역자 추가
+    </a>
+</div>
+
+<div class="data-table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>순서</th>
+                <th>이름</th>
+                <th>직분</th>
+                <th>담당 사역</th>
+                <th>노출</th>
+                <th style="text-align:right;">관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${#lists.isEmpty(staffList)}">
+                <td colspan="6" class="empty-state">등록된 교역자가 없습니다.</td>
+            </tr>
+            <tr th:each="s : ${staffList}">
+                <td style="width:70px;">
+                    <div style="display:flex; gap:4px;">
+                        <form th:action="@{/admin/staff/{id}/move-up(id=${s.id})}" method="post">
+                            <button type="submit" class="btn-move" title="위로">▲</button>
+                        </form>
+                        <form th:action="@{/admin/staff/{id}/move-down(id=${s.id})}" method="post">
+                            <button type="submit" class="btn-move" title="아래로">▼</button>
+                        </form>
+                    </div>
+                </td>
+                <td style="font-weight:500; color:#0A1F3D;" th:text="${s.name}">이름</td>
+                <td th:text="${s.role}">직분</td>
+                <td th:text="${s.ministry}">담당사역</td>
+                <td>
+                    <span class="badge" th:classappend="${s.isActive} ? 'badge-on' : 'badge-off'"
+                          th:text="${s.isActive} ? '노출' : '숨김'"></span>
+                </td>
+                <td style="text-align:right;">
+                    <a th:href="@{/admin/staff/edit/{id}(id=${s.id})}" class="btn-edit">수정</a>
+                    <form th:action="@{/admin/staff/delete/{id}(id=${s.id})}" method="post"
+                          style="display:inline;"
+                          onsubmit="return confirm('삭제하시겠습니까?')">
+                        <button type="submit" class="btn-delete">삭제</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</main>
+
+</th:block>
+</html>
