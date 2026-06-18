@@ -4,7 +4,7 @@
 #
 # 전제:
 #   - IntelliJ에서 먼저 ./gradlew clean bootJar 로 빌드 완료
-#   - 빌드 결과물: build/libs/church-website-0.0.1-SNAPSHOT.jar
+#   - 빌드 결과물: C:/deploy/app.jar (build.gradle bootJar 블록에서 경로 고정)
 #
 # 사용법:
 #   bash deploy-wsl.sh
@@ -12,13 +12,15 @@
 
 set -euo pipefail
 
+
+
 # ── 설정 ──────────────────────────────────────────────────
 SERVER="54.180.20.104"
 SSH_USER="ubuntu"
 PEM="$HOME/.ssh/church-website.pem"
 APP_DIR="/opt/church-website"
 SERVICE_NAME="church-website"
-JAR_PATH="/mnt/c/Users/박민수/IdeaProjects/SpringBoot_MCP_Project/build/libs/church-website-0.0.1-SNAPSHOT.jar"
+JAR_PATH="/mnt/c/deploy/app.jar"
 
 # ── 색상 출력 ──────────────────────────────────────────────
 info()  { echo -e "\033[34m[INFO]\033[0m  $*"; }
