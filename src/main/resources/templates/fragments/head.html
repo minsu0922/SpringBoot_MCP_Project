@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<th:block th:fragment="common(title, description, keywords, ogTitle, ogDescription, includeKakaoMap)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">샘물교회</title>
+    <meta th:if="${description != null}" name="description" th:content="${description}">
+    <meta th:if="${keywords != null}" name="keywords" th:content="${keywords}">
+    <meta th:if="${ogTitle != null}" property="og:title" th:content="${ogTitle}">
+    <meta th:if="${ogDescription != null}" property="og:description" th:content="${ogDescription}">
+    <meta th:if="${ogTitle != null or ogDescription != null}" property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <script th:if="${includeKakaoMap}" type="text/javascript" th:src="@{'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'}"></script>
+</th:block>
+</head>
+<body></body>
+</html>

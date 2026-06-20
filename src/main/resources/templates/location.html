@@ -1,12 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오시는 길 - 샘물교회</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/theme.css">
-    <script type="text/javascript" th:src="@{'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'}"></script>
+    <th:block th:replace="~{fragments/head :: common(title='오시는 길 - 샘물교회', description=null, keywords=null, ogTitle=null, ogDescription=null, includeKakaoMap=true)}"></th:block>
     <style>
         .location-info-grid {
             display: grid;

@@ -1,18 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>샘물교회 — 주님의 사랑으로 하나되는 공동체</title>
-    <meta name="description" content="샘물교회는 말씀과 기도 위에 세워진 교회입니다. 주일예배, 수요예배, 금요기도회를 통해 하나님의 임재를 경험하세요. 새가족을 환영합니다.">
-    <meta name="keywords" content="샘물교회, 교회, 예배, 새가족, 주일예배, 강남교회">
-    <meta property="og:title" content="샘물교회 — 주님의 사랑으로 하나되는 공동체">
-    <meta property="og:description" content="말씀과 기도 위에 세워진 샘물교회는 모든 이를 따뜻하게 맞이합니다.">
-    <meta property="og:type" content="website">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/theme.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
-    <script type="text/javascript" th:src="@{'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'}"></script>
+    <th:block th:replace="~{fragments/head :: common(title='샘물교회 — 주님의 사랑으로 하나되는 공동체', description='샘물교회는 말씀과 기도 위에 세워진 교회입니다. 주일예배, 수요예배, 금요기도회를 통해 하나님의 임재를 경험하세요. 새가족을 환영합니다.', keywords='샘물교회, 교회, 예배, 새가족, 주일예배, 강남교회', ogTitle='샘물교회 — 주님의 사랑으로 하나되는 공동체', ogDescription='말씀과 기도 위에 세워진 샘물교회는 모든 이를 따뜻하게 맞이합니다.', includeKakaoMap=true)}"></th:block>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 

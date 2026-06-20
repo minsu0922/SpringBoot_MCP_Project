@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>교역자 소개 - 샘물교회</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/theme.css">
+    <th:block th:replace="~{fragments/head :: common(title='교역자 소개 - 샘물교회', description=null, keywords=null, ogTitle=null, ogDescription=null, includeKakaoMap=false)}"></th:block>
 </head>
 <body>
 <th:block th:replace="~{fragments/public :: siteNav('about-staff')}"></th:block>

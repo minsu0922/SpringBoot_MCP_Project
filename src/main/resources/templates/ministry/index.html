@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사역 소개 - 샘물교회</title>
-    <link rel="stylesheet" href="/css/theme.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <th:block th:replace="~{fragments/head :: common(title='사역 소개 - 샘물교회', description=null, keywords=null, ogTitle=null, ogDescription=null, includeKakaoMap=false)}"></th:block>
     <style>
         /* 카테고리 필터 탭 */
         .ministry-filter {

@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/", "/about/**", "/worship/**", "/notice/**", "/location",
                     "/ministry/**", "/new-family/**", "/sermon/**", "/login",
-                    "/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico"
+                    "/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico", "/favicon.svg"
                 ).permitAll()
                 // 관리자 페이지는 ROLE_ADMIN 권한 필수
                 .requestMatchers("/admin/**").hasRole("ADMIN")
