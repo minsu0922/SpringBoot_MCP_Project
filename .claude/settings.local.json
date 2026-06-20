@@ -35,7 +35,12 @@
       "Bash(netstat -ano)",
       "Bash(findstr :8080)",
       "Bash(Select-Object FullName)",
-      "Bash(Select-Object Name, Length)"
+      "Bash(Select-Object Name, Length)",
+      "Bash(grep -q \"Started ChurchWebsiteApplication\\\\|APPLICATION FAILED\\\\|Web server failed\" /tmp/bootrun.log)",
+      "Bash(break)",
+      "Read(//tmp/**)",
+      "Bash(iconv -f utf-8 -t utf-8)",
+      "Bash(awk '/main-worship-card/{print NR\": \"$0}' /tmp/idx.html)"
     ]
   }
 }

@@ -89,6 +89,7 @@ public class MainController {
         model.addAttribute("recentSermons", sermonService.getRecentSermons());
         model.addAttribute("popupNotices", noticeService.getActivePopups());
         model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
+        model.addAttribute("mainWorshipSchedules", worshipScheduleService.getActiveSortedByTime());
 
         List<MinistryPhoto> allPhotos = ministryPhotoService.getActivePhotos();
         model.addAttribute("mainMinistryPhotos",

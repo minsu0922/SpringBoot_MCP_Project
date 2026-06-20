@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,11 +17,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WorshipScheduleService {
 
+    private static final DateTimeFormatter SERVICE_TIME_FORMAT = DateTimeFormatter.ofPattern("H:mm");
+
     private final WorshipScheduleRepository worshipScheduleRepository;
 
     @Transactional(readOnly = true)
     public List<WorshipSchedule> getActive() {
         return worshipScheduleRepository.findByIsActiveTrueOrderByDisplayOrderAsc();
+    }
+
+    /** 메인 화면 등 시간순 노출이 필요한 곳에서 사용 — serviceTime("H:mm") 기준 오름차순 정렬 */
+    @Transactional(readOnly = true)
+    public List<WorshipSchedule> getActiveSortedByTime() {
+        return getActive().stream()
+                .sorted(Comparator.comparing(this::parseServiceTime))
+                .collect(Collectors.toList());
+    }
+
+    private LocalTime parseServiceTime(WorshipSchedule schedule) {
+        try {
+            return LocalTime.parse(schedule.getServiceTime(), SERVICE_TIME_FORMAT);
+        } catch (Exception e) {
+            return LocalTime.MAX;
+        }
     }
 
     @Transactional(readOnly = true)

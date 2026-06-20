@@ -549,7 +549,22 @@
             <h2 class="main-section-title">함께 드리는<br>예배에 초대합니다</h2>
             <p class="main-section-desc">주일과 주중 예배를 통해 하나님의 임재를 경험하세요. 누구든지 환영합니다.</p>
         </div>
-        <div class="main-worship-cards">
+        <div class="main-worship-cards" th:if="${!#lists.isEmpty(mainWorshipSchedules)}">
+            <div class="main-worship-card" th:each="s, stat : ${mainWorshipSchedules}">
+                <div class="main-worship-icon" th:switch="${stat.index % 4}">
+                    <th:block th:case="0">🕊</th:block>
+                    <th:block th:case="1">✝</th:block>
+                    <th:block th:case="2">🙏</th:block>
+                    <th:block th:case="3">📖</th:block>
+                </div>
+                <div>
+                    <h3 th:text="${s.name}">예배명</h3>
+                    <p th:text="${s.description}">설명</p>
+                </div>
+                <div class="main-worship-time" th:text="${s.serviceTime}">00:00</div>
+            </div>
+        </div>
+        <div class="main-worship-cards" th:if="${#lists.isEmpty(mainWorshipSchedules)}">
             <div class="main-worship-card">
                 <div class="main-worship-icon">🕊</div>
                 <div>
