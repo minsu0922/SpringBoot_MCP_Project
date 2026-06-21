@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +33,17 @@ public class WorshipScheduleService {
         return getActive().stream()
                 .sorted(Comparator.comparing(this::parseServiceTime))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * footer 등에서 대표로 노출할 주일예배 1건.
+     * 활성 예배 중 SUNDAY 구분의 첫 항목(displayOrder 기준)을 사용한다.
+     */
+    @Transactional(readOnly = true)
+    public Optional<WorshipSchedule> getPrimarySunday() {
+        return getActive().stream()
+                .filter(s -> "SUNDAY".equalsIgnoreCase(s.getCategory()))
+                .findFirst();
     }
 
     private LocalTime parseServiceTime(WorshipSchedule schedule) {

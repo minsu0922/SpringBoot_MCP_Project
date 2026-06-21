@@ -476,52 +476,33 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 .notice-body p { margin-bottom: 16px; }
 
 /* ── SITE FOOTER ── */
+/* FOOTER — 교회 아이콘 + 전화번호 중심의 컴팩트 푸터 */
 .site-footer {
     background: #070F1E;
-    padding: 52px 80px 36px;
+    padding: 28px 80px;
     margin-top: 60px;
 }
-.site-footer-top {
-    display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr;
-    gap: 52px; margin-bottom: 40px; padding-bottom: 40px;
-    border-bottom: 1px solid rgba(181,212,244,0.08);
+.site-footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: 14px 28px;
 }
 .site-footer-brand-logo {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
 }
 .site-footer-brand-logo span {
     font-family: 'Noto Serif KR', serif; font-size: 15px;
     color: var(--white); font-weight: 300; letter-spacing: 0.05em;
 }
-.site-footer-brand p {
-    font-size: 13px; font-weight: 300; line-height: 1.9;
-    color: rgba(181,212,244,0.42);
+.site-footer-info { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 22px; }
+.site-footer-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 300; letter-spacing: 0.03em;
+    color: rgba(181,212,244,0.62); text-decoration: none; transition: color 0.2s;
 }
-.site-footer-col h4 {
-    font-size: 10px; letter-spacing: 0.18em;
-    color: rgba(181,212,244,0.32); margin-bottom: 16px;
-}
-.site-footer-col ul { list-style: none; padding: 0; }
-.site-footer-col ul li { margin-bottom: 10px; border: none; padding: 0; }
-.site-footer-col ul li::before { display: none; }
-.site-footer-col ul li a {
-    font-size: 14px; font-weight: 300;
-    color: rgba(250,251,253,0.52); text-decoration: none; transition: color 0.2s;
-}
-.site-footer-col ul li a:hover { color: var(--gold-light); }
-.site-footer-bottom {
-    display: flex; justify-content: space-between; align-items: center;
-}
-.site-footer-bottom p { font-size: 12px; color: rgba(181,212,244,0.2); }
-.site-footer-socials { display: flex; gap: 12px; }
-.site-footer-socials a {
-    width: 32px; height: 32px; border-radius: 50%;
-    border: 1px solid rgba(181,212,244,0.14);
-    display: flex; align-items: center; justify-content: center;
-    color: rgba(181,212,244,0.38); font-size: 11px; text-decoration: none;
-    transition: all 0.2s;
-}
-.site-footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
+a.site-footer-item:hover { color: var(--gold-light); }
+.site-footer-item-icon { font-size: 13px; opacity: 0.9; color: var(--gold-light); }
+.site-footer-copy { font-size: 12px; font-weight: 300; color: rgba(181,212,244,0.3); margin-left: auto; }
 
 /* ── 팝업 슬라이드 (다중 팝업) ── */
 .popup-slides { flex: 1; overflow: hidden; position: relative; min-height: 0; }
@@ -761,9 +742,7 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
     .content-section { padding: 28px 24px; }
     .person-card { flex-direction: column; padding: 24px; }
     .person-card-img { width: 100%; height: 200px; }
-    .site-footer { padding: 40px 24px 28px; }
-    .site-footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
-    .site-footer-socials a { width: 40px; height: 40px; }
+    .site-footer { padding: 26px 24px; }
     /* 예배 행 태블릿 */
     .worship-row { gap: 16px; }
 }
@@ -873,9 +852,10 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 
 /* ── 소형 화면 푸터 ── */
 @media (max-width: 480px) {
-    .site-footer { padding: 36px 20px 24px; }
-    .site-footer-top { grid-template-columns: 1fr; gap: 24px; }
-    .site-footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+    .site-footer { padding: 24px 20px; }
+    .site-footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+    .site-footer-info { flex-direction: column; align-items: center; gap: 8px; }
+    .site-footer-copy { margin-left: 0; }
     .page-hero { padding: 40px 20px 32px; }
     .page-content { padding: 24px 16px 48px; }
     .content-section { padding: 22px 16px; }

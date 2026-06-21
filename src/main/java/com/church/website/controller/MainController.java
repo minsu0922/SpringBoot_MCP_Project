@@ -3,7 +3,6 @@ package com.church.website.controller;
 import com.church.website.entity.MinistryPhoto;
 import com.church.website.service.ChurchInfoService;
 import com.church.website.service.DepartmentService;
-import com.church.website.service.LocationService;
 import com.church.website.service.MainImageService;
 import com.church.website.service.MinistryPhotoService;
 import com.church.website.service.NoticeService;
@@ -64,7 +63,6 @@ public class MainController {
     private final MainImageService mainImageService;
     private final NoticeService noticeService;
     private final MinistryPhotoService ministryPhotoService;
-    private final LocationService locationService;
     private final SermonService sermonService;
     private final ChurchInfoService churchInfoService;
     private final PastorService pastorService;
@@ -95,9 +93,7 @@ public class MainController {
         model.addAttribute("mainMinistryPhotos",
                 allPhotos.size() > 4 ? allPhotos.subList(0, 4) : allPhotos);
 
-        locationService.getActiveLocation()
-                .ifPresent(loc -> model.addAttribute("loc", loc));
-
+        // loc는 PublicFooterAdvice가 모든 공개 페이지 모델에 주입한다
         return "index";
     }
 
@@ -166,8 +162,7 @@ public class MainController {
     /** 오시는길 페이지 — 카카오맵 API 키와 교회 위치 정보를 함께 전달한다. */
     @GetMapping("/location")
     public String location(Model model) {
-        locationService.getActiveLocation()
-                .ifPresent(loc -> model.addAttribute("loc", loc));
+        // loc는 PublicFooterAdvice가 모든 공개 페이지 모델에 주입한다
         model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
         return "location";
     }

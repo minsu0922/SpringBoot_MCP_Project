@@ -79,7 +79,8 @@ public class SecurityConfig {
                         "font-src 'self' https://fonts.gstatic.com; " +
                         "img-src 'self' data: blob: *; " +
                         "frame-src 'self' www.youtube.com youtube.com; " +
-                        "connect-src 'self' https://dapi.kakao.com https://t1.daumcdn.net"
+                        // 카카오 지오코더(services)는 페이지 프로토콜을 따라가므로 dev(http)·운영(https) 모두 허용
+                        "connect-src 'self' https://dapi.kakao.com http://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net"
                     )
                 )
             )

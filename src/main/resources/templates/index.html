@@ -317,8 +317,9 @@
         .main-sermon-item:hover .main-sermon-title { color: var(--navy-mid); }
         .main-sermon-preacher { font-size: 12px; font-weight: 300; color: var(--text-muted); margin-top: 2px; }
 
-        /* LOCATION */
-        .main-location { background: var(--white); padding: 60px 80px; display: flex; align-items: center; height: calc(100vh - 72px); box-sizing: border-box; }
+        /* LOCATION (+ FOOTER 한 화면 구성) */
+        .main-location { background: var(--white); display: flex; flex-direction: column; height: calc(100vh - 72px); box-sizing: border-box; }
+        .main-location-body { flex: 1; min-height: 0; display: flex; align-items: center; padding: 40px 80px; box-sizing: border-box; }
         .main-location-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: center; width: 100%; }
         .main-location-map { height: 300px; border-radius: 4px; background: linear-gradient(135deg, #0D2B55 0%, #185FA5 100%); display: flex; align-items: center; justify-content: center; color: rgba(181,212,244,0.5); font-size: 13px; letter-spacing: 0.1em; position: relative; overflow: hidden; border: 1px solid rgba(24,95,165,0.15); }
         .main-location-map::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px), repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(181,212,244,0.05) 30px); }
@@ -336,22 +337,24 @@
         .main-cta-title { font-family: 'Noto Serif KR', serif; font-size: 30px; font-weight: 300; color: var(--white); line-height: 1.4; margin-bottom: 10px; }
         .main-cta-desc { font-size: 14px; font-weight: 300; color: rgba(181,212,244,0.7); }
 
-        /* FOOTER */
-        .main-footer { background: #070F1E; padding: 60px 80px 40px; }
-        .main-footer-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 48px; padding-bottom: 48px; border-bottom: 1px solid rgba(181,212,244,0.08); }
-        .main-footer-brand-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        /* FOOTER — 교회 아이콘 + 전화번호 중심의 컴팩트 푸터 */
+        .main-footer { background: #070F1E; padding: 24px 80px; flex-shrink: 0; }
+        .main-footer-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+            flex-wrap: wrap; gap: 14px 28px;
+        }
+        .main-footer-brand-logo { display: flex; align-items: center; gap: 10px; }
         .main-footer-brand-logo span { font-family: 'Noto Serif KR', serif; font-size: 15px; color: var(--white); font-weight: 300; letter-spacing: 0.05em; }
-        .main-footer-brand p { font-size: 13px; font-weight: 300; line-height: 1.8; color: rgba(181,212,244,0.45); }
-        .main-footer-col h4 { font-size: 11px; letter-spacing: 0.15em; color: rgba(181,212,244,0.35); margin-bottom: 16px; }
-        .main-footer-col ul { list-style: none; padding: 0; }
-        .main-footer-col ul li { margin-bottom: 10px; border: none; }
-        .main-footer-col ul li a { font-size: 13px; font-weight: 300; color: rgba(250,251,253,0.55); text-decoration: none; transition: color 0.2s; }
-        .main-footer-col ul li a:hover { color: var(--gold-light); }
-        .main-footer-bottom { display: flex; justify-content: space-between; align-items: center; }
-        .main-footer-bottom p { font-size: 12px; color: rgba(181,212,244,0.22); }
-        .main-footer-socials { display: flex; gap: 12px; }
-        .main-footer-socials a { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(181,212,244,0.15); display: flex; align-items: center; justify-content: center; color: rgba(181,212,244,0.4); font-size: 11px; text-decoration: none; transition: all 0.2s; }
-        .main-footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
+        .main-footer-info { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 22px; }
+        .main-footer-item {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 300; letter-spacing: 0.03em;
+            color: rgba(181,212,244,0.62); text-decoration: none; transition: color 0.2s;
+        }
+        a.main-footer-item:hover { color: var(--gold-light); }
+        .main-footer-item-icon { font-size: 13px; opacity: 0.9; color: var(--gold-light); }
+        .main-footer-copy { font-size: 12px; font-weight: 300; color: rgba(181,212,244,0.3); margin-left: auto; }
 
         /* NOTICE LIST IN NEWS SECTION */
         .main-notice-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(24,95,165,0.08); }
@@ -402,7 +405,7 @@
             .main-nav { padding: 0 24px; }
             .main-nav-links { display: none; }
             .main-hero-content { padding: 0 32px; }
-            .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-sermon, .main-location, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
+            .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-sermon, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
             .main-hero-actions { flex-wrap: wrap; gap: 14px; }
             .main-worship { height: auto; min-height: calc(100vh - 72px); }
             .main-worship-inner { grid-template-columns: 1fr; gap: 40px; }
@@ -417,8 +420,8 @@
             .main-sermon { height: auto; min-height: unset; }
             .main-sermon-header { flex-wrap: wrap; gap: 12px; }
             .main-location { height: auto; min-height: unset; }
+            .main-location-body { padding: 56px 24px; }
             .main-location-inner { grid-template-columns: 1fr; }
-            .main-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
             .main-cta { flex-direction: column; text-align: center; }
         }
         @media (max-width: 480px) {
@@ -433,11 +436,12 @@
             .main-sermon-thumb { width: 80px; height: 48px; }
             .main-news-thumb { height: 120px; }
             #mainLocationMap { height: 220px !important; }
-            .main-footer-top { grid-template-columns: 1fr; gap: 24px; }
-            .main-footer-bottom { flex-direction: column; gap: 10px; }
             .main-cta { padding: 48px 20px; }
             .main-cta-title { font-size: 22px; }
-            .main-footer { padding: 40px 20px 28px; }
+            .main-footer { padding: 24px 20px; }
+            .main-footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+            .main-footer-info { flex-direction: column; align-items: center; gap: 8px; }
+            .main-footer-copy { margin-left: 0; }
         }
     </style>
 </head>
@@ -744,8 +748,9 @@
     </div>
 </section>
 
-<!-- LOCATION -->
+<!-- LOCATION + FOOTER (한 화면에서 같이 노출) -->
 <section class="main-location" data-section="6">
+    <div class="main-location-body">
     <div class="main-location-inner">
         <div>
             <div class="main-section-label">오시는 길</div>
@@ -780,56 +785,38 @@
              th:attr="data-lat=${loc?.latitude},data-lng=${loc?.longitude}"
              style="height:300px; width:100%; border-radius:4px; border:1px solid rgba(24,95,165,0.15); overflow:hidden;"></div>
     </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+    <div class="main-footer-inner">
+        <div class="main-footer-brand-logo">
+            <div class="main-nav-cross" style="width:20px;height:20px;position:relative;flex-shrink:0;"></div>
+            <span>샘물교회</span>
+        </div>
+        <div class="main-footer-info">
+            <a class="main-footer-item"
+               th:with="phone=${loc?.phone} ?: '0507-1377-3927'"
+               th:href="'tel:' + ${#strings.replace(phone, '-', '')}">
+                <span class="main-footer-item-icon">☎</span>
+                <span th:text="${phone}">0507-1377-3927</span>
+            </a>
+            <a class="main-footer-item" href="/location">
+                <span class="main-footer-item-icon">📍</span>
+                <span th:text="${loc?.address} ?: '서울특별시 강동구 양재대로 1371 4층 406호'">주소</span>
+            </a>
+            <span class="main-footer-item">
+                <span class="main-footer-item-icon">🕊</span>
+                <span th:text="${footerWorship != null ? footerWorship.name + ' ' + footerWorship.serviceTime : '주일예배 11:00'}">주일예배 11:00</span>
+            </span>
+        </div>
+        <p class="main-footer-copy">&copy; 2026 샘물교회. All rights reserved.</p>
+    </div>
+    </footer>
 </section>
 
 <!-- SECTION INDICATOR -->
 <div class="section-indicator" id="sectionIndicator"></div>
-
-<!-- FOOTER -->
-<footer class="main-footer">
-    <div class="main-footer-top">
-        <div class="main-footer-brand">
-            <div class="main-footer-brand-logo">
-                <div class="main-nav-cross" style="width:22px;height:22px;position:relative;flex-shrink:0;"></div>
-                <span>샘물교회</span>
-            </div>
-            <p>말씀과 기도 위에 세워진 교회,<br>샘물교회는 모든 이를 환영합니다.<br>주님의 사랑으로 하나되는 공동체.</p>
-        </div>
-        <div class="main-footer-col">
-            <h4>CHURCH</h4>
-            <ul>
-                <li><a href="/about/church">교회 소개</a></li>
-                <li><a href="/about/pastor">담임목사</a></li>
-                <li><a href="/about/staff">교역자 소개</a></li>
-                <li><a href="/ministry">사역 소개</a></li>
-            </ul>
-        </div>
-        <div class="main-footer-col">
-            <h4>WORSHIP</h4>
-            <ul>
-                <li><a href="/worship/schedule">예배 시간</a></li>
-                <li><a href="/worship/department">부서 예배</a></li>
-                <li><a href="/notice/list">공지사항</a></li>
-            </ul>
-        </div>
-        <div class="main-footer-col">
-            <h4>CONNECT</h4>
-            <ul>
-                <li><a href="/location">오시는 길</a></li>
-                <li><a href="/new-family">새가족 등록</a></li>
-                <li><a href="/admin">관리자</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="main-footer-bottom">
-        <p>&copy; 2026 샘물교회. All rights reserved.</p>
-        <div class="main-footer-socials">
-            <a href="#">Y</a>
-            <a href="#">f</a>
-            <a href="#">▶</a>
-        </div>
-    </div>
-</footer>
 
 <!-- 팝업 (기간 내 활성 팝업 공지사항이 있을 때만 노출) -->
 <th:block th:if="${not #lists.isEmpty(popupNotices)}">

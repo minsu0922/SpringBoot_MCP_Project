@@ -13,6 +13,13 @@
     const DURATION = 800; // ms
 
     const NAV_HEIGHT = 72; // 고정 네비 높이
+    const MOBILE_BREAKPOINT = 900; // 이하에서는 풀페이지 스크롤 비활성화 (네이티브 스크롤 사용)
+
+    // 모바일(좁은 화면)에서는 섹션 단위 스크롤 대신 자연스러운 네이티브 스크롤을 사용한다.
+    // 지도 터치 조작·footer 도달 등 모바일 조작감을 해치지 않기 위함.
+    function isMobile() {
+        return window.innerWidth <= MOBILE_BREAKPOINT;
+    }
 
     function goTo(index) {
         if (index < 0 || index >= sections.length) return;
@@ -58,6 +65,9 @@
     }
 
     window.addEventListener('wheel', function (e) {
+        // 모바일에서는 네이티브 스크롤 사용
+        if (isMobile()) return;
+
         // 지도 위에서 휠 → 섹션 스크롤 개입하지 않음 (지도 자체 줌 동작)
         if (isOverMap(e)) return;
 
@@ -88,6 +98,8 @@
     }, { passive: true });
 
     window.addEventListener('touchend', function (e) {
+        // 모바일에서는 네이티브 스크롤 사용 (지도 터치 조작·footer 도달 보장)
+        if (isMobile()) return;
         const diff = touchStartY - e.changedTouches[0].clientY;
         if (Math.abs(diff) < 40) return;
         const dir = diff > 0 ? 1 : -1;
@@ -97,6 +109,7 @@
 
     /* 키보드 */
     window.addEventListener('keydown', function (e) {
+        if (isMobile()) return;
         if (['ArrowDown', 'PageDown'].includes(e.key)) {
             e.preventDefault();
             current = getNearestSection();
@@ -110,6 +123,7 @@
 
     /* 리사이즈 시 현재 섹션 위치 재조정 */
     window.addEventListener('resize', function () {
+        if (isMobile()) return; // 모바일 전환 시 스크롤 위치 강제 조정하지 않음
         if (!isScrolling) {
             current = getNearestSection();
             const targetY = current === 0 ? 0 : sections[current].offsetTop - NAV_HEIGHT;
