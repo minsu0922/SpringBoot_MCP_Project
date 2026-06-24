@@ -404,12 +404,14 @@
         @media (max-width: 900px) {
             .main-nav { padding: 0 24px; }
             .main-nav-links { display: none; }
+            /* hero: 작은 화면에서 콘텐츠가 길면 잘리지 않고 늘어나도록 (overflow:hidden 유지로 장식 요소는 박스 내 클립) */
+            .main-hero { height: auto; min-height: calc(100vh - 72px); padding: 48px 0; }
             .main-hero-content { padding: 0 32px; }
             .main-section, .main-worship, .main-ministry-wrap, .main-news, .main-sermon, .main-cta, .main-footer { padding-left: 24px; padding-right: 24px; }
             .main-hero-actions { flex-wrap: wrap; gap: 14px; }
             .main-worship { height: auto; min-height: calc(100vh - 72px); }
             .main-worship-inner { grid-template-columns: 1fr; gap: 40px; }
-            .main-verse { height: auto; min-height: unset; padding: 60px 24px; }
+            .main-verse { height: auto; min-height: calc(100vh - 72px); padding: 60px 24px; }
             .main-ministry-wrap { padding: 24px; height: auto; min-height: calc(100vh - 72px); }
             .main-ministry-inner { height: auto; padding: 0; }
             .main-ministry-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; gap: 8px; flex: none; height: auto; }
@@ -417,9 +419,9 @@
             .main-news { height: auto; min-height: calc(100vh - 72px); }
             .main-news-grid { grid-template-columns: 1fr; }
             .main-news-header { flex-wrap: wrap; gap: 12px; }
-            .main-sermon { height: auto; min-height: unset; }
+            .main-sermon { height: auto; min-height: calc(100vh - 72px); }
             .main-sermon-header { flex-wrap: wrap; gap: 12px; }
-            .main-location { height: auto; min-height: unset; }
+            .main-location { height: auto; min-height: calc(100vh - 72px); }
             .main-location-body { padding: 56px 24px; }
             .main-location-inner { grid-template-columns: 1fr; }
             .main-cta { flex-direction: column; text-align: center; }
