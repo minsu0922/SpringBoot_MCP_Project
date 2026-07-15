@@ -12,9 +12,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 샘물교회 공식 웹사이트. Spring Boot 4.0.2 + Thymeleaf + Spring Security + MySQL 기반의 교회 웹사이트로, 공개 페이지와 관리자 페이지로 구성된다.
 
 - **Java 21**, Gradle, Spring Boot 4.0.2
-- **DB**: 운영 MySQL (`church_db`), 환경변수 `DB_USERNAME` / `DB_PASSWORD`
-- **파일 업로드**: `src/main/resources/static/uploads/ministry/`
-- **카카오맵 API**: `kakao.map.api.key` (application.properties에 키 하드코딩됨)
+- **DB**: 운영 MySQL (`church_db`), `DB_USERNAME` / `DB_PASSWORD`는 로컬은 `application-local.properties`, 운영은 환경변수로 주입
+- **파일 업로드**: `${user.dir}/uploads/ministry`, `${user.dir}/uploads/people` (`file.upload.dir`, `file.upload.people.dir`)
+- **카카오맵 API**: `kakao.map.api.key` — 실제 키는 `application-local.properties`(로컬) 또는 환경변수 `KAKAO_MAP_API_KEY`(운영)로 주입
 
 ## 빌드 및 실행 명령어
 
@@ -52,7 +52,7 @@ Controller → Service → Repository (JPA) → MySQL
 | 모듈 | Controller | 설명 |
 |------|-----------|------|
 | 공개 페이지 | `MainController` | 홈, 소개, 예배, 공지, 오시는길, 사역소개 |
-| 관리자 | `AdminController` | 공지사항·사역사진·새가족·주보·설교영상·계정·설정 CRUD |
+| 관리자 | `AdminController` | 공지사항·사역사진·새가족·주보·설교영상·교회정보·목회자·섬기는사람들·예배시간표·부서·계정·설정 CRUD |
 | 로그인 | `LoginController` | 로그인 페이지 렌더링 |
 | 새가족 등록 | `NewFamilyController` | 방문자용 새가족 등록 폼 |
 
@@ -97,7 +97,7 @@ XxxRepository         (extends JpaRepository + XxxRepositoryCustom)
 
 | 엔티티 | 테이블 | 설명 |
 |--------|--------|------|
-| `User` | `user` | 관리자 계정 |
+| `User` | `users` | 관리자 계정 |
 | `Notice` | `notice` | 공지사항 |
 | `NewFamily` | `new_family` | 새가족 등록 정보 |
 | `MinistryPhoto` | `ministry_photo` | 사역 사진 |
@@ -105,9 +105,15 @@ XxxRepository         (extends JpaRepository + XxxRepositoryCustom)
 | `Location` | `location` | 교회 위치 정보 |
 | `Bulletin` | `bulletin` | 주보 (예배 식순, 찬양, 설교 노트 등) |
 | `Sermon` | `sermon` | 설교 영상 (YouTube URL 기반, `getYoutubeVideoId()` 유틸 포함) |
+| `ChurchInfo` | `church_info` | 교회 소개 정보 |
+| `Pastor` | `pastor` | 담임목사 소개 |
+| `StaffMember` | `staff_member` | 섬기는 사람들 |
+| `WorshipSchedule` | `worship_schedule` | 예배 시간표 |
+| `Department` | `department` | 부서 (교회학교) |
 
 ### 주의사항
 
-- `application.properties`에 카카오맵 API 키가 하드코딩되어 있음 — 커밋 시 주의
-- H2 콘솔 설정이 주석 처리되어 있고 MySQL만 활성화됨
-- 파일 업로드 경로가 `${user.dir}/src/main/resources/static/uploads/ministry`로 소스 디렉토리에 저장됨
+- 민감 정보(DB 비밀번호, 카카오맵 API 키)는 `application-local.properties`에만 존재하며 `.gitignore`로 커밋에서 제외됨. `application.properties`에는 플레이스홀더만 있음 — 실제 값을 절대 커밋하지 말 것
+- 과거 git 히스토리(예: `0d5fbe0`, `9cb6d37`)에 카카오맵 API 키와 DB 비밀번호가 하드코딩된 커밋이 남아 있음 — 저장소를 public으로 전환하려면 먼저 키 재발급·비밀번호 변경 필요
+- H2는 테스트 전용(runtime), 운영·로컬은 MySQL만 사용
+- 업로드 파일은 `${user.dir}/uploads/` 하위에 저장됨 (git 추적 제외)
