@@ -250,13 +250,10 @@
             <div id="coordMapPreview" style="display:none; height:220px; border-radius:6px;
                  border:1px solid #DDE4EF; overflow:hidden; margin-bottom:16px;"></div>
 
-            <!-- 숨겨진 실제 저장 필드 -->
-            <div class="form-row" style="display:none;">
-                <input type="number" id="latitude"  name="latitude"
-                       th:value="${location.latitude}"  step="0.000001">
-                <input type="number" id="longitude" name="longitude"
-                       th:value="${location.longitude}" step="0.000001">
-            </div>
+            <!-- 숨겨진 실제 저장 필드 (hidden 타입 — number+step은 값이 step 배수에서 살짝 벗어나면
+                 constraint validation에 걸려 포커스 불가능한 채로 폼 제출이 막히는 문제가 있었음) -->
+            <input type="hidden" id="latitude"  name="latitude"  th:value="${location.latitude}">
+            <input type="hidden" id="longitude" name="longitude" th:value="${location.longitude}">
             <!-- 현재 저장된 좌표 표시 -->
             <div id="currentCoord" style="font-size:12px; color:#7A96B8; margin-bottom:8px;">
                 <span th:if="${location.latitude != null}">
@@ -357,7 +354,7 @@
     </div>
 </div>
 
-<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=***REMOVED***&libraries=services"></script>
+<script type="text/javascript" th:src="@{'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoMapApiKey} + '&libraries=services'}"></script>
 <script>
     var coordMap = null;
     var coordMarker = null;
@@ -410,6 +407,12 @@
     function selectCoord(result) {
         var lat = parseFloat(result.y);
         var lng = parseFloat(result.x);
+
+        /* 검색으로 선택한 주소를 실제 주소 필드에도 반영 (필수 입력값이므로 비어있으면 저장이 막힘) */
+        var addressField = document.getElementById('address');
+        if (addressField && !addressField.value.trim()) {
+            addressField.value = (result.road_address && result.road_address.address_name) || result.address_name;
+        }
 
         /* 숨겨진 필드에 값 저장 */
         document.getElementById('latitude').value  = lat;

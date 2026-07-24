@@ -62,12 +62,10 @@
             <span>샘물교회</span>
         </div>
         <div class="site-footer-info">
-            <a class="site-footer-item"
-               th:with="phone=${loc?.phone} ?: '0507-1377-3927'"
-               th:href="'tel:' + ${#strings.replace(phone, '-', '')}">
+            <span class="site-footer-item">
                 <span class="site-footer-item-icon">☎</span>
-                <span th:text="${phone}">0507-1377-3927</span>
-            </a>
+                <span th:text="${loc?.phone} ?: '0507-1377-3927'">0507-1377-3927</span>
+            </span>
             <a class="site-footer-item" href="/location">
                 <span class="site-footer-item-icon">📍</span>
                 <span th:text="${loc?.address} ?: '서울특별시 강동구 양재대로 1371 4층 406호'">주소</span>

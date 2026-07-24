@@ -200,7 +200,18 @@ img { max-width: 100%; height: auto; border-radius: 4px; }
 .breadcrumb-sep { color: var(--text-muted); font-size: 11px; }
 
 /* ── MAIN CONTENT WRAPPER ── */
+/* 콘텐츠가 짧은 페이지(사역소개 필터 결과 없음, 설교 목록 비어있음 등)에서도
+   footer가 화면 중간이 아닌 하단에 붙도록 body를 sticky-footer 레이아웃으로 만든다.
+   :has()로 .page-content가 있는 서브 페이지에만 적용 — 메인 페이지(index.html)는
+   별도의 풀스크린 섹션 레이아웃을 쓰므로 영향받지 않는다. */
+body:has(.page-content) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 .page-content {
+    flex: 1 0 auto;
+    width: 100%;
     max-width: 1100px; margin: 0 auto;
     padding: 52px 80px 80px;
 }

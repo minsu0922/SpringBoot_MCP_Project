@@ -54,26 +54,28 @@
                         <div class="worship-icon" style="font-size:14px;">📍</div>
                         <div class="worship-row-info">
                             <h3>주소</h3>
-                            <p>서울특별시 강동구 양재대로 1371 4층 406호</p>
+                            <p th:text="${loc?.address} ?: '서울특별시 강동구 양재대로 1371 4층 406호'">서울특별시 강동구 양재대로 1371 4층 406호</p>
                         </div>
                     </div>
                     <div class="worship-row" style="padding:16px 0;">
                         <div class="worship-icon" style="font-size:14px;">📞</div>
                         <div class="worship-row-info">
                             <h3>전화</h3>
-                            <p>0507-1377-3927</p>
+                            <p th:text="${loc?.phone} ?: '0507-1377-3927'">0507-1377-3927</p>
                         </div>
                     </div>
                     <div class="worship-row" style="padding:16px 0;">
                         <div class="worship-icon" style="font-size:14px;">📧</div>
                         <div class="worship-row-info">
                             <h3>이메일</h3>
-                            <p>info@saemmul.church</p>
+                            <p th:text="${loc?.email} ?: 'info@saemmul.church'">info@saemmul.church</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="map" style="height:280px; width:100%; overflow:hidden; border-radius:6px; border:1px solid rgba(24,95,165,0.12);"></div>
+            <!-- DB 좌표를 data 속성으로 전달 (메인 페이지와 동일한 방식) -->
+            <div id="map" th:attr="data-lat=${loc?.latitude},data-lng=${loc?.longitude},data-address=${loc?.address}"
+                 style="height:280px; width:100%; overflow:hidden; border-radius:6px; border:1px solid rgba(24,95,165,0.12);"></div>
         </div>
     </div>
 
@@ -82,33 +84,28 @@
         <h2>대중교통 이용</h2>
 
         <h3>🚇 지하철</h3>
-        <ul>
-            <li><strong>5호선 둔촌동역</strong> 4번 출구에서 도보 약 2분</li>
-        </ul>
+        <p style="white-space:pre-line;" th:text="${loc?.subwayInfo} ?: '5호선 둔촌동역 4번 출구에서 도보 약 2분'">5호선 둔촌동역 4번 출구에서 도보 약 2분</p>
 
         <h3>🚌 버스</h3>
-        <ul>
-            <li><strong>지선버스:</strong> 3214, 3316, 3412, 3413</li>
-            <li><strong>마을버스:</strong> 강동01</li>
-            <li>정류장: <strong>둔촌동역</strong> 또는 <strong>둔촌동역 4번출구</strong> 하차</li>
-        </ul>
+        <p style="white-space:pre-line;"
+           th:text="${loc?.busInfo} ?: '지선버스: 3214, 3316, 3412, 3413
+마을버스: 강동01
+정류장: 둔촌동역 또는 둔촌동역 4번출구 하차'">지선버스: 3214, 3316, 3412, 3413</p>
 
         <h3>🚗 자가용 이용</h3>
-        <ul>
-            <li><strong>올림픽대로:</strong> 천호대교 방면 → 길동IC → 양재대로 진입 후 둔촌동역 방향</li>
-            <li><strong>강동대로:</strong> 강동역 방면 → 둔촌사거리에서 우회전 → 양재대로</li>
-            <li><strong>천호대로:</strong> 강동구청 방면 → 길동사거리 → 양재대로 직진</li>
-        </ul>
+        <p style="white-space:pre-line;"
+           th:text="${loc?.carInfo} ?: '올림픽대로: 천호대교 방면 → 길동IC → 양재대로 진입 후 둔촌동역 방향
+강동대로: 강동역 방면 → 둔촌사거리에서 우회전 → 양재대로
+천호대로: 강동구청 방면 → 길동사거리 → 양재대로 직진'">올림픽대로: 천호대교 방면 → 길동IC → 양재대로 진입 후 둔촌동역 방향</p>
     </div>
 
     <div class="content-section">
         <div class="section-eyebrow">PARKING</div>
         <h2>주차 안내</h2>
-        <ul>
-            <li>건물 내 주차장 이용 가능</li>
-            <li>주일 예배 시간에는 주차 공간이 제한적이므로 가급적 대중교통 이용을 권장합니다.</li>
-            <li>인근 공영주차장도 이용 가능합니다.</li>
-        </ul>
+        <p style="white-space:pre-line;"
+           th:text="${loc?.parkingInfo} ?: '건물 내 주차장 이용 가능
+주일 예배 시간에는 주차 공간이 제한적이므로 가급적 대중교통 이용을 권장합니다.
+인근 공영주차장도 이용 가능합니다.'">건물 내 주차장 이용 가능</p>
     </div>
 
 </div>
@@ -124,15 +121,15 @@
         mapInitialized = true;
         var mapContainer = document.getElementById('map');
         if (!mapContainer) return;
-        try {
-            var geocoder = new kakao.maps.services.Geocoder();
-            geocoder.addressSearch('서울특별시 강동구 양재대로 1371', function(result, status) {
-                var coords;
-                if (status === kakao.maps.services.Status.OK) {
-                    coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                } else {
-                    coords = new kakao.maps.LatLng(37.5376, 127.1457);
-                }
+
+        var addressText = mapContainer.dataset.address || '서울특별시 강동구 양재대로 1371 4층 406호';
+        // DB에서 넘어온 좌표 (없으면 null → 주소로 지오코딩)
+        var dbLat = mapContainer.dataset.lat ? parseFloat(mapContainer.dataset.lat) : null;
+        var dbLng = mapContainer.dataset.lng ? parseFloat(mapContainer.dataset.lng) : null;
+
+        function renderMap(lat, lng) {
+            try {
+                var coords = new kakao.maps.LatLng(lat, lng);
                 kakaoMapInstance = new kakao.maps.Map(mapContainer, { center: coords, level: 3 });
                 var marker = new kakao.maps.Marker({ position: coords });
                 marker.setMap(kakaoMapInstance);
@@ -158,16 +155,36 @@
                                 '</div>',
                             '</div>',
                             '<div style="font-size:13px;font-weight:700;color:#0D2B55;letter-spacing:0.04em;margin-bottom:3px;">샘물교회</div>',
-                            '<div style="font-size:10px;color:#7A96B8;letter-spacing:0.02em;">강동구 양재대로 1371, 둔촌동역 4번출구</div>',
+                            '<div style="font-size:10px;color:#7A96B8;letter-spacing:0.02em;">' + addressText + '</div>',
                         '</div>'
                     ].join('')
                 });
                 infowindow.open(kakaoMapInstance, marker);
                 kakao.maps.event.addListener(marker, 'click', function() {
-                    window.open('https://map.kakao.com/link/to/샘물교회,' + coords.getLat() + ',' + coords.getLng());
+                    window.open('https://map.kakao.com/link/to/샘물교회,' + lat + ',' + lng);
                 });
-            });
-        } catch(e) {
+            } catch (e) {
+                mapContainer.style.background = 'linear-gradient(135deg,#0D2B55,#185FA5)';
+                mapContainer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(181,212,244,0.6);font-size:13px;">지도를 불러오는 중 오류가 발생했습니다</div>';
+            }
+        }
+
+        try {
+            if (dbLat && dbLng) {
+                // DB 좌표가 있으면 바로 사용
+                renderMap(dbLat, dbLng);
+            } else {
+                // DB 좌표 없으면 주소로 지오코딩
+                var geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(addressText, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        renderMap(parseFloat(result[0].y), parseFloat(result[0].x));
+                    } else {
+                        renderMap(37.5376, 127.1457);
+                    }
+                });
+            }
+        } catch (e) {
             mapContainer.style.background = 'linear-gradient(135deg,#0D2B55,#185FA5)';
             mapContainer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(181,212,244,0.6);font-size:13px;">지도를 불러오는 중 오류가 발생했습니다</div>';
         }

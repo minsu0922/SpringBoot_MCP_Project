@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -69,6 +70,10 @@ import java.util.List;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController extends BaseController {
+
+    // application.properties의 kakao.map.api.key 값을 주입받아 설정 페이지 뷰에 전달한다
+    @Value("${kakao.map.api.key}")
+    private String kakaoMapApiKey;
 
     private final NoticeService noticeService;
     private final NewFamilyService newFamilyService;
@@ -522,6 +527,7 @@ public class AdminController extends BaseController {
     @GetMapping("/settings")
     public String settings(Model model) {
         model.addAttribute("location", locationService.getActiveLocation().orElse(new Location()));
+        model.addAttribute("kakaoMapApiKey", kakaoMapApiKey);
         return "admin/settings";
     }
 

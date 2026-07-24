@@ -41,7 +41,18 @@
       "Read(//tmp/**)",
       "Bash(iconv -f utf-8 -t utf-8)",
       "Bash(awk '/main-worship-card/{print NR\": \"$0}' /tmp/idx.html)",
-      "Skill(run)"
+      "Skill(run)",
+      "Bash(xxd README.md)",
+      "Bash(iconv -f UTF-16LE -t UTF-8 README.md -o readme_decoded.tmp)",
+      "PowerShell(Copy-Item *)",
+      "Bash(node -e ' *)",
+      "Bash(/c/Program Files/MySQL/MySQL Server 8.0/bin/mysql *)",
+      "Bash(mkdir -p /c/temp)",
+      "Bash(cp \"/c/Users/박민수/AppData/Local/Temp/claude/C--Users-----IdeaProjects-SpringBoot-MCP-Project/9bf54b55-a2b9-442d-80a2-eeee60513345/scratchpad/my.cnf\" /c/temp/my.cnf)",
+      "Bash(\"/c/Program Files/MySQL/MySQL Server 8.0/bin/mysql\" --defaults-extra-file=C:\\\\\\\\temp\\\\\\\\my.cnf church_db -e \"SELECT id, church_name, address, latitude, longitude, is_active, updated_at FROM location ORDER BY id;\")",
+      "Bash(awk '/main-location/{f=1} f{print} /main-footer-copy/{if\\(f\\)exit}')",
+      "Bash(\"/c/Program Files/MySQL/MySQL Server 8.0/bin/mysql\" --defaults-extra-file=C:/temp/my.cnf --default-character-set=utf8mb4 church_db -e \"SELECT id, is_active, is_active+0 AS as_int, HEX\\(is_active\\) AS hex_val FROM location; SHOW CREATE TABLE location\\\\G\")",
+      "Bash(\"/c/Program Files/MySQL/MySQL Server 8.0/bin/mysql\" --defaults-extra-file=C:/temp/my.cnf --default-character-set=utf8mb4 church_db -e \"SELECT id, phone, HEX\\(phone\\) as hex_phone FROM location;\")"
     ]
   }
 }

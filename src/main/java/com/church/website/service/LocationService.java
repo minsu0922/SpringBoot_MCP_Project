@@ -60,16 +60,22 @@ public class LocationService {
 
         location.setLatitude(updated.getLatitude());
         location.setLongitude(updated.getLongitude());
-        location.setPhone(updated.getPhone());
-        location.setFax(updated.getFax());
-        location.setEmail(updated.getEmail());
-        location.setSubwayInfo(updated.getSubwayInfo());
-        location.setBusInfo(updated.getBusInfo());
-        location.setCarInfo(updated.getCarInfo());
-        location.setParkingInfo(updated.getParkingInfo());
+        // 빈 문자열("")이 아닌 null로 저장 — 템플릿의 ${loc?.field} ?: 'fallback' 패턴은
+        // null일 때만 fallback을 쓰므로, ""가 저장되면 화면에 빈 칸이 노출된다.
+        location.setPhone(blankToNull(updated.getPhone()));
+        location.setFax(blankToNull(updated.getFax()));
+        location.setEmail(blankToNull(updated.getEmail()));
+        location.setSubwayInfo(blankToNull(updated.getSubwayInfo()));
+        location.setBusInfo(blankToNull(updated.getBusInfo()));
+        location.setCarInfo(blankToNull(updated.getCarInfo()));
+        location.setParkingInfo(blankToNull(updated.getParkingInfo()));
         location.setIsActive(true);
 
         log.info("[LocationService] 교회 정보 저장: {}", location.getChurchName());
         return locationRepository.save(location);
+    }
+
+    private String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value;
     }
 }
